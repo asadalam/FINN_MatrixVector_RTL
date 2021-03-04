@@ -81,7 +81,7 @@ module mvu_pe #( // Parameters aka generics in VHDL
    mvu_pe_adders #(
 		   .TI(TO),
 		   .TO(TO),
-		   .SIMD(SIMD)
+		   .SIMD(SI
 		   )
    (
     .in_simd(out_simd),
