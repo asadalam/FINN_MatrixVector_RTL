@@ -2,10 +2,10 @@
  *
  *  Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
  *
- *  \file mvu_pe.sv
+ *  \file mvu_pe_simd_std.sv
  *
- * This file lists an RTL implementation of a SIMD unit
- * It is part of a processing elemtn
+ * This file lists an RTL implementation of a SIMD unit based on standard
+ * multiplication. It is part of a processing element
  * which is part of the Matrix-Vector-Multiplication Unit
  *
  * This material is based upon work supported, in part, by Science Foundation
@@ -24,7 +24,7 @@
 // Including the package definition file
 `include "mvau_defn.pkg" // compile the package file
 
-module mvu_simd #(parameter int TI=1,
+module mvu_pe_simd_std #(parameter int TI=1,
 		  parameter int TW=1,
 		  parameter int TO=1)
    ( input logic rst,
