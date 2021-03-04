@@ -18,7 +18,8 @@
 
 /*************************************************
  * SIMD unit
- * Performs multiplication of two data
+ * Performs multiplication of input activation and weight
+ * Word length >= 2
  * **********************************************/
 
 // Including the package definition file
@@ -40,7 +41,7 @@ module mvu_pe_simd_std #(parameter int TI=1,
       if(!rst)
 	out <= 'd0;
       else
-	out <= in_act*in_wgt;
+	out <= in_act*in_wgt;      
    end
 
 endmodule // mvu_simd

@@ -36,7 +36,7 @@ module mvu #(
    (    input logic 	 rst,
 	input logic 		       clk,
 	input logic [TI-1:0][SIMD-1:0] in_act ,
-	input logic [TW_1:0][SIMD-1:0] in_wgt [0:PE-1]
+	input logic [TW-1:0][SIMD-1:0] in_wgt [0:PE-1]
 	output logic [TO-1:0] 	       out [0:PE-1]);
 
    // Generating instantiations of all processing elements
