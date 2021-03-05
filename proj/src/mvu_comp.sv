@@ -27,35 +27,43 @@
 module mvu #(
 	     parameter int SIMD=2, // Number of input columns computed in parallel                       
 	     parameter int PE=2, // Number of output rows computed in parallel                         
-	     parameter int MMV=1, // Number of output pixels computed in parallel                       
+	     parameter int MMV=1, // Number of output pixels computed in parallel
+	     parameter int TDstI=1, // DataType (word length) of the output activation
+	     parameter int TWeightI=1, // DataType (word lenght) of each weight
 	     parameter int TI=1, // DataType of the input activation (as used in the MAC)          
 	     parameter int TW=1, // DataType of the weights and how to access them in the array
-	     parameter int USE_DSP=0,  // Use DSP blocks or LUTs for MAC
-	     localparam int TO=TI+TW //Output word length of the processing elements
+	     parameter int USE_DSP=0, // Use DSP blocks or LUTs for MAC
+	     parameter int TO=2 //Output word length of the processing elements
 	     )
-   (    input logic 	 rst,
-	input logic 		       clk,
-	input logic [TI-1:0][SIMD-1:0] in_act ,
-	input logic [TW-1:0][SIMD-1:0] in_wgt [0:PE-1]
-	output logic [TO-1:0] 	       out [0:PE-1]);
+   (    input logic 	 rst_n,
+	input logic 	      clk,
+	input logic [TI-1:0]  in_act ,
+	input logic [TW-1:0]  in_wgt [0:PE-1]
+	output logic [TO-1:0] out);
 
-   // Generating instantiations of all processing elements
+   /**
+    * Generating instantiations of all processing elements
+    * Each PE reads in different set of weights
+    * Each PE reads in the same set of activation
+    * Each PE outputs TDstI bits
+    * Output of each PE packed into one array of size TO
+    * */
    generate
       for(pe_ind = 0; pe_ind < PE; pe = pe+1)
 	begin: PE_GEN
-	   mvu_pe #(
+	   mvu_pe #( // Mapping the parameters
 		    .SIMD(SIMD),
 		    .PE(PE),
 		    .TI(TI),
 		    .TW(TW),
-		    .TO(TO)
+		    .TO(TDstI)
 		    )
-	   mvu_pe_inst(
+	   mvu_pe_inst( // Mapping the I/O blocks
 		       .rst_n,
 		       .clk,
 		       .in_act,
 		       .in_wgt(in_wgt[pe_ind]),
-		       .out(out[pe_ind])
+		       .out(out[TDstI-1+pe_ind*TDstI:pe_ind*TDstI]) // Each PE contribution TDstI bits in the output
 		       );
 	end
       endgenerate

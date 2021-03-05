@@ -29,23 +29,26 @@
 `include mvu_pe_adders.sv
 
 module mvu_pe #( // Parameters aka generics in VHDL
-		parameter int INT SIMD=2,
-		parameter int PE=2,
-		parameter int TI=1,
-		parameter int TW=1,
-		parameter int TO=2,
+		 parameter int INT SIMD=2,
+		 parameter int PE=2,
+		 parameter int TSrcI=1,
+		 parameter int TDstI=1,
+		 parameter int TWeightI=1,
+		 parameter int TI=1,
+		 parameter int TW=1,
+		 parameter int TO=2,
 		)
    (input logic rst_n,
-    input logic 		   clk,
-    input logic [TI-1:0] 	   in_act, // Input activation (packed array)
-    input logic [TW-1:0][0:SIMD-1] in_wgt, // Input weights (packed array)
-    output logic [TO-1:0] 	   out); // Output twice the word length
+    input logic 	  clk,
+    input logic [TI-1:0]  in_act, // Input activation (packed array)
+    input logic [TW-1:0]  in_wgt, // Input weights (packed array)
+    output logic [TO-1:0] out); // Output
    
    /****************************
     * Internal Signals/Wires
     * *************************/
-   logic [TO-1:-0][0:SIMD-1] 	    out_simd; // SIMD output twice the word length
-   logic [TO-1:0] 		    out_add; // Unregistered output from the adders   
+   logic [TO-1:0] 	  out_simd; // SIMD output 
+   logic [TO-1:0] 	  out_add; // Unregistered output from the adders   
 
    /*****************************
     * Component Instantiation
@@ -55,38 +58,112 @@ module mvu_pe #( // Parameters aka generics in VHDL
     * A number of SIMD units
     * using generate statement
     * *************************/
-
-   generate
+   genvar 		  simd_ind;
+   
+   if(TSrcI==1) begin: TSrcI_1
+     if(TWeightI==1) begin: TWeightI_1
+       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+	 begin: SIMD_GEN
+	    generate
+	       mvu_pe_simd_xnor #(
+				  .TI(TI),
+				  .TW(TW),
+				  .TO(TO)
+				  )
+	       mvu_simd_inst(
+			     .rst,
+			     .clk,
+			     .in_act,
+			     .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
+			     .out(out_simd[simd_ind])
+			     );
+	    end // block: SIMD_GEN
+     end // block: TWeightI_1		   
+     else if(TWeight > 1) begin: TWeightI_gt1
+       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+	 begin: SIMD_GEN
+	    generate
+	       mvu_pe_simd_binary #(
+				    .TI(TI),
+				    .TW(TW),
+				    .TO(TO)
+				    )
+	       mvu_simd_inst(
+			     .rst,
+			     .clk,
+			     .in_act,
+			     .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
+			     .out(out_simd[simd_ind])
+			     );
+	    end // block: SIMD_GEN
+     end // block: TWeightI_gt1
+   end // block: TSrcI_1
+   else if(TWeightI==1) begin: TWeightI_1_2
+      if(TSrcI > 1) begin: TSrcI_gt1
+	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+	   begin: SIMD_GEN
+	      generate
+		 mvu_pe_simd_binary #(
+				      .TI(TI),
+				      .TW(TW),
+				      .TO(TO)
+				      )
+		 mvu_simd_inst(
+			       .rst,
+			       .clk,
+			       .in_act,
+			       .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
+			       .out(out_simd[simd_ind])
+			       );
+	      end // block: SIMD_GEN
+      end // block: TSrcI_gt1
+   end // block: TWeightI_1_2
+   else begin: TSrcI_TWeight_gt1
       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	begin: SIMD_GEN
-	   mvu_simd #(
-		      .TI(TI),
-		      .TW(TW),
-		      .TO(TO)
-		      )
-	   mvu_simd_inst(
-			 .rst,
-			 .clk,
-			 .in_act,
-			 .in_wgt(in_wgt[simd_ind]),
-			 .out(out_simd[simd_ind])
-			 );
-	end
-      endgenerate
+	      generate
+		 mvu_simd #(
+			    .TI(TI),
+			    .TW(TW),
+			    .TO(TO)
+			    )
+		 mvu_simd_inst(
+			       .rst,
+			       .clk,
+			       .in_act,
+			       .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
+			       .out(out_simd[simd_ind])
+			       );
+	      end // block: SIMD_GEN
+   end // block: TSrcI_TWeight_gt1
 
    /************************************
     * Adders for summing SIMD output
     * *********************************/
-
-   mvu_pe_adders #(
-		   .TI(TO),
-		   .TO(TO),
-		   .SIMD(SI
-		   )
-   (
-    .in_simd(out_simd),
-    .out_add(out_add)
-    );
+   if(TSrcI==1) begin: TSrcI_1_Add
+      if(TDstI==1) begin: TDestI_1_Add
+	 mvu_pe_popcount #(
+			   .TI(TO),
+			   .TO(TO),
+			   .SIMD(SIMD)
+			   )
+	 (
+	  .in_simd(out_simd),
+	  .out_add(out_add)
+	  );
+      end // block: TDestI_1_Add
+   end // block: TSrcI_1_Add
+      else begin: All_Add
+	 mvu_pe_adders #(
+			 .TI(TO),
+			 .TO(TO),
+			 .SIMD(SI)
+			 )
+	 (
+	  .in_simd(out_simd),
+	  .out_add(out_add)
+	  );
+      end
 
    always_ff @(posedge clk) begin: REG_OUT
       if(!rst_n)
