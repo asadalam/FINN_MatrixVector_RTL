@@ -12,6 +12,6 @@ Top level module -->
 			 
                          --> mvu_pe_adders[tree,popcount]
 			 
-                     --> mvu_act_comp.sv
+                     --> mvau_act_comp.sv
 
 A package file defines constants used in various design files.
