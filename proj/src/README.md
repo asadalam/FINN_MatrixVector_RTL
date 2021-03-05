@@ -1,6 +1,7 @@
 This folder contains all the design source files written in System Verilog. The hierarchy is as follows:
 
-Top level module --> mvau.sv
+Top level module -->
+		     mvau.sv
 
                      --> mvu_comp.sv
 		     
