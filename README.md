@@ -4,7 +4,7 @@ Repository for the RTL implementation of matrix-vector activation unit in collab
 
 The repository is organized as follows:
 ### Document Folder (Doc):
-  - [This folder contains documentation related to the project](#doc)
+  - [This folder contains documentation related to the project]
 ### Project Folder (proj):
 Project folder, contains the following sub-folders
   - Source Folder (src): All source code
