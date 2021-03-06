@@ -29,34 +29,36 @@
 `include mvu_pe_adders.sv
 
 module mvu_pe #( // Parameters aka generics in VHDL
-		 parameter int INT SIMD=2,
+		 parameter int SIMD=2,
 		 parameter int PE=2,
 		 parameter int TSrcI=1,
 		 parameter int TDstI=1,
 		 parameter int TWeightI=1,
 		 parameter int TI=1,
-		 parameter int TW=1,
-		 parameter int TO=2,
+		 parameter int TW=1		 
 		)
    (input logic rst_n,
     input logic 	  clk,
-    input logic [TI-1:0]  in_act, // Input activation (packed array)
-    input logic [TW-1:0]  in_wgt, // Input weights (packed array)
-    output logic [TO-1:0] out); // Output
+    input logic [TI-1:0]  in_act, // Input activation (packed array): TSrcI*PE
+    input logic [TW-1:0]  in_wgt, // Input weights (packed array): TWeightI*SIMD
+    output logic [TDstI-1:0] out); // Output
    
    /****************************
     * Internal Signals/Wires
     * *************************/
-   logic [TO-1:0] 	  out_simd; // SIMD output 
-   logic [TO-1:0] 	  out_add; // Unregistered output from the adders   
+   logic [TDstI-1:0] 	  out_simd [0:SIMD-1]; // SIMD output 
+   logic [TDstI-1:0] 	  out_add; // Unregistered output from the adders   
 
    /*****************************
     * Component Instantiation
     * **************************/
 
    /****************************
-    * A number of SIMD units
-    * using generate statement
+    * A number of SIMD units using generate statement
+    * For each SIMD, a part of input activation and weights connected.
+    * Part selection controlled by the generae variable and
+    * TSrcI for input activation and TWeightI for weights. 
+    * These two parameters define the word length of input activation and weight
     * *************************/
    genvar 		  simd_ind;
    
@@ -66,14 +68,14 @@ module mvu_pe #( // Parameters aka generics in VHDL
 	 begin: SIMD_GEN
 	    generate
 	       mvu_pe_simd_xnor #(
-				  .TI(TI),
-				  .TW(TW),
-				  .TO(TO)
+				  .TI(TSrcI),
+				  .TW(TWeightI),
+				  .TO(TDstI)
 				  )
 	       mvu_simd_inst(
 			     .rst,
 			     .clk,
-			     .in_act,
+			     .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]), 
 			     .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
 			     .out(out_simd[simd_ind])
 			     );
@@ -84,14 +86,14 @@ module mvu_pe #( // Parameters aka generics in VHDL
 	 begin: SIMD_GEN
 	    generate
 	       mvu_pe_simd_binary #(
-				    .TI(TI),
-				    .TW(TW),
-				    .TO(TO)
+				    .TI(TSrcI),
+				    .TW(TWeightI),
+				    .TO(TDstI)
 				    )
 	       mvu_simd_inst(
 			     .rst,
 			     .clk,
-			     .in_act,
+			     .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
 			     .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
 			     .out(out_simd[simd_ind])
 			     );
@@ -104,14 +106,14 @@ module mvu_pe #( // Parameters aka generics in VHDL
 	   begin: SIMD_GEN
 	      generate
 		 mvu_pe_simd_binary #(
-				      .TI(TI),
-				      .TW(TW),
-				      .TO(TO)
+				      .TI(TSrcI),
+				      .TW(TWeightI),
+				      .TO(TDstI)
 				      )
 		 mvu_simd_inst(
 			       .rst,
 			       .clk,
-			       .in_act,
+			       .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
 			       .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
 			       .out(out_simd[simd_ind])
 			       );
@@ -123,14 +125,14 @@ module mvu_pe #( // Parameters aka generics in VHDL
 	begin: SIMD_GEN
 	      generate
 		 mvu_simd #(
-			    .TI(TI),
-			    .TW(TW),
-			    .TO(TO)
+			    .TI(TSrcI),
+			    .TW(TWeightI),
+			    .TO(TDstI)
 			    )
 		 mvu_simd_inst(
 			       .rst,
 			       .clk,
-			       .in_act,
+			       .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
 			       .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
 			       .out(out_simd[simd_ind])
 			       );
@@ -141,10 +143,10 @@ module mvu_pe #( // Parameters aka generics in VHDL
     * Adders for summing SIMD output
     * *********************************/
    if(TSrcI==1) begin: TSrcI_1_Add
-      if(TDstI==1) begin: TDestI_1_Add
+      if(TDstI==1) begin: TDestI_1_Add // Popcount based addition
 	 mvu_pe_popcount #(
-			   .TI(TO),
-			   .TO(TO),
+			   .TI(TDstI),
+			   .TO(TDstI),
 			   .SIMD(SIMD)
 			   )
 	 (
@@ -153,23 +155,27 @@ module mvu_pe #( // Parameters aka generics in VHDL
 	  );
       end // block: TDestI_1_Add
    end // block: TSrcI_1_Add
-      else begin: All_Add
+      else begin: All_Add // Normal addition
 	 mvu_pe_adders #(
-			 .TI(TO),
-			 .TO(TO),
-			 .SIMD(SI)
+			 .TI(TDstI),
+			 .TO(TDstI),
+			 .SIMD(SIMD)
 			 )
 	 (
 	  .in_simd(out_simd),
 	  .out_add(out_add)
 	  );
-      end
+      end // block: All_Add
 
-   always_ff @(posedge clk) begin: REG_OUT
+   /**
+    * Accumulator
+    * */
+
+   always_ff @(posedge clk) begin: ACC_OUT
       if(!rst_n)
 	out <= 'd0;
       else
-	out <= out_add;
+	out <= out+out_add;
    end
    
 endmodule // mvu_pe

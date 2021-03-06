@@ -52,11 +52,13 @@ module mvu #(
       for(pe_ind = 0; pe_ind < PE; pe = pe+1)
 	begin: PE_GEN
 	   mvu_pe #( // Mapping the parameters
-		    .SIMD(SIMD),
-		    .PE(PE),
-		    .TI(TI),
-		    .TW(TW),
-		    .TO(TDstI)
+		     .SIMD(SIMD),
+		     .PE(PE),
+		     .TSrcI(TSrcI),
+		     .TDstI(TDstI),
+		     .TWeightI(TWeightI),
+		     .TI(TI),
+		     .TW(TW)
 		    )
 	   mvu_pe_inst( // Mapping the I/O blocks
 		       .rst_n,

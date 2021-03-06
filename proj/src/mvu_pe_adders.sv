@@ -27,16 +27,18 @@
 module mvu_pe_adders #(parameter int TI=2,
 		       parameter int TO=2,
 		       parameter int SIMD=2)   
-   (input logic [TI-1:0][0:SIMD-1] in_simd,
-    output logic [TI-1:0] out_add);
+   (input logic [TI-1:0] in_simd [0:SIMD-1],
+    output logic [TO-1:0] out_add);
 
     /****************************
     * Internal Signals/Wires
     * *************************/
    always_comb
      begin: adders
+	// Initializing the output with a value
+	out_add = TO'(in_simd[0]); // Range casting in_simd to word length of out_add
 	for(int i = 0; i < SIMD; i++) begin
-	   out_add = out_add + in_simd[i];
+	   out_add = out_add + TO'(in_simd[i]); // Range casting in_simd to word length of out_add
 	end
      end
    
