@@ -51,9 +51,9 @@ A simple accumulator
 
 ### Input Buffer: mvau_inp_buffer.sv
 This unit stores one column of input feature map as it is multiplied
-with multiple rows of the weight matrix. During the first SIMD*SF clock
+with multiple rows of the weight matrix. During the first SIMDxSF clock
 cycles, the input buffer is written with new elements of the input feature
-map and for the next SIMD*(NF-1) clock cycles, the input buffer is re-used
+map and for the next SIMDx(NF-1) clock cycles, the input buffer is re-used
 for other computations.
 
 A package file defines constants used in various design files (mvau_defn.pkg).
