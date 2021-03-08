@@ -1,0 +1,9 @@
+sv work ../src/mvau.sv
+sv work ../src/mvu_comp.sv
+sv work ../src/mvau_inp_buffer.sv
+sv work ../src/mvu_pe.sv
+sv work ../src/mvu_pe_simd_std.sv
+sv work ../src/mvu_pe_simd_binary.sv
+sv work ../src/mvu_pe_simd_xnor.sv
+sv work ../src/mvu_pe_adders.sv
+sv work ../src/mvu_pe_popcount.sv
