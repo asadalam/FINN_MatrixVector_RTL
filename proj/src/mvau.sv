@@ -52,9 +52,32 @@ module mvau #(parameter int MatrixW=20,   // Width of the input matrix
    /******************************/
    /*** Internal Signals/Wires ***/
    /******************************/
-   //logic [TWeightI-1:0]       weights;
+   logic 		      ib_wen;
+   logic 		      ib_ren;
+   logic [-1:0] 	      ib_addr;
+   logic [TI-1:0] 	      in_act;
    
+   //Insantiating the input buffer
+   mvau_inp_buffer #(
+		     .TI(TI),
+		     .MatrixW(MatrixW),
+		     .SIMD(SIMD));
+   (
+    .clk,
+    .in,
+    .write_en(ib_wen),
+    .read_en(ib_ren),
+    .addr(ib_addr),
+    .out(ip_act));
 
+   /*
+    * Control logic for reading and writing to input buffer
+    * */
+
+   /*
+    * Control logic for access to a weight tile
+    * */
+   
    // Instantiation of the Multiply Vector Multiplication Unit
    mvu_comp #(
 	      .SIMD(SIMD)

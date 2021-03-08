@@ -28,16 +28,15 @@
 
 module mvau_inp_buffer #(parameter int TI=1,
 			 parameter int 	MatrixW=20,
-			 parameter int 	SIMD,
+			 parameter int 	SIMD=2,
 			 localparam int BUF_LEN=MatrixW/SIMD,
 			 localparam int BUF_ADDR=$clog2(BUF_LEN))
-   (input logic rst_n,
-    input logic 	  clk,
-    input logic [TI-1:0]  in, // Input stream
-    input logic 	  write_en, // Write enable signal to write to buffer
-    input logic read_en, // Read enable signal to read from buffer
-    input logic [BUF_ADDR-1:0] 	  addr, // Address for reading from the buffer
-    output logic [TI-1:0] out);
+   (    input logic 	  clk,
+	input logic [TI-1:0] 	   in, // Input stream
+	input logic 		   write_en, // Write enable signal to write to buffer
+	input logic 		   read_en, // Read enable signal to read from buffer
+	input logic [BUF_ADDR-1:0] addr, // Address for reading from the buffer
+	output logic [TI-1:0] 	   out);
 
    /*
     * Internal Signals
