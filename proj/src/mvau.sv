@@ -23,6 +23,7 @@
 // Including the package definition file
 `include "mvau_defn.pkg" // compile the package file
 `include mvu.sv // mvu is a nested module of mvau
+`include mvau_control_block.sv // mvau_control_block is now a nested module of mvau
 
 module mvau #(parameter int MatrixW=20,   // Width of the input matrix                                          
 	      parameter int MatrixH=20, // Heigth of the input matrix                                         
@@ -40,7 +41,10 @@ module mvau #(parameter int MatrixW=20,   // Width of the input matrix
 	      parameter int INST_WMEM=0, // Instantiate weight memory, if needed
 	      parameter int USE_ACT=0,     // Use activation after matrix-vector activation
 	      localparam int SF=MatrixW/SIMD, // Number of vertical matrix chunks
-	      localparam int NF=MatrixH/PE // Number of horizontal matrix chunks
+	      localparam int NF=MatrixH/PE, // Number of horizontal matrix chunks
+	      localparam int SF_T=$clog2(SF), // Address word length for the input buffer
+	      localparam int NF_T=$clog2(NF) // For nf_cnt
+	      
 	      )
    (    input logic       rst_n, // active low synchronous reset
 	input logic 	      clk, // main clock
@@ -52,28 +56,48 @@ module mvau #(parameter int MatrixW=20,   // Width of the input matrix
    /******************************/
    /*** Internal Signals/Wires ***/
    /******************************/
-   logic 		      ib_wen;
-   logic 		      ib_ren;
-   logic [-1:0] 	      ib_addr;
-   logic [TI-1:0] 	      in_act;
+   // Internal signals for the input buffer
+   logic 		      ib_wen; // Write enable for the input buffer
+   logic 		      ib_ren; // Read enable for the input buffer
+   logic [SF_T-1:0] 	      sf_cnt; // Counter keeping track of SF and also address to input buffer
+   logic [TI-1:0] 	      in_act; // Output of the input buffer
+   
+
+
+   // Internal signals for the MVU
+   logic [TW-1:0] 	      in_wgt [0:PE-1];   
    
    //Insantiating the input buffer
    mvau_inp_buffer #(
 		     .TI(TI),
 		     .MatrixW(MatrixW),
-		     .SIMD(SIMD));
+		     .SIMD(SIMD),
+		     .BUF_LEN(SF),
+		     .BUF_ADDR(SF_T));
    (
     .clk,
     .in,
     .write_en(ib_wen),
     .read_en(ib_ren),
-    .addr(ib_addr),
-    .out(ip_act));
+    .addr(sf_cnt),
+    .out(in_act));
 
    /*
     * Control logic for reading and writing to input buffer
     * */
-
+   mvau_control_block #(
+			.SF(SF),
+			.NF(NF),
+			.SF_T(SF_T),
+			.NF_T(NF_T)
+			)
+   (.rst_n,
+    .clk,
+    .ib_wen,
+    .ib_ren,
+    .sf_cnt);
+   
+   
    /*
     * Control logic for access to a weight tile
     * */
@@ -92,7 +116,7 @@ module mvau #(parameter int MatrixW=20,   // Width of the input matrix
 		 .rst_n,
 		 .clk,
 		 .in_act, // Input activation
-		 .in_wgt(), // A tile of weights
+		 .in_wgt, // A tile of weights
 		 .out
 	    );
 

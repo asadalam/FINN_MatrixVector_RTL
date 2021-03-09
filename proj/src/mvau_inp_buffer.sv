@@ -27,10 +27,10 @@
 `include "mvau_defn.pkg" // compile the package file
 
 module mvau_inp_buffer #(parameter int TI=1,
-			 parameter int 	MatrixW=20,
-			 parameter int 	SIMD=2,
-			 localparam int BUF_LEN=MatrixW/SIMD,
-			 localparam int BUF_ADDR=$clog2(BUF_LEN))
+			 parameter int MatrixW=20,
+			 parameter int SIMD=2,
+			 parameter int BUF_LEN,
+			 parameter int BUF_ADDR)
    (    input logic 	  clk,
 	input logic [TI-1:0] 	   in, // Input stream
 	input logic 		   write_en, // Write enable signal to write to buffer
