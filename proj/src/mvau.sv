@@ -67,6 +67,26 @@ module mvau #(parameter int MatrixW=20,   // Width of the input matrix
    // Internal signals for the MVU
    logic [TW-1:0] 	      in_wgt [0:PE-1];   
    
+   /*
+    * Control logic for reading and writing to input buffer
+    * and for generating the correct weight tile for the
+    * matrix vector computation/multiplication unit
+    * */
+   mvau_control_block #(
+			.PE(PE),
+			.SF(SF),
+			.NF(NF),
+			.SF_T(SF_T),
+			.NF_T(NF_T)
+			)
+   (.rst_n,
+    .clk,
+    .weights,
+    .ib_wen,
+    .ib_ren,
+    .sf_cnt,
+    .out_wgt(in_wgt));
+
    //Insantiating the input buffer
    mvau_inp_buffer #(
 		     .TI(TI),
@@ -82,25 +102,6 @@ module mvau #(parameter int MatrixW=20,   // Width of the input matrix
     .addr(sf_cnt),
     .out(in_act));
 
-   /*
-    * Control logic for reading and writing to input buffer
-    * */
-   mvau_control_block #(
-			.SF(SF),
-			.NF(NF),
-			.SF_T(SF_T),
-			.NF_T(NF_T)
-			)
-   (.rst_n,
-    .clk,
-    .ib_wen,
-    .ib_ren,
-    .sf_cnt);
-   
-   
-   /*
-    * Control logic for access to a weight tile
-    * */
    
    // Instantiation of the Multiply Vector Multiplication Unit
    mvu_comp #(

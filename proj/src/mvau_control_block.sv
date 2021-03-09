@@ -28,6 +28,7 @@
 `include "mvau_defn.pkg" // compile the package file
 
 module #(
+	 parameter int PE=2,
 	 parameter int SF=8,
 	 parameter int NF=2,
 	 parameter int SF_T=3,
@@ -36,9 +37,10 @@ module #(
    (input logic rst_n,
     input logic 	    clk,
     input logic [TW-1:0]    weights [0:NF-1][0:SF-1], // The weights matrix
-    output logic 	    ib_wen,
-    output logic 	    ib_ren,
-    output logic [SF_T-1:0] sf_cnt
+    output logic 	    ib_wen, // Input buffer write enable
+    output logic 	    ib_ren, // INput buffer read enable
+    output logic [SF_T-1:0] sf_cnt, // Address for the input buffer
+    output logic [TW-1:0]   out_wgt[0:PE-1] // The output weight tile
     );
    
    /*
@@ -47,11 +49,27 @@ module #(
    logic 		    sf_clr; // To reset the sf_cnt
    logic 		    nf_clr; // To reset the nf_cnt
    logic [NF_T-1:0] 	    nf_cnt; // NF counter, keeping track of the NF
-   logic [TW-1:0] 	    in_wgt[0:PE-1]; // The weight tile
-   logic [-1:0] 	    tile_cnt; // Counter to keep track of weight tile
    
-   
-   in_wgt = weights[:][tile];
+   /* 
+    * Always block for accessing a weight tile
+    * We need to access the weight tile that corresponds
+    * to the current value of the sf_cnt which tracks
+    * the input activation vector as it is read-in
+    * If more than one PE, we need more than one set of 
+    * weights.
+    * 
+    * The weight tile is declared as a 2D matrix where the 
+    * word length of each element is TSrcI bits. But we access 
+    * TW bits at a given time which is also the width of the
+    * tile. The height of the tile is equal to PE.
+    * 
+    * Based on the current value of sf_cnt and nf_cnt, we pick
+    * the correct tile from within the weight matrix
+    * */
+   always_comb begin
+      for(logic [NF_T-1:0] tile=0; tile < PE; tile=i++)
+	out_wgt[i] = weights[tile+nf_cnt][sf_cnt];
+   end
    
 
    // A one bit control signal to indicate when sf_cnt == SF
