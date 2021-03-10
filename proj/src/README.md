@@ -56,4 +56,9 @@ cycles, the input buffer is written with new elements of the input feature
 map and for the next SIMDx(NF-1) clock cycles, the input buffer is re-used
 for other computations.
 
-A package file defines constants used in various design files (mvau_defn.pkg).
+### Control Block: mvau_control_block.sv
+This control block controls reading to and writing from the input buffer and 
+generating the correct tile from the weight matrix for matrix-vector multiplication.
+
+### Package File: mvau_defn.sv
+A package file defines all parameters used by the top level design (mvau.sp) and also by the test bench.
