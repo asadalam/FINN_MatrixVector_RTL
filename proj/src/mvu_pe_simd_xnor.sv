@@ -22,13 +22,12 @@
  * Word length == 1
  * **********************************************/
 
-// Including the package definition file
-`include "mvau_defn.pkg" // compile the package file
+`timescale 1ns/1ns
 
-module mvu_pe_simd_std #(parameter int TI=1,
+module mvu_pe_simd_xnor #(parameter int TI=1,
 		  parameter int TW=1,
 		  parameter int TO=1)
-   ( input logic rst,
+   ( input logic rst_n,
      input logic 	   clk,
      input logic [TI-1:0]  in_act, //Input activation
      input logic [TW-1:0]  in_wgt, //Input weight
@@ -38,7 +37,7 @@ module mvu_pe_simd_std #(parameter int TI=1,
     * SIMD only performs multiplication
     * ************************************/
    always_ff @(posedge clk) begin: SIMD_MUL
-      if(!rst)
+      if(!rst_n)
 	out <= 'd0;
       else
 	out <= in_act^~in_wgt;

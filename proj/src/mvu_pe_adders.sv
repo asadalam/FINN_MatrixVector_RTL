@@ -21,8 +21,7 @@
  * Starting off as a simple adder tree
  * ********************************************/
 
-// Including the package definition file
-`include "mvau_defn.pkg" // compile the package file
+`timescale 1ns/1ns
 
 module mvu_pe_adders #(parameter int TI=2,
 		       parameter int TO=2,

@@ -20,13 +20,9 @@
  * Instantiates a number of SIMD units
  * and an adder unit which takes in the SIMD
  * outputs
-/*************************************************/
+ /*************************************************/
 
-// Including the package definition file
-`include "mvau_defn.pkg" // compile the package file
-//Nest modules
-`include mvu_simd.sv
-`include mvu_pe_adders.sv
+`timescale 1ns/1ns
 
 module mvu_pe #( // Parameters aka generics in VHDL
 		 parameter int SIMD=2,
@@ -36,18 +32,18 @@ module mvu_pe #( // Parameters aka generics in VHDL
 		 parameter int TWeightI=1,
 		 parameter int TI=1,
 		 parameter int TW=1		 
-		)
+		 )
    (input logic rst_n,
-    input logic 	  clk,
-    input logic [TI-1:0]  in_act, // Input activation (packed array): TSrcI*PE
-    input logic [TW-1:0]  in_wgt, // Input weights (packed array): TWeightI*SIMD
+    input logic 	     clk,
+    input logic [TI-1:0]     in_act, // Input activation (packed array): TSrcI*PE
+    input logic [TW-1:0]     in_wgt, // Input weights (packed array): TWeightI*SIMD
     output logic [TDstI-1:0] out); // Output
    
    /****************************
     * Internal Signals/Wires
     * *************************/
-   logic [TDstI-1:0] 	  out_simd [0:SIMD-1]; // SIMD output 
-   logic [TDstI-1:0] 	  out_add; // Unregistered output from the adders   
+   logic [TDstI-1:0] 	     out_simd [0:SIMD-1]; // SIMD output 
+   logic [TDstI-1:0] 	     out_add; // Unregistered output from the adders   
 
    /*****************************
     * Component Instantiation
@@ -60,83 +56,80 @@ module mvu_pe #( // Parameters aka generics in VHDL
     * TSrcI for input activation and TWeightI for weights. 
     * These two parameters define the word length of input activation and weight
     * *************************/
-   genvar 		  simd_ind;
+   genvar 		     simd_ind;
    
    if(TSrcI==1) begin: TSrcI_1
-     if(TWeightI==1) begin: TWeightI_1
-       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
-	 begin: SIMD_GEN
-	    generate
-	       mvu_pe_simd_xnor #(
-				  .TI(TSrcI),
-				  .TW(TWeightI),
-				  .TO(TDstI)
-				  )
-	       mvu_simd_inst(
-			     .rst,
-			     .clk,
-			     .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]), 
-			     .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
-			     .out(out_simd[simd_ind])
-			     );
-	    end // block: SIMD_GEN
-     end // block: TWeightI_1		   
-     else if(TWeight > 1) begin: TWeightI_gt1
-       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
-	 begin: SIMD_GEN
-	    generate
-	       mvu_pe_simd_binary #(
-				    .TI(TSrcI),
-				    .TW(TWeightI),
-				    .TO(TDstI)
-				    )
-	       mvu_simd_inst(
-			     .rst,
-			     .clk,
-			     .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
-			     .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
-			     .out(out_simd[simd_ind])
-			     );
-	    end // block: SIMD_GEN
-     end // block: TWeightI_gt1
+      if(TWeightI==1) begin: TWeightI_1
+	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+	   begin: SIMD_GEN
+	      mvu_pe_simd_xnor #(
+				 .TI(TSrcI),
+				 .TW(TWeightI),
+				 .TO(TDstI)
+				 )
+	      mvu_simd_inst(
+			    .rst_n,
+			    .clk,
+			    .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]), 
+			    .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
+			    .out(out_simd[simd_ind])
+			    );
+	   end // block: SIMD_GEN
+      end // block: TWeightI_1		   
+      else if(TWeightI > 1) begin: TWeightI_gt1
+	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+	   begin: SIMD_GEN
+	      mvu_pe_simd_binary #(
+				   .TI(TSrcI),
+				   .TW(TWeightI),
+				   .TO(TDstI)
+				   )
+	      mvu_simd_inst(
+			    .rst_n,
+			    .clk,
+			    .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
+			    .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
+			    .out(out_simd[simd_ind])
+			    );
+	   end // block: SIMD_GEN
+      end // block: TWeightI_gt1
    end // block: TSrcI_1
    else if(TWeightI==1) begin: TWeightI_1_2
       if(TSrcI > 1) begin: TSrcI_gt1
 	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	   begin: SIMD_GEN
-	      generate
-		 mvu_pe_simd_binary #(
-				      .TI(TSrcI),
-				      .TW(TWeightI),
-				      .TO(TDstI)
-				      )
-		 mvu_simd_inst(
-			       .rst,
-			       .clk,
-			       .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
-			       .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
-			       .out(out_simd[simd_ind])
-			       );
-	      end // block: SIMD_GEN
+	      
+	      mvu_pe_simd_binary #(
+				   .TI(TSrcI),
+				   .TW(TWeightI),
+				   .TO(TDstI)
+				   )
+	      mvu_simd_inst(
+			    .rst_n,
+			    .clk,
+			    .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
+			    .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
+			    .out(out_simd[simd_ind])
+			    );
+	   end // block: SIMD_GEN
       end // block: TSrcI_gt1
    end // block: TWeightI_1_2
    else begin: TSrcI_TWeight_gt1
       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	begin: SIMD_GEN
-	      generate
-		 mvu_simd #(
-			    .TI(TSrcI),
-			    .TW(TWeightI),
-			    .TO(TDstI)
-			    )
-		 mvu_simd_inst(
-			       .rst,
-			       .clk,
-			       .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
-			       .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
-			       .out(out_simd[simd_ind])
-			       );
-	      end // block: SIMD_GEN
+	   mvu_simd_std #(
+		      .TI(TSrcI),
+		      .TW(TWeightI),
+		      .TO(TDstI)
+		      )
+	   mvu_simd_inst(
+			 .rst_n,
+			 .clk,
+			 .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
+			 .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
+			 .out(out_simd[simd_ind])
+			 );
+	end // block: SIMD_GEN
    end // block: TSrcI_TWeight_gt1
 
    /************************************
@@ -149,23 +142,23 @@ module mvu_pe #( // Parameters aka generics in VHDL
 			   .TO(TDstI),
 			   .SIMD(SIMD)
 			   )
-	 (
-	  .in_simd(out_simd),
-	  .out_add(out_add)
-	  );
+	 mvu_pe_popcount_inst (
+			       .in_simd(out_simd),
+			       .out_add(out_add)
+			       );
       end // block: TDestI_1_Add
    end // block: TSrcI_1_Add
-      else begin: All_Add // Normal addition
-	 mvu_pe_adders #(
-			 .TI(TDstI),
-			 .TO(TDstI),
-			 .SIMD(SIMD)
-			 )
-	 (
-	  .in_simd(out_simd),
-	  .out_add(out_add)
-	  );
-      end // block: All_Add
+   else begin: All_Add // Normal addition
+      mvu_pe_adders #(
+		      .TI(TDstI),
+		      .TO(TDstI),
+		      .SIMD(SIMD)
+		      )
+      mvu_pe_adders_ins (
+			 .in_simd(out_simd),
+			 .out_add(out_add)
+			 );
+   end // block: All_Add
 
    /**
     * Accumulator
@@ -180,4 +173,4 @@ module mvu_pe #( // Parameters aka generics in VHDL
    
 endmodule // mvu_pe
 
-   
+

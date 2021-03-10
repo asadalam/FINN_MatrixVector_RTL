@@ -25,13 +25,12 @@
  * Weight = 1 bit, Activation > 1 bit
  * **********************************************/
 
-// Including the package definition file
-`include "mvau_defn.pkg" // compile the package file
+`timescale 1ns/1ns
 
 module mvu_pe_simd_binary #(parameter int TI=1,
 			    parameter int TW=1,
 			    parameter int TO=1)
-   ( input logic rst,
+   ( input logic rst_n,
      input logic 	   clk,
      input logic [TI-1:0]  in_act, //Input activation
      input logic [TW-1:0]  in_wgt, //Input weight
@@ -43,7 +42,7 @@ module mvu_pe_simd_binary #(parameter int TI=1,
    generate
       if(TW==1) begin: WGT_1 // if weight is 1-bit
 	 always_ff @(posedge clk) begin: SIMD_MUL
-	    if(!rst)
+	    if(!rst_n)
 	      out <= 'd0;
 	    else 
 	      out <= in_wgt==1'b1 ? in_act : ~in_act+1'b1; // C-like ternary operator
@@ -55,7 +54,7 @@ module mvu_pe_simd_binary #(parameter int TI=1,
    generate
       if(TI==1) begin: ACT_1 // if activation is 1-bit
 	 always_ff @(posedge clk) begin: SIMD_MUL
-	    if(!rst)
+	    if(!rst_n)
 	      out <= 'd0;
 	    else 
 	      out <= in_act==1'b1 ? in_wgt : ~in_wgt+1'b1; // C-like ternary operator

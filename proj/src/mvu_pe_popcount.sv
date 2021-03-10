@@ -22,8 +22,7 @@
  * So implemented as a popcount
  * ********************************************/
 
-// Including the package definition file
-`include "mvau_defn.pkg" // compile the package file
+`timescale 1ns/1ns
 
 module mvu_pe_popcount #(parameter int TI=2,
 		       parameter int TO=2,

@@ -19,26 +19,24 @@
 /*****************************************************/
 /*****************************************************/
 
-// Including the package definition file
-`include "mvau_defn.pkg" // compile the package file
-//Nest modules
-`include mvu_pe.sv
+`timescale 1ns/1ns
 
-module mvu #(
-	     parameter int SIMD=2, // Number of input columns computed in parallel                       
-	     parameter int PE=2, // Number of output rows computed in parallel                         
-	     parameter int MMV=1, // Number of output pixels computed in parallel
-	     parameter int TDstI=1, // DataType (word length) of the output activation
-	     parameter int TWeightI=1, // DataType (word lenght) of each weight
-	     parameter int TI=1, // DataType of the input activation (as used in the MAC)          
-	     parameter int TW=1, // DataType of the weights and how to access them in the array
-	     parameter int USE_DSP=0, // Use DSP blocks or LUTs for MAC
-	     parameter int TO=2 //Output word length of the processing elements
+module mvu_comp #(
+		  parameter int SIMD=2, // Number of input columns computed in parallel                       
+		  parameter int PE=2, // Number of output rows computed in parallel                         
+		  parameter int MMV=1, // Number of output pixels computed in parallel
+		  parameter int TSrcI=1, // DataType (word length) of the input activation
+		  parameter int TDstI=1, // DataType (word length) of the output activation
+		  parameter int TWeightI=1, // DataType (word lenght) of each weight
+		  parameter int TI=1, // DataType of the input activation (as used in the MAC)          
+		  parameter int TW=1, // DataType of the weights and how to access them in the array
+		  parameter int USE_DSP=0, // Use DSP blocks or LUTs for MAC
+		  parameter int TO=2 //Output word length of the processing elements
 	     )
    (    input logic 	 rst_n,
 	input logic 	      clk,
 	input logic [TI-1:0]  in_act ,
-	input logic [TW-1:0]  in_wgt [0:PE-1]
+	input logic [TW-1:0]  in_wgt [0:PE-1],
 	output logic [TO-1:0] out);
 
    /**
@@ -49,7 +47,7 @@ module mvu #(
     * Output of each PE packed into one array of size TO
     * */
    generate
-      for(pe_ind = 0; pe_ind < PE; pe = pe+1)
+      for(genvar pe_ind = 0; pe_ind < PE; pe_ind = pe_ind+1)
 	begin: PE_GEN
 	   mvu_pe #( // Mapping the parameters
 		     .SIMD(SIMD),

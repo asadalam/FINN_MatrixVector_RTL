@@ -24,19 +24,19 @@
  * is processed
  * */
 
-// Including the package definition file
-`include "mvau_defn.pkg" // compile the package file
+`timescale 1ns/1ns
 
-module #(
-	 parameter int PE=2,
-	 parameter int SF=8,
-	 parameter int NF=2,
-	 parameter int SF_T=3,
-	 parameter int NF_T=1
-	 )
+module mvau_control_block #(parameter int PE=2,
+			    parameter int  TW=1,
+			    parameter int  MatrixH=20,
+			    parameter int  SF=8,
+			    parameter int  NF=2,
+			    parameter int  SF_T=3,
+			    localparam int NF_T=$clog2(NF) // For nf_cnt
+			    )
    (input logic rst_n,
     input logic 	    clk,
-    input logic [TW-1:0]    weights [0:NF-1][0:SF-1], // The weights matrix
+    input logic [TW-1:0]    weights [0:MatrixH-1][0:SF-1], // The weights matrix
     output logic 	    ib_wen, // Input buffer write enable
     output logic 	    ib_ren, // INput buffer read enable
     output logic [SF_T-1:0] sf_cnt, // Address for the input buffer
@@ -67,15 +67,15 @@ module #(
     * the correct tile from within the weight matrix
     * */
    always_comb begin
-      for(logic [NF_T-1:0] tile=0; tile < PE; tile=i++)
-	out_wgt[i] = weights[tile+nf_cnt][sf_cnt];
+      for(logic [NF_T-1:0] tile=0; tile < PE; tile=tile++)
+	out_wgt[tile] = weights[tile+nf_cnt*PE][sf_cnt];
    end
    
 
    // A one bit control signal to indicate when sf_cnt == SF
-   assign sf_clr = sf_cnt==sf_cnt'(SF) ? 1'b1 : 1'b0;
+   assign sf_clr = sf_cnt==SF_T'(SF) ? 1'b1 : 1'b0;
    // A one bit control signal to indicate when nf_cnt == NF
-   assign nf_clr = nf_cnt==nf_cnt'(NF) ? 1'b1 : 1'b0;
+   assign nf_clr = nf_cnt==NF_T'(NF) ? 1'b1 : 1'b0;
 
    // Write enable for the input buffer
    // Remains one when the input buffer is being filled
@@ -88,7 +88,7 @@ module #(
    // We need to keep track when the input buffer is full
    // A counter similar to sf in mvau.hpp
    always_ff @(posedge clk) begin
-      if(!rst)
+      if(!rst_n)
 	sf_cnt <= 'd0;
       else if(sf_clr)
 	sf_cnt <= 'd0;
@@ -100,7 +100,7 @@ module #(
    // input buffer so that it can be reused again
    // Similar to the variable nf in mvau.hpp
    always_ff @(posedge clk) begin
-      if(!rst)
+      if(!rst_n)
 	nf_cnt <= 'd0;
       else if(nf_clr)
 	nf_cnt <= 'd0;

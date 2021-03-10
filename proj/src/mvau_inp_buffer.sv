@@ -23,18 +23,17 @@
  * Buffer length: MatrixW/SIMD = (Kernel^2*IFMCh)/SIMD
  * Word length of each cell: PE*TSrcI = TI
  * ********************************************/
-// Including the package definition file
-`include "mvau_defn.pkg" // compile the package file
+`timescale 1ns/1ns
 
 module mvau_inp_buffer #(parameter int TI=1,
 			 parameter int MatrixW=20,
 			 parameter int SIMD=2,
-			 parameter int BUF_LEN,
-			 parameter int BUF_ADDR)
+			 parameter int BUF_LEN=16,
+			 parameter int BUF_ADDR=16)
    (    input logic 	  clk,
 	input logic [TI-1:0] 	   in, // Input stream
-	input logic 		   write_en, // Write enable signal to write to buffer
-	input logic 		   read_en, // Read enable signal to read from buffer
+	input logic 		   wr_en, // Write enable signal to write to buffer
+	input logic 		   rd_en, // Read enable signal to read from buffer
 	input logic [BUF_ADDR-1:0] addr, // Address for reading from the buffer
 	output logic [TI-1:0] 	   out);
 
@@ -47,7 +46,7 @@ module mvau_inp_buffer #(parameter int TI=1,
    /*
     * Implementing the memory operations
     * */
-   assign out = read_en? inp_buffer[addr] : in;
+   assign out = rd_en? inp_buffer[addr] : in;
    
    always_ff @(posedge clk) begin
       if (wr_en)
