@@ -163,14 +163,13 @@ module mvu_pe #( // Parameters aka generics in VHDL
    /**
     * Accumulator
     * */
-
-   always_ff @(posedge clk) begin: ACC_OUT
-      if(!rst_n)
-	out <= 'd0;
-      else
-	out <= out+out_add;
-   end
-   
+   mvu_pe_acc #(.TDstI(TDstI))
+   mvu_pe_acc_inst (
+		    .rst_n,
+		    .clk,
+		    .in_acc(out_add),
+		    .out_acc(out));
+      
 endmodule // mvu_pe
 
 
