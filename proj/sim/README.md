@@ -18,6 +18,10 @@ is sent at once while only slices of the input activation vector is sent over.
 Finally, the output of the DUT and behavorial model are compared for error
 checking
 
+To run the sumulation, say the following on a Linux terminal:
+
+- vivado -mode batch -source mvau_vivado.tcl
+
 ### Simulation files: mvau_files.prj
 This file contains all files needed for simulation. Can be edited in future
 for adding/removing more files (for e.g., other versions of test benches).
