@@ -24,10 +24,8 @@
  * Word length of each cell: PE*TSrcI = TI
  * ********************************************/
 `timescale 1ns/1ns
-
-module mvau_inp_buffer #(parameter int TI=1,
-			 parameter int MatrixW=20,
-			 parameter int SIMD=2,
+`include "mvau_defn.sv"
+module mvau_inp_buffer #(
 			 parameter int BUF_LEN=16,
 			 parameter int BUF_ADDR=16)
    (    input logic 	  clk,

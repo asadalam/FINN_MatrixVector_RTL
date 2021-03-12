@@ -23,12 +23,11 @@
  * ********************************************/
 
 `timescale 1ns/1ns
-
-module mvu_pe_popcount #(parameter int TI=2,
-		       parameter int TO=2,
-		       parameter int SIMD=2)   
-   (input logic [TI-1:0] in_simd [0:SIMD-1],
-    output logic [TO-1:0] out_add);
+`include "mvau_defn.sv"
+module mvu_pe_popcount 
+  (
+   input logic [TDstI-1:0]  in_simd [0:SIMD-1],
+   output logic [TDstI-1:0] out_add);
 
     /****************************
     * Internal Signals/Wires
@@ -36,9 +35,9 @@ module mvu_pe_popcount #(parameter int TI=2,
    always_comb
      begin: adders
 	// Initializing the output with a value
-	out_add = TO'(in_simd[0]); // Range casting in_simd to word length of out_add
+	out_add = in_simd[0]; // Initializing with the initial value
 	for(int i = 1; i < SIMD; i++) begin
-	   out_add = out_add + TO'(in_simd[i]); // Range casting in_simd to word length of out_add
+	   out_add = out_add + in_simd[i]; // always_comb ensures no latches are inferred
 	end
      end
    

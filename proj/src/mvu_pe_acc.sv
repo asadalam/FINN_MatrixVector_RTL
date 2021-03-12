@@ -24,21 +24,40 @@
  * **********************************************/
 
 `timescale 1ns/1ns
-
-module mvu_pe_acc #(parameter int TDstI=1)
+`include "mvau_defn.sv"
+module mvu_pe_acc #(parameter int SF_T=1,
+		    parameter int SF=8)
    ( input logic rst_n,
      input logic 	      clk,
+     input logic 	      sf_clr,
      input logic [TDstI-1:0]  in_acc, // Input from the adders/popcount
-     output logic [TDstI-1:0] out_acc); //Output   
+     output logic [TDstI-1:0] out_acc); //Output
 
+   /**
+    * Internal signals
+    * */
+   logic [1:0] 		      sf_clr_dly;
+   
+   /**
+    * Delaying sf_clr for two clock cycles
+    * to match the two pipelines
+    * one after SIMD's and one after the adders
+    * */
+   always_ff @(posedge clk) begin
+      if(!rst_n)
+	sf_clr_dly <= 2'd0;
+      else
+	sf_clr_dly <= {sf_clr_dly[0],sf_clr};
+   end
+      
    /***************************************
     * Accmulation
     * ************************************/
-   always_ff @(posedge clk) begin: 
+   always_ff @(posedge clk) begin
       if(!rst_n)
 	out_acc <= 'd0;
-      else if() // fill in tomorrow
-	out_acc <= 'd0;
+      else if(sf_clr_dly[1])
+	out_acc <= in_acc; // resetting the accumulator
       else
 	out_acc <= out_acc + in_acc;      
    end

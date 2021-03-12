@@ -23,28 +23,39 @@
  /*************************************************/
 
 `timescale 1ns/1ns
-
+`include "mvau_defn.sv"
 module mvu_pe #( // Parameters aka generics in VHDL
-		 parameter int SIMD=2,
-		 parameter int PE=2,
-		 parameter int TSrcI=1,
-		 parameter int TDstI=1,
-		 parameter int TWeightI=1,
-		 parameter int TI=1,
-		 parameter int TW=1		 
+		 parameter int SF_T=2,
+		 parameter int SF=4
 		 )
    (input logic rst_n,
-    input logic 	     clk,
-    input logic [TI-1:0]     in_act, // Input activation (packed array): TSrcI*PE
-    input logic [TW-1:0]     in_wgt, // Input weights (packed array): TWeightI*SIMD
-    output logic [TDstI-1:0] out); // Output
+    input logic 		   clk,
+    input logic 		   sf_clr,
+    input logic [TI-1:0] 	   in_act, // Input activation (packed array): TSrcI*PE
+    input logic [0:SIMD-1][TW-1:0] in_wgt , // Input weights (packed array): TWeightI*SIMD
+    output logic [TDstI-1:0] 	   out); // Output
    
    /****************************
     * Internal Signals/Wires
     * *************************/
    logic [TDstI-1:0] 	     out_simd [0:SIMD-1]; // SIMD output 
-   logic [TDstI-1:0] 	     out_add; // Unregistered output from the adders   
-
+   logic [TDstI-1:0] 	     out_add; // Unregistered output from the adders
+   logic [0:TI-1] 	     in_act_rev;
+   logic [0:SIMD-1][TSrcI-1:0] in_act_packed;
+   
+   /**
+    * Re-assigning in_act to in_act_temp
+    * and then to a packed array where
+    * TI is factored into TSrcI and SIMD
+    * */
+   assign in_act_rev = in_act;
+   generate
+      for(genvar act_ind=0;act_ind<SIMD;act_ind=act_ind+1)
+	begin: ACT_PARTITIONING
+	   assign in_act_packed[act_ind] = in_act_rev[act_ind*TSrcI:act_ind*TSrcI+TSrcI-1];
+	end
+   endgenerate
+      
    /*****************************
     * Component Instantiation
     * **************************/
@@ -62,35 +73,27 @@ module mvu_pe #( // Parameters aka generics in VHDL
       if(TWeightI==1) begin: TWeightI_1
 	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	   begin: SIMD_GEN
-	      mvu_pe_simd_xnor #(
-				 .TI(TSrcI),
-				 .TW(TWeightI),
-				 .TO(TDstI)
-				 )
-	      mvu_simd_inst(
-			    .rst_n,
-			    .clk,
-			    .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]), 
-			    .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
-			    .out(out_simd[simd_ind])
-			    );
+	      mvu_pe_simd_xnor 
+			mvu_simd_inst(
+				      .rst_n,
+				      .clk,
+				      .in_act(in_act_packed[simd_ind]), 
+				      .in_wgt(in_wgt[simd_ind]),
+				      .out(out_simd[simd_ind])
+				      );
 	   end // block: SIMD_GEN
       end // block: TWeightI_1		   
       else if(TWeightI > 1) begin: TWeightI_gt1
 	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	   begin: SIMD_GEN
-	      mvu_pe_simd_binary #(
-				   .TI(TSrcI),
-				   .TW(TWeightI),
-				   .TO(TDstI)
-				   )
-	      mvu_simd_inst(
-			    .rst_n,
-			    .clk,
-			    .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
-			    .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
-			    .out(out_simd[simd_ind])
-			    );
+	      mvu_pe_simd_binary 
+			mvu_simd_inst(
+				      .rst_n,
+				      .clk,
+				      .in_act(in_act_packed[simd_ind]),
+				      .in_wgt(in_wgt[simd_ind]),
+				      .out(out_simd[simd_ind])
+				      );
 	   end // block: SIMD_GEN
       end // block: TWeightI_gt1
    end // block: TSrcI_1
@@ -98,37 +101,28 @@ module mvu_pe #( // Parameters aka generics in VHDL
       if(TSrcI > 1) begin: TSrcI_gt1
 	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	   begin: SIMD_GEN
-	      
-	      mvu_pe_simd_binary #(
-				   .TI(TSrcI),
-				   .TW(TWeightI),
-				   .TO(TDstI)
-				   )
-	      mvu_simd_inst(
-			    .rst_n,
-			    .clk,
-			    .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
-			    .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
-			    .out(out_simd[simd_ind])
-			    );
+	      mvu_pe_simd_binary 
+			mvu_simd_inst(
+				      .rst_n,
+				      .clk,
+				      .in_act(in_act_packed[simd_ind]),
+				      .in_wgt(in_wgt[simd_ind]),
+				      .out(out_simd[simd_ind])
+				      );
 	   end // block: SIMD_GEN
       end // block: TSrcI_gt1
    end // block: TWeightI_1_2
    else begin: TSrcI_TWeight_gt1
       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	begin: SIMD_GEN
-	   mvu_simd_std #(
-		      .TI(TSrcI),
-		      .TW(TWeightI),
-		      .TO(TDstI)
-		      )
-	   mvu_simd_inst(
-			 .rst_n,
-			 .clk,
-			 .in_act(in_act[simd_ind*TSrcI+TSrcI-1:simd_ind*TSrcI]),
-			 .in_wgt(in_wgt[simd_ind*TWeightI+TWeightI-1:simd_ind*TWeightI]),
-			 .out(out_simd[simd_ind])
-			 );
+	   mvu_pe_simd_std 
+		     mvu_pe_simd_inst(
+				      .rst_n,
+				      .clk,
+				      .in_act(in_act_packed[simd_ind]),
+				      .in_wgt(in_wgt[simd_ind]),
+				      .out(out_simd[simd_ind])
+				      );
 	end // block: SIMD_GEN
    end // block: TSrcI_TWeight_gt1
 
@@ -137,39 +131,33 @@ module mvu_pe #( // Parameters aka generics in VHDL
     * *********************************/
    if(TSrcI==1) begin: TSrcI_1_Add
       if(TDstI==1) begin: TDestI_1_Add // Popcount based addition
-	 mvu_pe_popcount #(
-			   .TI(TDstI),
-			   .TO(TDstI),
-			   .SIMD(SIMD)
-			   )
-	 mvu_pe_popcount_inst (
-			       .in_simd(out_simd),
-			       .out_add(out_add)
-			       );
+	 mvu_pe_popcount
+	   mvu_pe_popcount_inst (
+				 .in_simd(out_simd),
+				 .out_add(out_add)
+				 );
       end // block: TDestI_1_Add
    end // block: TSrcI_1_Add
    else begin: All_Add // Normal addition
-      mvu_pe_adders #(
-		      .TI(TDstI),
-		      .TO(TDstI),
-		      .SIMD(SIMD)
-		      )
-      mvu_pe_adders_ins (
-			 .in_simd(out_simd),
-			 .out_add(out_add)
-			 );
+      mvu_pe_adders 
+	mvu_pe_adders_ins (
+			   .in_simd(out_simd),
+			   .out_add(out_add)
+			   );
    end // block: All_Add
-
+   
    /**
     * Accumulator
     * */
-   mvu_pe_acc #(.TDstI(TDstI))
+   mvu_pe_acc #(.SF_T(SF_T),
+		.SF(SF))
    mvu_pe_acc_inst (
 		    .rst_n,
 		    .clk,
+		    .sf_clr,
 		    .in_acc(out_add),
 		    .out_acc(out));
-      
+   
 endmodule // mvu_pe
 
 

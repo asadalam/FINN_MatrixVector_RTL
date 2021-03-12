@@ -23,25 +23,35 @@
 // Including the package definition file
 `include "mvau_defn.sv" // compile the package file
 
-module mvau (    input logic       rst_n, // active low synchronous reset
-	input logic 	      clk, // main clock
-	input logic [TI-1:0]  in, // input stream
-	input logic [TW-1:0]  weights [0:MatrixH-1][0:SF-1], // The weights matrix   
-	output logic [TO-1:0] out); //output stream
+module mvau (    
+		 input logic 	       rst_n, // active low synchronous reset
+		 input logic 	       clk, // main clock
+		 input logic [TI-1:0]  in, // input stream
+		 input logic [TW-1:0]  weights [0:MatrixH-1][0:MatrixW-1], // The weights matrix   
+		 output logic [TO-1:0] out); //output stream
+   /*
+    * Local parameters
+    * */   
+   localparam int SF=MatrixW/SIMD; // Number of vertical matrix chunks
+   localparam int NF=MatrixH/PE; // Number of horizontal matrix chunks
+   localparam int SF_T=$clog2(SF); // Address word length for the input buffer
 
-   /******************************/
-   /*** Internal Signals/Wires ***/
-   /******************************/
-   // Internal signals for the input buffer
+   /*
+    * Internal Signals/Wires 
+    * */
+   
+   /*
+    * Internal signals for the input buffer
+    * */
    logic 		      ib_wen; // Write enable for the input buffer
    logic 		      ib_ren; // Read enable for the input buffer
+   logic 		      sf_clr;
    logic [SF_T-1:0] 	      sf_cnt; // Counter keeping track of SF and also address to input buffer
    logic [TI-1:0] 	      in_act; // Output of the input buffer
    
-
-
    // Internal signals for the MVU
-   logic [TW-1:0] 	      in_wgt [0:PE-1];   
+   logic [0:SIMD-1][TW-1:0]   in_wgt [0:PE-1];
+   logic [TO-1:0] 	      out_stream;
    
    /*
     * Control logic for reading and writing to input buffer
@@ -49,26 +59,21 @@ module mvau (    input logic       rst_n, // active low synchronous reset
     * matrix vector computation/multiplication unit
     * */
    mvau_control_block #(
-			.PE(PE),
-			.TW(TW),
-			.MatrixH(MatrixH),
 			.SF(SF),
 			.NF(NF),
 			.SF_T(SF_T)
 			)
    mvau_cb_inst (.rst_n,
-    .clk,
-    .weights,
-    .ib_wen,
-    .ib_ren,
-    .sf_cnt,
-    .out_wgt(in_wgt));
+		 .clk,
+		 .weights,
+		 .ib_wen,
+		 .ib_ren,
+		 .sf_clr,
+		 .sf_cnt,
+		 .out_wgt(in_wgt));
 
    //Insantiating the input buffer
    mvau_inp_buffer #(
-		     .TI(TI),
-		     .MatrixW(MatrixW),
-		     .SIMD(SIMD),
 		     .BUF_LEN(SF),
 		     .BUF_ADDR(SF_T))
    mvau_inb_inst (
@@ -81,43 +86,33 @@ module mvau (    input logic       rst_n, // active low synchronous reset
 
    
    // Instantiation of the Multiply Vector Multiplication Unit
-   mvu_comp #(
-	      .SIMD(SIMD),
-	      .PE(PE),
-	      .MMV(MMV),
-	      .TI(TI),
-	      .TW(TW),
-	      .USE_DSP(USE_DSP),
-	      .TO(TO)
-	      )
-   mvu_comp_inst(
-		 .rst_n,
-		 .clk,
-		 .in_act, // Input activation
-		 .in_wgt, // A tile of weights
-		 .out
-	    );
+   mvau_stream #(.SF_T(SF_T),
+		 .SF(SF))
+   mvau_stream_inst(
+		    .rst_n,
+		    .clk,
+		    .sf_clr,
+		    .in_act, // Input activation
+		    .in_wgt, // A tile of weights
+		    .out(out_stream)
+		    );
 
    generate
       if(INST_WMEM==1) begin: WGT_MEM
 	 // Instantiation of the Weights Memory Unit
-	 weights_mem #(
-		       .SIMD(SIMD),
-		       .PE(PE),
-		       .MMV(MMV),
-		       .TI(TI),
-		       .TO(TO)
-		       
-		       )
-	 weights_mem_inst(
-			  .*
-			  );
+	 weights_mem 
+	   weights_mem_inst(
+			    .*
+			    );
       end // block: WGT_MEM
    endgenerate
       
    // A place holder for the activation unit to be implemented later
    generate
       if(USE_ACT==1) begin: ACT
+      end
+      else begin: NO_ACT
+	 assign out = out_stream;
       end
    endgenerate
    

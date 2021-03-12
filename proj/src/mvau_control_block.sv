@@ -25,28 +25,30 @@
  * */
 
 `timescale 1ns/1ns
-
-module mvau_control_block #(parameter int PE=2,
-			    parameter int  TW=1,
-			    parameter int  MatrixH=20,
-			    parameter int  SF=8,
-			    parameter int  NF=2,
-			    parameter int  SF_T=3,
-			    localparam int NF_T=$clog2(NF) // For nf_cnt
+`include "mvau_defn.sv"
+module mvau_control_block #(
+			    parameter int SF=8,
+			    parameter int NF=2,
+			    parameter int SF_T=3			    
 			    )
-   (input logic rst_n,
-    input logic 	    clk,
-    input logic [TW-1:0]    weights [0:MatrixH-1][0:SF-1], // The weights matrix
-    output logic 	    ib_wen, // Input buffer write enable
-    output logic 	    ib_ren, // INput buffer read enable
-    output logic [SF_T-1:0] sf_cnt, // Address for the input buffer
-    output logic [TW-1:0]   out_wgt[0:PE-1] // The output weight tile
+   (
+    input logic 		    rst_n,
+    input logic 		    clk,
+    input logic [TW-1:0] 	    weights [0:MatrixH-1][0:MatrixW-1], // The weights matrix
+    output logic 		    ib_wen, // Input buffer write enable
+    output logic 		    ib_ren, // INput buffer read enable
+    output logic 		    sf_clr, // To reset the sf_cnt
+    output logic [SF_T-1:0] 	    sf_cnt, // Address for the input buffer
+    output logic [0:SIMD-1][TW-1:0] out_wgt[0:PE-1] // The output weight tile
     );
+   
+   localparam int 	    NF_T=$clog2(NF); // For nf_cnt
+   localparam int 	    MatrixH_BW=$clog2(MatrixH);
+   localparam int 	    MatrixW_BW=$clog2(MatrixW);
    
    /*
     * Internal Signals
-    * */
-   logic 		    sf_clr; // To reset the sf_cnt
+    * */   
    logic 		    nf_clr; // To reset the nf_cnt
    logic [NF_T-1:0] 	    nf_cnt; // NF counter, keeping track of the NF
    
@@ -59,23 +61,19 @@ module mvau_control_block #(parameter int PE=2,
     * weights.
     * 
     * The weight tile is declared as a 2D matrix where the 
-    * word length of each element is TSrcI bits. But we access 
-    * TW bits at a given time which is also the width of the
-    * tile. The height of the tile is equal to PE.
-    * 
-    * Based on the current value of sf_cnt and nf_cnt, we pick
-    * the correct tile from within the weight matrix
+    * word length of each element is TW bits. The height
+    * of the tile is PE and width is SIMD
     * */
    always_comb begin
-      for(logic [NF_T-1:0] tile=0; tile < PE; tile=tile++)
-	out_wgt[tile] = weights[tile+nf_cnt*PE][sf_cnt];
+      for(logic [MatrixH_BW-1:0] tile_row=0; tile_row < PE; tile_row++)
+	for(logic [MatrixW_BW-1:0] tile_col=0; tile_col < SIMD; tile_col++)
+	  out_wgt[tile_row][tile_col] = weights[nf_cnt*PE+tile_row][sf_cnt*SIMD+tile_col];
    end
-   
 
    // A one bit control signal to indicate when sf_cnt == SF
-   assign sf_clr = sf_cnt==SF_T'(SF) ? 1'b1 : 1'b0;
+   assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
    // A one bit control signal to indicate when nf_cnt == NF
-   assign nf_clr = nf_cnt==NF_T'(NF) ? 1'b1 : 1'b0;
+   assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
 
    // Write enable for the input buffer
    // Remains one when the input buffer is being filled
@@ -84,7 +82,7 @@ module mvau_control_block #(parameter int PE=2,
    assign ib_wen = (nf_cnt=='d0) ? 1'b1 : 1'b0;
    // Read enable is just the inverse of write enable
    assign ib_ren = ~ib_wen;
-      
+   
    // We need to keep track when the input buffer is full
    // A counter similar to sf in mvau.hpp
    always_ff @(posedge clk) begin
@@ -102,11 +100,11 @@ module mvau_control_block #(parameter int PE=2,
    always_ff @(posedge clk) begin
       if(!rst_n)
 	nf_cnt <= 'd0;
-      else if(nf_clr)
+      else if(nf_clr & sf_clr)
 	nf_cnt <= 'd0;
       else if(sf_clr)
 	nf_cnt <= nf_cnt + 1;
-      end
+   end
 
 endmodule
-   
+
