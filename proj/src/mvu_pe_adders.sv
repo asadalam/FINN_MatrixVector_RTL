@@ -23,6 +23,19 @@
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
+
+/**
+ * The interface is as follows:
+ * *******
+ * Inputs:
+ * *******
+ * [TDstI-1:0] in_simd [0:SIMD-1] : Input from the SIMD unit, word length TDstI
+ * ********
+ * Outputs:
+ * ********
+ * [TDstI-1:0] out_add            : Output from adder, word length TDstI
+ * **/
+
 module mvu_pe_adders 
   (input logic [TDstI-1:0] in_simd [0:SIMD-1],
    output logic [TDstI-1:0] out_add);

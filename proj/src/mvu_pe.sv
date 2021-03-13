@@ -24,16 +24,31 @@
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
-module mvu_pe #( // Parameters aka generics in VHDL
-		 parameter int SF_T=2,
-		 parameter int SF=4
-		 )
-   (input logic rst_n,
-    input logic 		   clk,
-    input logic 		   sf_clr,
-    input logic [TI-1:0] 	   in_act, // Input activation (packed array): TSrcI*PE
-    input logic [0:SIMD-1][TW-1:0] in_wgt , // Input weights (packed array): TWeightI*SIMD
-    output logic [TDstI-1:0] 	   out); // Output
+
+
+/**
+ * The interface is as follows:
+ * *******
+ * Inputs:
+ * *******
+ * rst_n                     : Active low, synchronous reset
+ * clk                       : Main clock
+ * sf_clr                    : Control signal to reset the accumulator
+ * [TI-1:0] in_act           : Input activation stream, word length TI=TSrcI*SIMD
+ * [0:SIMD-1][TW-1:0] in_wgt : Input weight stream for each PE
+ * ********
+ * Outputs:
+ * ********
+ * [TDstI-1:0] out           : Output stream, word length TDstI
+ * **/
+
+module mvu_pe 
+  (input logic rst_n,
+   input logic 			  clk,
+   input logic 			  sf_clr,
+   input logic [TI-1:0] 	  in_act, // Input activation (packed array): TSrcI*PE
+   input logic [0:SIMD-1][TW-1:0] in_wgt , // Input weights (packed array): TW*SIMD
+   output logic [TDstI-1:0] 	  out); // Output
    
    /****************************
     * Internal Signals/Wires
@@ -47,6 +62,8 @@ module mvu_pe #( // Parameters aka generics in VHDL
     * Re-assigning in_act to in_act_temp
     * and then to a packed array where
     * TI is factored into TSrcI and SIMD
+    * Makes for easy connection to each
+    * SIMD unit
     * */
    assign in_act_rev = in_act;
    generate
@@ -64,13 +81,34 @@ module mvu_pe #( // Parameters aka generics in VHDL
     * A number of SIMD units using generate statement
     * For each SIMD, a part of input activation and weights connected.
     * Part selection controlled by the generae variable and
-    * TSrcI for input activation and TWeightI for weights. 
+    * TSrcI for input activation and TW for weights. 
     * These two parameters define the word length of input activation and weight
+    * 
+    * One of three different SIMD units will be used based on one of the 
+    * following cases:
+    * 
+    * Case 1: 1-bit input activation and 1-bit weight
+    * Case 2: 1-bit input activation and multi-bit weight
+    * Case 3: Multi-bit weight and 1-bit input activation
+    * Case 4: Multi-bit weight and input activation
     * *************************/
    genvar 		     simd_ind;
    
    if(TSrcI==1) begin: TSrcI_1
-      if(TWeightI==1) begin: TWeightI_1
+      if(TW==1) begin: TW_1
+	 /**
+	  * Case 1: 1-bit input activation and 1-bit weight
+	  * Interpretation of values are:
+	  * 1'b0 => -1
+	  * 1'b1 => +1
+	  * 
+	  * SIMD implemented as xnor operation because
+	  * 
+	  * -1 x -1 = +1 maps to 0 xnor 0 = 1
+	  * -1 x +1 = -1 maps to 0 xnor 1 = 0
+	  * +1 x -1 = -1 maps to 1 xnor 0 = 0
+	  * +1 x +1 = +1 maps to 1 xnor 1 = 1
+	  * **/
 	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	   begin: SIMD_GEN
 	      mvu_pe_simd_xnor 
@@ -82,8 +120,18 @@ module mvu_pe #( // Parameters aka generics in VHDL
 				      .out(out_simd[simd_ind])
 				      );
 	   end // block: SIMD_GEN
-      end // block: TWeightI_1		   
-      else if(TWeightI > 1) begin: TWeightI_gt1
+      end // block: TW_1		   
+      else if(TW > 1) begin: TW_gt1
+	 /**
+	  * Case 2: 1-bit activation and multi-bit weight
+	  * Interpretation of the 1-bit activation is:
+	  * 1'b0 => -1
+	  * 1'b1 => +1
+	  * 
+	  * Implementation is simple
+	  * output = input weight if in_act == +1 (1'b1)
+	  * output = 2's complement of input weight if in_act == -1 (1'b0)
+	  * **/
 	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	   begin: SIMD_GEN
 	      mvu_pe_simd_binary 
@@ -95,10 +143,20 @@ module mvu_pe #( // Parameters aka generics in VHDL
 				      .out(out_simd[simd_ind])
 				      );
 	   end // block: SIMD_GEN
-      end // block: TWeightI_gt1
+      end // block: TW_gt1
    end // block: TSrcI_1
-   else if(TWeightI==1) begin: TWeightI_1_2
+   else if(TW==1) begin: TW_1_2
       if(TSrcI > 1) begin: TSrcI_gt1
+	 /**
+	  * Case 3: Multi-bit activation and 1-bit weight
+	  * Interpretation of the 1-bit weight is:
+	  * 1'b0 => -1
+	  * 1'b1 => +1
+	  * 
+	  * Implementation is simple
+	  * output = input activation if in_act == +1 (1'b1)
+	  * output = 2's complement of input activation if in_act == -1 (1'b0)
+	  * **/
 	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	   begin: SIMD_GEN
 	      mvu_pe_simd_binary 
@@ -111,8 +169,13 @@ module mvu_pe #( // Parameters aka generics in VHDL
 				      );
 	   end // block: SIMD_GEN
       end // block: TSrcI_gt1
-   end // block: TWeightI_1_2
+   end // block: TW_1_2
    else begin: TSrcI_TWeight_gt1
+      /**
+       * Case 4: Multi-bit input activation and Multi-bit weight
+       * 
+       * Simple multiplication
+       * **/
       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	begin: SIMD_GEN
 	   mvu_pe_simd_std 
@@ -128,17 +191,42 @@ module mvu_pe #( // Parameters aka generics in VHDL
 
    /************************************
     * Adders for summing SIMD output
-    * *********************************/
+    * 
+    * One of two types of adders will be
+    * implemented based on the input word
+    * length of the activations and weights
+    * 
+    * Case 1: 1-bit input activation and 1-bit weight
+    * Case 2: All of case 2 to 3 for implementing SIMDs
+    * *********************************/   
    if(TSrcI==1) begin: TSrcI_1_Add
-      if(TDstI==1) begin: TDestI_1_Add // Popcount based addition
+      /** 
+       * Case 1: 1-bit input activation and 1-bit weight
+       * Addition reduced to popcount: Count the number of 1's
+       * in the combined SIMD output
+       * **/
+      if(TW==1) begin: TW_1_Add // Popcount based addition
 	 mvu_pe_popcount
 	   mvu_pe_popcount_inst (
 				 .in_simd(out_simd),
 				 .out_add(out_add)
-				 );
+				 );	
       end // block: TDestI_1_Add
+      else begin: All_Add // Normal addition
+	 /**
+	  * Case 2: Simple adder tree
+	  * **/
+	 mvu_pe_adders 
+	   mvu_pe_adders_ins (
+			      .in_simd(out_simd),
+			      .out_add(out_add)
+			      );
+      end      
    end // block: TSrcI_1_Add
    else begin: All_Add // Normal addition
+      /**
+       * Case 2: Simple adder tree
+       * **/
       mvu_pe_adders 
 	mvu_pe_adders_ins (
 			   .in_simd(out_simd),
@@ -149,14 +237,13 @@ module mvu_pe #( // Parameters aka generics in VHDL
    /**
     * Accumulator
     * */
-   mvu_pe_acc #(.SF_T(SF_T),
-		.SF(SF))
-   mvu_pe_acc_inst (
-		    .rst_n,
-		    .clk,
-		    .sf_clr,
-		    .in_acc(out_add),
-		    .out_acc(out));
+   mvu_pe_acc 
+     mvu_pe_acc_inst (
+		      .rst_n,
+		      .clk,
+		      .sf_clr,
+		      .in_acc(out_add),
+		      .out_acc(out));
    
 endmodule // mvu_pe
 

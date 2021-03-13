@@ -25,13 +25,28 @@
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
-module mvu_pe_acc #(parameter int SF_T=1,
-		    parameter int SF=8)
-   ( input logic rst_n,
-     input logic 	      clk,
-     input logic 	      sf_clr,
-     input logic [TDstI-1:0]  in_acc, // Input from the adders/popcount
-     output logic [TDstI-1:0] out_acc); //Output
+
+/**
+ * The interface is as follows:
+ * *******
+ * Inputs:
+ * *******
+ * rst_n             : Active low synchronous reset
+ * clk               : Main clock
+ * sf_clr            : Control signal from the control block for resetting the accumulator
+ * [TDstI-1:0] in_acc: Input to the accumulator from the adders, word length TDstI
+ * ********
+ * Outputs:
+ * ********
+ * [TDstI-1:0] out_add            : Output from adder, word length TDstI
+ * **/
+
+module mvu_pe_acc 
+  ( input logic rst_n,
+    input logic 	     clk,
+    input logic 	     sf_clr,
+    input logic [TDstI-1:0]  in_acc, // Input from the adders/popcount
+    output logic [TDstI-1:0] out_acc); //Output
 
    /**
     * Internal signals

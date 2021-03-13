@@ -28,6 +28,22 @@
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
 
+
+/**
+ * The interface is as follows:
+ * *******
+ * Inputs:
+ * *******
+ * rst_n             : Active low, synchronous reset
+ * clk               : Main clock
+ * [TSrc-1:0] in_act : Input activation stream, word length TSrcI
+ * [TW-1:0]   in_wgt : Input weight, word length TW
+ * ********
+ * Outputs:
+ * ********
+ * [TDstI-1:0] out   : Output stream, word length TDstI
+ * **/
+
 module mvu_pe_simd_binary 
   ( 
     input logic 	     rst_n,
@@ -52,7 +68,7 @@ module mvu_pe_simd_binary
    
    
    generate
-      if(TI==1) begin: ACT_1 // if activation is 1-bit
+      if(TSrcI==1) begin: ACT_1 // if activation is 1-bit
 	 always_ff @(posedge clk) begin: SIMD_MUL
 	    if(!rst_n)
 	      out <= 'd0;

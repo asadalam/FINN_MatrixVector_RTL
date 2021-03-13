@@ -26,6 +26,31 @@
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
+
+/**
+ * Interface is as follows:
+ * *****************
+ * Extra parameters:
+ * *****************
+ * SF=MatrixW/SIMD: Number of vertical weight matrix chunks and depth of the input buffer
+ * NF=MatrixH/PE  : Number of horizontal weight matrix chunks
+ * SF_T           : log_2(SF), determines the number of address bits for the input buffer * SF_T
+ * *******
+ * Inputs:
+ * *******
+ * rst_n                                      : Active low synchronous reset
+ * clk                                        : Main clock
+ * [TW-1:0] weights [0:MatrixH-1][0:MatrixW-1]: The weight matrix
+ * ********
+ * Outputs:
+ * ********
+ * ib_wen                             : Write enable for the input buffer
+ * ib_red                             : Read enable for the input buffer
+ * sf_clr                             : Control signal for resetting the accumulator
+ * [SF_T:0] sf_cnt                    : Address for the input buffer
+ * [0:SIMD-1][TW-1:0] out_wgt [0:PE-1]: Output weight stream
+ * **/
+
 module mvau_control_block #(
 			    parameter int SF=8,
 			    parameter int NF=2,

@@ -20,8 +20,33 @@
 /*************************************************/
 /*************************************************/
 `timescale 1ns/1ns
-// Including the package definition file
-`include "mvau_defn.sv" // compile the package file
+/**
+ * Including the package definition file
+ * The package definition file contains all global parameters
+ * that control the generation of the design
+ * **/
+`include "mvau_defn.sv"
+
+/**
+ * The Interface is as follows:
+ * *******
+ * Inputs:
+ * *******
+ * rst_n                                      : Active low synchronous reset
+ * clk                                        : Main clock
+ * [TI-1:0] in                                : Input stream, word length TI=TSrcI*SIMD
+ * [TW-1:0] weights [0:MatrixH-1][0:MatrixW-1]: A weight matrix (to be removed when weight memory is implemented
+ * ********
+ * Outputs:
+ * ********
+ * [TO-1:0] out                               : Output stream, word length TO=TDstI*PE
+ * *****************
+ * Local parameters:
+ * *****************
+ * SF=MatrixW/SIMD                            : Number of vertical weight matrix chunks and depth of the input buffer
+ * NF=MatrixH/PE                              : Number of horizontal weight matrix chunks
+ * SF_T                                       : log_2(SF), determines the number of address bits for the input buffer
+ * **/
 
 module mvau (    
 		 input logic 	       rst_n, // active low synchronous reset
@@ -86,16 +111,15 @@ module mvau (
 
    
    // Instantiation of the Multiply Vector Multiplication Unit
-   mvau_stream #(.SF_T(SF_T),
-		 .SF(SF))
-   mvau_stream_inst(
-		    .rst_n,
-		    .clk,
-		    .sf_clr,
-		    .in_act, // Input activation
-		    .in_wgt, // A tile of weights
-		    .out(out_stream)
-		    );
+   mvau_stream
+     mvau_stream_inst(
+		      .rst_n,
+		      .clk,
+		      .sf_clr,
+		      .in_act, // Input activation
+		      .in_wgt, // A tile of weights
+		      .out(out_stream)
+		      );
 
    generate
       if(INST_WMEM==1) begin: WGT_MEM

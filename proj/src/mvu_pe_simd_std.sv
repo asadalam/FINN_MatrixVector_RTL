@@ -22,6 +22,22 @@
  * Word length >= 2
  * **********************************************/
 
+/**
+ * The interface is as follows:
+ * *******
+ * Inputs:
+ * *******
+ * rst_n             : Active low, synchronous reset
+ * clk               : Main clock
+ * [TSrc-1:0] in_act : Input activation stream, word length TSrcI
+ * [TW-1:0]   in_wgt : Input weight, word length TW
+ * ********
+ * Outputs:
+ * ********
+ * [TDstI-1:0] out   : Output stream, word length TDstI
+ * **/
+
+
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
 

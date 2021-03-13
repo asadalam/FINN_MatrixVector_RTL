@@ -23,16 +23,29 @@
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
 
-module mvau_stream  #(
-		      parameter int SF_T=2,
-		      parameter int SF=4)
-		      (    
-			   input logic 			  rst_n,
-			   input logic 			  clk,
-			   input logic 			  sf_clr,
-			   input logic [TI-1:0] 	  in_act ,
-			   input logic [0:SIMD-1][TW-1:0] in_wgt [0:PE-1], // Streaming weight tile
-			   output logic [TO-1:0] 	  out);
+/**
+ * The interface is as follows:
+ * *******
+ * Inputs:
+ * *******
+ * rst_n                              : Active low, synchronous reset
+ * clk                                : Main clock
+ * sf_clr                             : Control signal to reset the accumulator
+ * [TI-1:0] in_act                    : Input activation stream, word length TI=TSrcI*SIMD
+ * [0:SIMD-1][TW-1:0] in_wgt [0:PE-1] : Input weight stream
+ * ********			       
+ * Outputs:			       
+ * ********			       
+ * [TO-1:0] out                       : Output stream, word length TO=TDstI*PE
+ * **/
+
+module mvau_stream (
+		    input logic 		   rst_n,
+		    input logic 		   clk,
+		    input logic 		   sf_clr,
+		    input logic [TI-1:0] 	   in_act ,
+		    input logic [0:SIMD-1][TW-1:0] in_wgt [0:PE-1], // Streaming weight tile
+		    output logic [TO-1:0] 	   out);
 
    /**
     * Internal Signals
@@ -49,20 +62,16 @@ module mvau_stream  #(
    generate
       for(genvar pe_ind = 0; pe_ind < PE; pe_ind = pe_ind+1)
 	begin: PE_GEN
-	   mvu_pe #( // Mapping the parameters
-		     .SF_T(SF_T),
-		     .SF(SF)
-		     )
-	   mvu_pe_inst( // Mapping the I/O blocks
-			.rst_n,
-			.clk,
-			.sf_clr,
-			.in_act,
-			.in_wgt(in_wgt[pe_ind]),
-			.out(out_pe[pe_ind]) // Each PE contribution TDstI bits in the output
-		       );
+	   mvu_pe mvu_pe_inst( // Mapping the I/O blocks
+			       .rst_n,
+			       .clk,
+			       .sf_clr,
+			       .in_act,
+			       .in_wgt(in_wgt[pe_ind]),
+			       .out(out_pe[pe_ind]) // Each PE contribution TDstI bits in the output
+			       );
 	end
-      endgenerate
+   endgenerate
 
    // A place holder for the activation unit to be implemented later
    generate
