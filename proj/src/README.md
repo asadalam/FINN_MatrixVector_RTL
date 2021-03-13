@@ -7,7 +7,7 @@ This is the top level design unit which instantiates a number of blocks.
 The main block is the matrix vector computation unit which multiplies
 the input activation and weight matrix. The multiplication is carried
 out in steps, with each step multiplying a weight tile of dimension SIMDxPE,
-where each tile has a word length of TWeightI, with a slice of input
+where each tile has a word length of TW, with a slice of input
 activation vector of length SIMD. The top level file generates the required
 control signals to generate the weight tile and input activation vector slice.
 
