@@ -3,7 +3,8 @@
  * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
  * \file mvu.sv
  *
- * This file lists an RTL implementation of the matrix-vector activation unit
+ * This file lists a test bench for the matrix-vector activation streaming
+ * unit
  * It is part of the Xilinx FINN open source framework for implementing
  * quantized neural networks on FPGAs
  *
@@ -14,11 +15,6 @@
  * 
  *******************************************************************************/
 
-/*************************************************/
-/*************************************************/
-/*** Top Level Multiply Vector Activation Unit ***/
-/*************************************************/
-/*************************************************/
 `timescale 1ns/1ns
 
 `include "../src/mvau_defn.sv" // compile the package file
@@ -32,24 +28,25 @@ module mvau_tb;
    parameter int NO_IN_VEC = 100;
    parameter int ACT_MatrixW = OFMDim*OFMDim; // input activation matrix height
    parameter int ACT_MatrixH = (KDim*KDim*IFMCh); // input activation matrix weight
-         
+   
    // Signals Declarations
    logic 	 clk;
    logic 	 rst_n;
    logic [TW-1:0] weights [0:MatrixH-1][0:MatrixW-1];
    logic [TO-1:0] out;
    logic [0:PE-1][TDstI-1:0] out_packed;
-   logic [0:SIMD-1][TSrcI-1:0] in;
-   logic [TSrcI-1:0] in_mat [0:ACT_MatrixH-1][0:ACT_MatrixW-1];
-   logic [TDstI-1:0] mvau_beh [0:MatrixH-1][0:ACT_MatrixW-1];
+   logic [0:SIMD-1][TSrcI-1:0] in_act;
+   logic [0:SIMD-1][TW-1:0]    in_wgt[0:PE-1];
+   logic [TSrcI-1:0] 	       in_mat [0:ACT_MatrixH-1][0:ACT_MatrixW-1];
+   logic [TDstI-1:0] 	       mvau_beh [0:MatrixH-1][0:ACT_MatrixW-1];
    
    // Events for synchronizing the simulation
-   event gen_inp;    // generate input activation matrix
-   event gen_weights;// generate weight matrix
-   event do_mvau_beh;// perform behavioral mvau
-   event test_event; // to start testing
+   event 		       gen_inp;    // generate input activation matrix
+   event 		       gen_weights;// generate weight matrix
+   event 		       do_mvau_beh;// perform behavioral mvau
+   event 		       test_event; // to start testing
    
-      
+   
    //Generating Clock and Reset
    initial
      begin
@@ -74,23 +71,23 @@ module mvau_tb;
 	// We need to delay more until the final output comes
 	// To-do for tomorrow
 	for(int i = 0; i < ACT_MatrixW; i++) begin
-	  for(int j = 0; j < MatrixH/PE; j++)
-	    begin
-	       #(CLK_PER*MatrixW/SIMD)
-	       out_packed = out;
-	       @(posedge clk) begin		  
-		  for(int k = 0; k < PE; k++) begin
-		     if(out_packed[k] == mvau_beh[j*PE+k][i])
-		       $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
-		     else begin
+	   for(int j = 0; j < MatrixH/PE; j++)
+	     begin
+		#(CLK_PER*MatrixW/SIMD)
+		out_packed = out;
+		@(posedge clk) begin		  
+		   for(int k = 0; k < PE; k++) begin
+		      if(out_packed[k] == mvau_beh[j*PE+k][i])
 			$display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
-			assert (out_packed[k] == mvau_beh[j*PE+k][i])
-			  else
-			    $fatal(1,"Data MisMatch");
-		     end			
-		  end
-	       end
-	    end // for (int j = 0; j < MatrixH/PE-1; j++)
+		      else begin
+			 $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
+			 assert (out_packed[k] == mvau_beh[j*PE+k][i])
+			   else
+			     $fatal(1,"Data MisMatch");
+		      end			
+		   end
+		end
+	     end // for (int j = 0; j < MatrixH/PE-1; j++)
 	end // for (int i = 0; i < ACT_MatrixW-1; i++)	
 
 	#RAND_DLY;
@@ -126,10 +123,16 @@ module mvau_tb;
      end
 
    /*
-    * Performing behavioral mvau
+    * Performing behavioral MVAU
+    * Caters for all the following four cases
+    * Case 1: 1-bit input activation and 1-bit weight
+    * Case 2: 1-bit input activation and multi-bit weight
+    * Case 3: Multi-bit weight and 1-bit input activation
+    * Case 4: Multi-bit weight and input activation
     * */
    if(TSrcI==1) begin: NONGEN_MVAU1
       if(TW==1) begin: XNOR_MVAU1
+	 // Case 1
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH1
 	      for(int i = 0; i < MatrixH; i++)
@@ -141,16 +144,17 @@ module mvau_tb;
 	   end
 end
       else begin: BIN_MVAU1
+	 // Case 2
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH2
 	      for(int i = 0; i < MatrixH; i++)
 		for(int j = 0; j < ACT_MatrixW; j++) begin
 		   mvau_beh[i][j]   = '0;
 		   for(int k = 0; k < ACT_MatrixH; k++) begin
-		     if(in_mat[k][j] == 1'b1) // in_act = +1
-		       mvau_beh[i][j] += weights[i][k];		      
-		     else // in_act = -1
-		       mvau_beh[i][j] += ~weights[i][k]+1'b1;
+		      if(in_mat[k][j] == 1'b1) // in_act = +1
+			mvau_beh[i][j] += weights[i][k];		      
+		      else // in_act = -1
+			mvau_beh[i][j] += ~weights[i][k]+1'b1;
 		   end
 		end
 	   end
@@ -158,17 +162,19 @@ end
    end // block: NONGEN_MVAU1   
    else if(TW==1) begin: NONGEN_MVAU2
       if(TSrcI==1) begin: XNOR_MVAU1
+	 // Case 1
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH3
 	      for(int i = 0; i < MatrixH; i++)
 		for(int j = 0; j < ACT_MatrixW; j++) begin
 		   mvau_beh[i][j] = '0;
 		   for(int k = 0; k < ACT_MatrixH; k++) 
-			mvau_beh[i][j] += weights[i][k]^~in_mat[k][j]; //XNOR
+		     mvau_beh[i][j] += weights[i][k]^~in_mat[k][j]; //XNOR
 		end
 	   end
 end
       else begin: BIN_MVAU2
+	 // Case 3
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH4
 	      for(int i = 0; i < MatrixH; i++)
@@ -185,6 +191,7 @@ end
 end      
    end // block: NONGEN_MVAU2   
    else begin: GEN_MVAU
+      // Case 4
       always @(do_mvau_beh)
 	begin: MVAU_BEH
 	   for(int i = 0; i < MatrixH; i++)
@@ -195,7 +202,7 @@ end
 	     end
 	end
 end
-	 
+   
    /*
     * Generating data from DUT
     * */
@@ -205,7 +212,10 @@ end
 	   for(int j = 0; j < ACT_MatrixH/SIMD; j++) begin
 	      #(CLK_PER/2);
 	      for(int k = 0; k < SIMD; k++) begin
-		 in[k] = in_mat[j*SIMD+k][i];
+		 in_act[k] = in_mat[j*SIMD+k][i];
+		 for(int l = 0; l < PE; l++) begin
+		    in_wgt[l][k] = weights[l][k];
+		 end
 	      end
 	      $display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in);
 	      #(CLK_PER/2);	   
@@ -217,11 +227,11 @@ end
    /*
     * DUT Instantiation
     * */
-   mvau mvau_inst(
-		  .rst_n,
-		  .clk,
-		  .in,
-		  .weights,
-		  .out);
+   mvau_stream mvau_stream_inst(
+				.rst_n,
+				.clk,
+				.in_act,
+				.in_wgt(),
+				.out);
    
 endmodule // mvau_tb

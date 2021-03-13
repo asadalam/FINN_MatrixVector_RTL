@@ -1,8 +1,10 @@
 sv work mvau_tb_v1.sv
 sv work ../src/mvau.sv
+sv work ../src/mvau_control_block.sv
+sv work ../src/mvau_weight_mem.sv
 sv work ../src/mvau_stream.sv
 sv work ../src/mvau_inp_buffer.sv
-sv work ../src/mvau_control_block.sv
+sv work ../src/mvau_stream_control_block.sv
 sv work ../src/mvu_pe.sv
 sv work ../src/mvu_pe_simd_std.sv
 sv work ../src/mvu_pe_simd_binary.sv
