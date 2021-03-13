@@ -128,16 +128,74 @@ module mvau_tb;
    /*
     * Performing behavioral mvau
     * */
-   always @(do_mvau_beh)
-     begin: MVAU_BEH
-	for(int i = 0; i < MatrixH; i++)
-	  for(int j = 0; j < ACT_MatrixW; j++) begin
-	     mvau_beh[i][j] = '0;
-	     for(int k = 0; k < ACT_MatrixH; k++) 
-	       mvau_beh[i][j] += weights[i][k]*in_mat[k][j];
-	  end
-     end
-
+   if(TSrcI==1) begin: NONGEN_MVAU1
+      if(TW==1) begin: XNOR_MVAU1
+	 always @(do_mvau_beh)
+	   begin: MVAU_BEH1
+	      for(int i = 0; i < MatrixH; i++)
+		for(int j = 0; j < ACT_MatrixW; j++) begin
+		   mvau_beh[i][j] = '0;
+		   for(int k = 0; k < ACT_MatrixH; k++) 
+		     mvau_beh[i][j] += weights[i][k]^~in_mat[k][j]; // XNOR
+		end
+	   end
+end
+      else begin: BIN_MVAU1
+	 always @(do_mvau_beh)
+	   begin: MVAU_BEH2
+	      for(int i = 0; i < MatrixH; i++)
+		for(int j = 0; j < ACT_MatrixW; j++) begin
+		   mvau_beh[i][j]   = '0;
+		   for(int k = 0; k < ACT_MatrixH; k++) begin
+		     if(in_mat[k][j] == 1'b1) // in_act = +1
+		       mvau_beh[i][j] += weights[i][k];		      
+		     else // in_act = -1
+		       mvau_beh[i][j] += ~weights[i][k]+1'b1;
+		   end
+		end
+	   end
+end
+   end // block: NONGEN_MVAU1   
+   else if(TW==1) begin: NONGEN_MVAU2
+      if(TSrcI==1) begin: XNOR_MVAU1
+	 always @(do_mvau_beh)
+	   begin: MVAU_BEH3
+	      for(int i = 0; i < MatrixH; i++)
+		for(int j = 0; j < ACT_MatrixW; j++) begin
+		   mvau_beh[i][j] = '0;
+		   for(int k = 0; k < ACT_MatrixH; k++) 
+			mvau_beh[i][j] += weights[i][k]^~in_mat[k][j]; //XNOR
+		end
+	   end
+end
+      else begin: BIN_MVAU2
+	 always @(do_mvau_beh)
+	   begin: MVAU_BEH4
+	      for(int i = 0; i < MatrixH; i++)
+		for(int j = 0; j < ACT_MatrixW; j++) begin
+		   mvau_beh[i][j] = '0;
+		   for(int k = 0; k < ACT_MatrixH; k++) begin
+		      if(weights[i][k] == 1'b1) // in_wgt = +1
+			mvau_beh[i][j] += in_mat[k][j];
+		      else // in_wgt = -1
+			mvau_beh[i][j] += ~in_mat[k][j]+1'b1;
+		   end
+		end
+	   end
+end      
+   end // block: NONGEN_MVAU2   
+   else begin: GEN_MVAU
+      always @(do_mvau_beh)
+	begin: MVAU_BEH
+	   for(int i = 0; i < MatrixH; i++)
+	     for(int j = 0; j < ACT_MatrixW; j++) begin
+		mvau_beh[i][j] = '0;
+		for(int k = 0; k < ACT_MatrixH; k++) 
+		  mvau_beh[i][j] += weights[i][k]*in_mat[k][j];
+	     end
+	end
+end
+	 
    /*
     * Generating data from DUT
     * */
@@ -152,7 +210,7 @@ module mvau_tb;
 	      $display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in);
 	      #(CLK_PER/2);	   
 	   end
-	   #(CLK_PER*(MatrixW*(PE-1)/SIMD));
+	   #(CLK_PER*((MatrixW/SIMD)*(MatrixH/PE-1)));
 	end
      end
 
