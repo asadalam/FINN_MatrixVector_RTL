@@ -37,20 +37,69 @@
  * Outputs:			       
  * ********			       
  * [TO-1:0] out                       : Output stream, word length TO=TDstI*PE
+ * *****************
+ * Local parameters:
+ * *****************
+ * SF=MatrixW/SIMD                            : Number of vertical weight matrix chunks and depth of the input buffer
+ * NF=MatrixH/PE                              : Number of horizontal weight matrix chunks
+ * SF_T                                       : log_2(SF), determines the number of address bits for the input buffer
  * **/
 
 module mvau_stream (
 		    input logic 		   rst_n,
 		    input logic 		   clk,
-		    input logic 		   sf_clr,
 		    input logic [TI-1:0] 	   in_act ,
 		    input logic [0:SIMD-1][TW-1:0] in_wgt [0:PE-1], // Streaming weight tile
 		    output logic [TO-1:0] 	   out);
 
+   /*
+    * Local parameters
+    * */   
+   localparam int SF=MatrixW/SIMD; // Number of vertical matrix chunks
+   localparam int NF=MatrixH/PE; // Number of horizontal matrix chunks
+   localparam int SF_T=$clog2(SF); // Address word length for the input buffer
+   
    /**
     * Internal Signals
     * **/
-   logic [0:PE-1][TDstI-1:0] 				  out_pe;
+   // Internal signals for the input buffer and the control block
+   logic 		      ib_wen; // Write enable for the input buffer
+   logic 		      ib_ren; // Read enable for the input buffer
+   logic 		      sf_clr;
+   logic [SF_T-1:0] 	      sf_cnt; // Counter keeping track of SF and also address to input buffer
+   logic [TI-1:0] 	      out_act; // Output of the input buffer
+   
+   // Internal signals for the PEs
+   logic [0:PE-1][TDstI-1:0]  out_pe;
+
+   /*
+    * Control logic for reading and writing to input buffer
+    * and for generating the correct weight tile for the
+    * matrix vector computation/multiplication unit
+    * */
+   mvau_stream_control_block #(
+			.SF(SF),
+			.NF(NF),
+			.SF_T(SF_T)
+			)
+   mvau_stream_cb_inst (.rst_n,
+			.clk,
+			.ib_wen,
+			.ib_ren,
+			.sf_clr,
+			.sf_cnt);
+   
+   //Insantiating the input buffer
+   mvau_inp_buffer #(
+		     .BUF_LEN(SF),
+		     .BUF_ADDR(SF_T))
+   mvau_inb_inst (
+		  .clk,
+		  .in(in_act),
+		  .wr_en(ib_wen),
+		  .rd_en(ib_ren),
+		  .addr(sf_cnt),
+		  .out(out_act));
    
    /**
     * Generating instantiations of all processing elements
@@ -66,7 +115,7 @@ module mvau_stream (
 			       .rst_n,
 			       .clk,
 			       .sf_clr,
-			       .in_act,
+			       .in_act(out_act),
 			       .in_wgt(in_wgt[pe_ind]),
 			       .out(out_pe[pe_ind]) // Each PE contribution TDstI bits in the output
 			       );

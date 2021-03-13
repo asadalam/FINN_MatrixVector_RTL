@@ -47,9 +47,10 @@ package mvau_defn;
    parameter int STRIDE=1; // Number of pixels to move across when applying the filter
    parameter int OFMDim=(IFMDim-KDim+2*PAD)/STRIDE+1; // Output feature map dimensions
    parameter int MatrixW=KDim*KDim*IFMCh;   // Width of the input matrix                                          
-   parameter int MatrixH=OFMCh; // Heigth of the input matrix
-   parameter int SIMD=3; // Number of input columns computed in parallel                       
-   parameter int PE=3; // Number of output rows computed in parallel                         
+   parameter int MatrixH=OFMCh; // Heigth of the input matrix   
+   parameter int SIMD=5; // Number of input columns computed in parallel                       
+   parameter int PE=4; // Number of output rows computed in parallel                         
+   parameter int WMEM_DEPTH=(KDim*KDim*IFMCh*OFMCh)/(SIMD*PE); // Depth of each weight memory   
    parameter int MMV=1; // Number of output pixels computed in parallel                       
    parameter int TSrcI=4; // DataType of the input activation (as used in the MAC)   
    parameter int TI=SIMD*TSrcI; // SIMD times the word length of input stream
