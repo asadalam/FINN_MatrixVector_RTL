@@ -14,9 +14,9 @@ control signals to generate the weight tile and input activation vector slice.
 The second block is the input buffer for storing the input activation map.
 It also instantiates the threshold based activation unit.
 
-### Matrix vector computation unit: mvu_comp.sv  
+### Matrix vector computation unit: mvau_stream.sv  
 This unit is the main computation unit performing multiply accumulate of a
-tile of weight and a slice of input activation unit. It uses PE numbers of
+stream of weight and a slice of input activation unit. It uses PE numbers of
 processing elements. Each processing element implements the dot product of
 its corresponding row of the weight tile with the input activation vector slice
 
