@@ -20,11 +20,11 @@ stream of weight and a slice of input activation unit. It uses PE numbers of
 processing elements. Each processing element implements the dot product of
 its corresponding row of the weight tile with the input activation vector slice.
 
-### MVAU Stream Control Block: mvau_stream_control_block.sv
+#### MVAU Stream Control Block: mvau_stream_control_block.sv
 This control block controls reading to and writing from the input buffer. It generates
 the address and read/write enables for the input buffer.
 
-### Input Buffer: mvau_inp_buffer.sv
+#### Input Buffer: mvau_inp_buffer.sv
 This unit stores one column of input feature map as it is multiplied
 with multiple rows of the weight matrix. During the first SIMDxSF clock
 cycles, the input buffer is written with new elements of the input feature
