@@ -11,7 +11,10 @@ SystemVerilog's $random function. This includes the weight matrix and
 the input activation matrix.
 
 The test bench performs a behavorial implementation of the matrix-matrix
-multiplication using for-loops
+multiplication using for-loops. The parameters for the tests and design are
+defined in ../src/mvau_defn.sv. The test has been successfull for various values
+of IFMCh, OFMCh, KDim, IFMDim, OFMDim, SIMD, PE, TSrcI, TDstI and TW such that
+all types of SIMDs and adder units are utilized.
 
 The inputs generated are sent to the DUT (mvau.sv). The weight matrix and
 the input activation matrix is sent as tiles and slices. The weight tile
