@@ -65,29 +65,55 @@ module mvau_stream_control_block #(
     output logic [SF_T-1:0] sf_cnt // Address for the input buffer
     );
    
+   /*
+    * Local Parameters
+    * */
+
    localparam int 	    NF_T=$clog2(NF); // For nf_cnt
    localparam int 	    MatrixH_BW=$clog2(MatrixH);
    localparam int 	    MatrixW_BW=$clog2(MatrixW);
-   
+
    /*
-    * Internal Signals
+    * Controlling for when MatrixH is '1' and PE is also '1'
+    * Meaning only one output channel
     * */
-   logic 		    nf_clr; // To reset the nf_cnt
-   logic [NF_T-1:0] 	    nf_cnt; // NF counter, keeping track of the NF
    
+   generate
+      if(NF==1) begin: ONE_FILTER_BANK
+	 assign ib_wen = 1'b1;
+	 assign ib_ren = 1'b0;
+      end
+      else begin: N_FILTER_BANKS
+	 logic 		    nf_clr; // To reset the nf_cnt
+	 logic [NF_T-1:0]   nf_cnt; // NF counter, keeping track of the NF
+	 // A one bit control signal to indicate when nf_cnt == NF
+	 assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
+	 
+	 // Write enable for the input buffer
+	 // Remains one when the input buffer is being filled
+	 // Resets to Zero the input buffer is filled and ready
+	 // to be reused
+	 assign ib_wen = (nf_cnt=='d0) ? 1'b1 : 1'b0;
+	 // Read enable is just the inverse of write enable
+	 assign ib_ren = ~ib_wen;
+	 // A counter to keep track when we are done writing to the
+	 // input buffer so that it can be reused again
+	 // Similar to the variable nf in mvau.hpp
+	 always_ff @(posedge clk) begin
+	    if(!rst_n)
+	      nf_cnt <= 'd0;
+	    else if(nf_clr & sf_clr)
+	      nf_cnt <= 'd0;
+	    else if(sf_clr)
+	      nf_cnt <= nf_cnt + 1;
+	 end
+      end // block: N_FILTER_BANKS
+   endgenerate
+      
    // A one bit control signal to indicate when sf_cnt == SF
    assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
-   // A one bit control signal to indicate when nf_cnt == NF
-   assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
    
-   // Write enable for the input buffer
-   // Remains one when the input buffer is being filled
-   // Resets to Zero the input buffer is filled and ready
-   // to be reused
-   assign ib_wen = (nf_cnt=='d0) ? 1'b1 : 1'b0;
-   // Read enable is just the inverse of write enable
-   assign ib_ren = ~ib_wen;
-   
+      
    // We need to keep track when the input buffer is full
    // A counter similar to sf in mvau.hpp
    always_ff @(posedge clk) begin
@@ -99,17 +125,6 @@ module mvau_stream_control_block #(
 	sf_cnt <= sf_cnt + 1;
    end
 
-   // A counter to keep track when we are done writing to the
-   // input buffer so that it can be reused again
-   // Similar to the variable nf in mvau.hpp
-   always_ff @(posedge clk) begin
-      if(!rst_n)
-	nf_cnt <= 'd0;
-      else if(nf_clr & sf_clr)
-	nf_cnt <= 'd0;
-      else if(sf_clr)
-	nf_cnt <= nf_cnt + 1;
-   end
 
 endmodule
 

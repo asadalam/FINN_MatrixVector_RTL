@@ -1,8 +1,8 @@
-/*******************************************************************************
- *
+/*
+ * Module: mvau_stream 
+ * 
  * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- * \file mvau_stream.sv
- *
+ * 
  * This file lists an RTL implementation of the matrix-vector multiplication unit
  * based on streaming weights. It can either be part of the Matrix-Vector-Activation Unit
  * or run independently
@@ -12,38 +12,26 @@
  * European Union's Horizon 2020 research and innovation programme under the 
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- *******************************************************************************/
-
-/*****************************************************/
-/*****************************************************/
-/*** Top Level Multiply Vector Multiplication Unit ***/
-/*****************************************************/
-/*****************************************************/
+ * Inputs:
+ * rst_n - Active low, synchronous reset
+ * clk - Main clock
+ * sf_clr - Control signal to reset the accumulator
+ * [TI-1:0] in_act - Input activation stream, word length TI=TSrcI*SIMD
+ * [0:SIMD-1][TW-1:0] in_wgt [0:PE-1] - Input weight stream
+ * 
+ * Outputs:			       
+ * 
+ * [TO-1:0] out - Output stream, word length TO=TDstI*PE
+ * 
+ * Parameters:
+ * SF=MatrixW/SIMD - Number of vertical weight matrix chunks and depth of the input buffer
+ * NF=MatrixH/PE   - Number of horizontal weight matrix chunks
+ * SF_T            - log_2(SF), determines the number of address bits for the input buffer
+ * */
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
 
-/**
- * The interface is as follows:
- * *******
- * Inputs:
- * *******
- * rst_n                              : Active low, synchronous reset
- * clk                                : Main clock
- * sf_clr                             : Control signal to reset the accumulator
- * [TI-1:0] in_act                    : Input activation stream, word length TI=TSrcI*SIMD
- * [0:SIMD-1][TW-1:0] in_wgt [0:PE-1] : Input weight stream
- * ********			       
- * Outputs:			       
- * ********			       
- * [TO-1:0] out                       : Output stream, word length TO=TDstI*PE
- * *****************
- * Local parameters:
- * *****************
- * SF=MatrixW/SIMD                            : Number of vertical weight matrix chunks and depth of the input buffer
- * NF=MatrixH/PE                              : Number of horizontal weight matrix chunks
- * SF_T                                       : log_2(SF), determines the number of address bits for the input buffer
- * **/
 
 module mvau_stream (
 		    input logic 		   rst_n,

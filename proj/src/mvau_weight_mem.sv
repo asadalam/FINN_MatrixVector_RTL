@@ -60,7 +60,7 @@ module mvau_weight_mem #(parameter int WMEM_ID=0,
    /**
     * Local Parameters
     * **/
-   localparam FILE=$sformatf("weight_mem%0d.hex",WMEM_ID);
+   localparam FILE=$sformatf("weight_mem%0d.mem",WMEM_ID);
    
    /**
     * Internal Signals 

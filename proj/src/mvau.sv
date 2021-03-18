@@ -1,8 +1,8 @@
-/*******************************************************************************
- *
+/*
+ * Module: mvau
+ * 
  * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- * \file mvu.sv
- *
+ * 
  * This file lists an RTL implementation of the matrix-vector activation unit
  * It is part of the Xilinx FINN open source framework for implementing
  * quantized neural networks on FPGAs
@@ -12,13 +12,18 @@
  * European Union's Horizon 2020 research and innovation programme under the 
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- *******************************************************************************/
+ * Inputs:
+ * rst_n  - Active low synchronous reset
+ * clk    - Main clock
+ * [TI-1:0] in - Input stream, word length TI=TSrcI*SIMD
+ * 
+ * Outputs:
+ * [TO-1:0] out - Output stream, word length TO=TDstI*PE 
+ * 
+ * Parameters:
+ * WMEM_ADDR_BW- Word length of the address for the weight memories (log2(WMEM_DEPTH))
+ * */
 
-/*************************************************/
-/*************************************************/
-/*** Top Level Multiply Vector Activation Unit ***/
-/*************************************************/
-/*************************************************/
 `timescale 1ns/1ns
 /**
  * Including the package definition file
@@ -26,24 +31,6 @@
  * that control the generation of the design
  * **/
 `include "mvau_defn.sv"
-
-/**
- * The Interface is as follows:
- * *******
- * Inputs:
- * *******
- * rst_n                                      : Active low synchronous reset
- * clk                                        : Main clock
- * [TI-1:0] in                                : Input stream, word length TI=TSrcI*SIMD
- * ********
- * Outputs:
- * ********
- * [TO-1:0] out                               : Output stream, word length TO=TDstI*PE 
- * *****************
- * Local parameters:
- * *****************
- * WMEM_ADDR_BW: Word length of the address for the weight memories (log2(WMEM_DEPTH))
- * **/
 
 module mvau (    
 		 input logic 	       rst_n, // active low synchronous reset
@@ -53,7 +40,9 @@ module mvau (
 		 output logic [TO-1:0] out); //output stream
    /*
     * Local parameters
-    * */   
+    * */
+   // Parameter: WMEM_ADDR_BW
+   // Word length of the weight memory address
    localparam int 		       WMEM_ADDR_BW=$clog2(WMEM_DEPTH); // Address word length for the weight memory
 
    /*
@@ -61,6 +50,8 @@ module mvau (
     * */ 
    
    // Internal signals for the weight memory
+   // Signal: wmem_addr
+   // This signal holds the address of the weight memory
    logic [WMEM_ADDR_BW-1:0]   wmem_addr;
    logic [0:SIMD-1][TW-1:0]   in_wgt [0:PE-1];   
    
