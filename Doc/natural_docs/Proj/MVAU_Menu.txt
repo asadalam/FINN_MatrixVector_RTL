@@ -44,21 +44,33 @@ Don't Index: Functions
 # 
 # --------------------------------------------------------------------------
 
-
-File: Intro  (no auto-title, MVAU_ROOT/proj/src/intro.txt)
+File: Intro  (MVAU_ROOT/Doc/intro.txt)
 
 Group: MVAU  {
+   
+   File: mvau (no auto-title, MVAU_ROOT/proj/src/mvau.sv)
+   File: mvau_control_block (no auto-title, MVAU_ROOT/proj/src/mvau_control_block.sv)
+   FIle: mvau_weight_mem (no auto-title, MVAU_ROOT/proj/src/mvau_weight_mem.sv)
+   File: mvau_stream (no auto-title, MVAU_ROOT/proj/src/mvau_stream.sv)
 
-   File: MVAU Top (no auto-title, MVAU_ROOT/proj/src/mvau.sv)
+   }  # Group: MVAU
 
-   Group: MVAU Stream  {
+Group: MVAU Stream  {
 
-      File: mvau_stream  (no auto-title, MVAU_ROOT/proj/src/mvau_stream.sv)
-   }
-}
+   File: mvau_inp_buffer (no auto-title, MVAU_ROOT/proj/src/mvau_inp_buffer.sv)
+   File: mvau_stream_control_block (no auto-title, MVAU_ROOT/proj/src/mvau_stream_control_block.sv)
+   File: mvu_pe (no auto-title, MVAU_ROOT/proj/src/mvu_pe.sv)
+   }  # Group: MVAU Stream
+
+Group: MVU Processing Element {
+   File: mvu_pe_simd_std (no auto-title, MVAU_ROOT/proj/src/mvu_pe_simd_std.sv)
+   }  # Group: MVU Processing Element
+ 
 
 Group: Index  {
 
    Index: Everything
-   Variable Index: Variables
+   Module Index: Modules
+   Signal Index: Signals
+   Parameter Index: Parameters
    }  # Group: Index

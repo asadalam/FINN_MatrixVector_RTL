@@ -1,0 +1,107 @@
+﻿Format: 2.1
+
+# This is the local project Natural Docs comments file.  If you change anything here,
+# it will apply to only this PROJECT you use Natural Docs on.  It's recommended
+# that you edit the version in your project configuration folder instead.
+# This will keep your changes separate so you won't have to reapply them
+# whenever you upgrade Natural Docs.
+
+
+# Comment Types
+# ------------------------------------------------------------------------
+# The syntax reference is after the definitions.
+
+
+Comment Type: Module
+
+   Display Name: Module
+   Plural Display: Modules
+
+   Flags: Code
+
+   Keywords:
+	module, modules
+
+
+Comment Type: Signal
+
+
+   Display Name: Signal
+   Plural Display: Signals
+
+   Flags: Code
+
+   Keywords:
+	signal, signals
+	logic
+	wire
+	reg
+
+Comment Type: Parameter
+
+
+   Display Name: Parameter
+   Plural Display: Parameters
+
+   Flags: Code
+
+   Keywords:
+	parameter, parameters
+	localparam, localparams
+
+
+# Each Natural Docs comment has a corresponding type which determine its
+# behavior.  This is how you define them.
+#
+# Comment Type: [name]
+#    Creates a new comment type.
+#
+# Display Name: [name]
+# Plural Display Name: [name]
+#    The singular and plural name of the comment type as it should appear in
+#    the output.  Defaults to the comment type name.
+#
+# Display Name from Locale: [identifier]
+# Plural Display Name from Locale: [identifier]
+#    The identifiers in the current translation file that define the singular
+#    and plural names of the comment type as it should appear in the output.
+#    If you want to change the name of a comment type in the output, you
+#    should remove these properties and use the versions without "from Locale"
+#    instead.
+#
+# Simple Identifier: [name]
+#    The name of the comment type using only the letters A to Z.  No spaces,
+#    numbers, symbols, or Unicode allowed.  Defaults to the comment type name
+#    minus any unacceptable characters.  This is used to generate things like
+#    CSS class names.
+#
+# Scope: [normal|start|end|always global]
+#    How the comment affects scope.  Defaults to normal.
+#    normal        - The comment stays within the current scope.
+#    start         - The comment starts a new scope for all the comments
+#                    beneath it, like class comments.
+#    end           - The comment resets the scope back to global for all the
+#                    comments beneath it, like section comments.
+#    always global - The comment is defined as a global symbol, but does not
+#                    change the scope for any other comments.
+#
+# Flags: [flag], [flag], ...
+#    A combination of settings that apply to the comment type.
+#    Code, File, or Documentation
+#        Whether it's used to describe a code element, a file, or is a
+#        standalone documentation comment.  Defaults to Code.
+#    Variable Type
+#        Whether it describes a code element that can be used as a variable's
+#        type.
+#    Class Hierarchy or Database Hierarchy
+#        Whether it describes a code element that should be included in the
+#        class or database hierarchy.  Requires Scope: Start.
+#    Enum
+#        Whether it describes an enum.
+#
+# Keywords:
+#    [keyword]
+#    [keyword], [plural keyword]
+#    ...
+#    A list of the comment type's keywords.  Each line after the heading is
+#    the keyword and optionally its plural form for list comments.
