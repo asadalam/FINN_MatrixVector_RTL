@@ -1,7 +1,7 @@
 /* 
  * Module: Standard Multiplication based SIMD (mvu_pe_simd_std.sv)
  * 
- * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  *
  * This file lists an RTL implementation of a SIMD unit based on standard
  * multiplication when word length >= 2. It is part of a processing element
@@ -13,11 +13,11 @@
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  *
  * Inputs:
- * * rst_n           - Active low, synchronous reset
+ * rst_n           - Active low, synchronous reset
  * clk               - Main clock
  * [TSrc-1:0] in_act - Input activation stream, word length TSrcI
  * [TW-1:0]   in_wgt - Input weight, word length TW
-
+ * 
  * Outputs:
  * [TDstI-1:0] out   - Output stream, word length TDstI
  * */

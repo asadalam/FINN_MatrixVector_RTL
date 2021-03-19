@@ -1,11 +1,10 @@
-/*******************************************************************************
- *
- *  Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- *
- *  \file mvu_pe_adders.sv
+/*
+ * Module: PE Adder Tree (mvu_pe_adders.sv)
+ * 
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  *
  * This file lists an RTL implementation of an adder unit
- * which adds the output of the SIMD units
+ * which adds the output of the SIMD units. Starting off as a simple adder tree.
  * It is part of a processing element
  * which is part of the Matrix-Vector-Multiplication Unit
  *
@@ -14,27 +13,16 @@
  * European Union's Horizon 2020 research and innovation programme under the 
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- *******************************************************************************/
+ * Inputs:
+ * [TDstI-1:0] in_simd [0:SIMD-1] - Input from the SIMD unit, word length TDstI
+ * 
+ * Outputs:
+ * [TDstI-1:0] out_add            - Output from adder, word length TDstI
+ * */
 
-/**********************************************
- * Unit to add SIMD outputs
- * Starting off as a simple adder tree
- * ********************************************/
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
-
-/**
- * The interface is as follows:
- * *******
- * Inputs:
- * *******
- * [TDstI-1:0] in_simd [0:SIMD-1] : Input from the SIMD unit, word length TDstI
- * ********
- * Outputs:
- * ********
- * [TDstI-1:0] out_add            : Output from adder, word length TDstI
- * **/
 
 module mvu_pe_adders 
   (input logic [TDstI-1:0] in_simd [0:SIMD-1],

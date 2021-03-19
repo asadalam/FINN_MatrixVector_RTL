@@ -1,8 +1,7 @@
-/*******************************************************************************
- *
- *  Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- *
- *  \file mvu_pe_acc.sv
+/*
+ * Module: PE Accumulator (mvu_pe.sv)
+ * 
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  *
  * This file lists an RTL implementation of the accumulator
  * This accumulator is used to accumulator as a row of weights
@@ -15,31 +14,18 @@
  * European Union's Horizon 2020 research and innovation programme under the 
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- *******************************************************************************/
-
-
-/*************************************************
- * Accmulator
- * Performs accmulation
- * **********************************************/
+ * Inputs:
+ * rst_n              - Active low synchronous reset
+ * clk                - Main clock
+ * sf_clr             - Control signal from the control block for resetting the accumulator
+ * [TDstI-1:0] in_acc - Input to the accumulator from the adders, word length TDstI
+ * 
+ * Outputs:
+ * [TDstI-1:0] out_add            - Output from adder, word length TDstI
+ * */
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
-
-/**
- * The interface is as follows:
- * *******
- * Inputs:
- * *******
- * rst_n             : Active low synchronous reset
- * clk               : Main clock
- * sf_clr            : Control signal from the control block for resetting the accumulator
- * [TDstI-1:0] in_acc: Input to the accumulator from the adders, word length TDstI
- * ********
- * Outputs:
- * ********
- * [TDstI-1:0] out_add            : Output from adder, word length TDstI
- * **/
 
 module mvu_pe_acc 
   ( input logic rst_n,
@@ -51,6 +37,8 @@ module mvu_pe_acc
    /**
     * Internal signals
     * */
+   // Signal: sf_clr_dly
+   // A two bit signal to delay the sf_clr input by two clock cycles
    logic [1:0] 		      sf_clr_dly;
    
    /**

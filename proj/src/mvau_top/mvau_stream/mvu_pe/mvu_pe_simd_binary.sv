@@ -1,48 +1,37 @@
-/*******************************************************************************
- *
- *  Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- *
- *  \file mvu_pe_simd_binary.sv
+/*
+ * Module: Binary input based SIMD (mvu_pe_simd_binary.sv)
+ * 
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  *
  * This file lists an RTL implementation of a SIMD unit 
  * when one of the inputs is 1-bit and the other is more than 1 bits
  * It is part of a processing element
  * which is part of the Matrix-Vector-Multiplication Unit
- *
- * This material is based upon work supported, in part, by Science Foundation
- * Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the 
- * European Union's Horizon 2020 research and innovation programme under the 
- * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- *******************************************************************************/
-
-
-/*************************************************
  * SIMD unit
  * Performs multiplication of input activation and weight
  * Two cases
  * Activation = 1 bit, Weight > 1 bit
  * Weight = 1 bit, Activation > 1 bit
- * **********************************************/
+ * 
+ * This material is based upon work supported, in part, by Science Foundation
+ * Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the 
+ * European Union's Horizon 2020 research and innovation programme under the 
+ * Marie Sklodowska-Curie grant agreement Grant No.754489. 
+ * 
+ * Inputs:
+ * rst_n             - Active low, synchronous reset
+ * clk               - Main clock
+ * [TSrc-1:0] in_act - Input activation stream, word length TSrcI
+ * [TW-1:0]   in_wgt - Input weight, word length TW
+ * 
+ * Outputs:
+ * [TDstI-1:0] out   - Output stream, word length TDstI
+ * */
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
 
-
-/**
- * The interface is as follows:
- * *******
- * Inputs:
- * *******
- * rst_n             : Active low, synchronous reset
- * clk               : Main clock
- * [TSrc-1:0] in_act : Input activation stream, word length TSrcI
- * [TW-1:0]   in_wgt : Input weight, word length TW
- * ********
- * Outputs:
- * ********
- * [TDstI-1:0] out   : Output stream, word length TDstI
- * **/
 
 module mvu_pe_simd_binary 
   ( 

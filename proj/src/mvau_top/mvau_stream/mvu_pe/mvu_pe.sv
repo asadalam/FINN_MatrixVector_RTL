@@ -36,12 +36,20 @@ module mvu_pe
    input logic [0:SIMD-1][TW-1:0] in_wgt , // Input weights (packed array): TW*SIMD
    output logic [TDstI-1:0] 	  out); // Output
    
-   /****************************
+   /*
     * Internal Signals/Wires
-    * *************************/
-   logic [TDstI-1:0] 	     out_simd [0:SIMD-1]; // SIMD output 
-   logic [TDstI-1:0] 	     out_add; // Unregistered output from the adders
+    * */
+   // Signal: out_simd
+   // SIMD Output
+   logic [TDstI-1:0] 	     out_simd [0:SIMD-1];
+   // Signal: out_add
+   // Unregistered output from the adders
+   logic [TDstI-1:0] 	     out_add;
+   // Signal: in_act_rev
+   // Copy of input in_act for easy partitioning of input activation
    logic [0:TI-1] 	     in_act_rev;
+   // Signal: in_act_packed
+   // Packed input activation array, makes for easy access
    logic [0:SIMD-1][TSrcI-1:0] in_act_packed;
    
    /**
