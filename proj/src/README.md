@@ -2,7 +2,7 @@
 This folder contains all the design source files written in System Verilog.
 The hierarchy is as follows:
 
-## Top level module: mvau.sv
+## Top level module: mvau_top/mvau.sv
 This is the top level design unit which instantiates a number of blocks.
 The main block is the matrix vector computation unit which multiplies
 the input activation and weight matrix. The multiplication is carried
@@ -11,53 +11,6 @@ where each tile has a word length of TW, with a slice of input
 activation vector of length SIMD. The top level file generates the required
 control signals to generate the weight tile and input activation vector slice.
 
-The second block is the input buffer for storing the input activation map.
-It also instantiates the threshold based activation unit.
-
-### Matrix vector stream unit: mvau_stream.sv  
-This unit is the main computation unit performing multiply accumulate of a
-stream of weight and a slice of input activation unit. It uses PE numbers of
-processing elements. Each processing element implements the dot product of
-its corresponding row of the weight tile with the input activation vector slice.
-
-#### MVAU Stream Control Block: mvau_stream_control_block.sv
-This control block controls reading to and writing from the input buffer. It generates
-the address and read/write enables for the input buffer.
-
-#### Input Buffer: mvau_inp_buffer.sv
-This unit stores one column of input feature map as it is multiplied
-with multiple rows of the weight matrix. During the first SIMDxSF clock
-cycles, the input buffer is written with new elements of the input feature
-map and for the next SIMDx(NF-1) clock cycles, the input buffer is re-used
-for other computations.
-
-#### Processing element design unit: mvu_pe.sv
-The processing elements consists of a number of SIMD blocks which perform
-multiplication between a single weight and input activation. There are
-three types of SIMD blocks based on the input word length of weights and
-input activations but only one is implemented using generate statements. 
-
-The output of SIMD is connected to an adder tree which if both the inputs
-are 1-bit reduces to a popcount (counting number of '1's in the SIMD's output.
-
-##### SIMD design unit: mvu_pe_simd_\<type\>.sv
-The three different SIMD blocks are
-- mvu_pe_simd_std.sv: Implements a 2's complement multiplication
-- mvu_pe_simd_binary.sv: If one of the two inputs is 1-bit, a '0' is
-interpreted as -1 and '1' is interpreted as +1, meaning the output will
-either be a copy of the other input or a 2's complement of it
-- mvu_pe_simd_xnor.sv: If both inputs are 1-bit, the output is an XNOR
-of the two inputs. This implements an XNOR network.
-
-##### Adder Tree: mvu_pe_\<adders/popcount\>.sv
-The output of the SIMD blocks are added together either using an adder
-tree or a popcount (when both weights and input activation are 1-bit).
-A simple for-loop based implementation is selection (at the moment) for
-simplicity, so both design files are identical.
-
-##### Accumulator: mvu_pe_acc.sv
-A simple accumulator. The accumulator is resetted every Matrix/SIMD cycles.
-		 
 ### Threshold based Activation Unit: mvau_act_comp.sv
 
 
@@ -72,3 +25,48 @@ the width of each word equals SIMDxTW.
 
 ### Package File: mvau_defn.sv
 A package file defines all parameters used by the top level design (mvau.sp) and also by the test bench.
+
+### Matrix vector stream unit: mvau_top/mvau_stream/mvau_stream.sv  
+This unit is the main computation unit performing multiply accumulate of a
+stream of weight and a slice of input activation unit. It uses PE numbers of
+processing elements. Each processing element implements the dot product of
+its corresponding row of the weight tile with the input activation vector slice.
+
+#### MVAU Stream Control Block: mvau_top/mvau_stream/mvau_stream_control_block.sv
+This control block controls reading to and writing from the input buffer. It generates
+the address and read/write enables for the input buffer.
+
+#### Input Buffer: mvau_top/mvau_stream/mvau_inp_buffer.sv
+This unit stores one column of input feature map as it is multiplied
+with multiple rows of the weight matrix. During the first SIMDxSF clock
+cycles, the input buffer is written with new elements of the input feature
+map and for the next SIMDx(NF-1) clock cycles, the input buffer is re-used
+for other computations.
+
+#### Processing element design unit: mvau_top/mvau_stream/mvu_pe/mvu_pe.sv
+The processing elements consists of a number of SIMD blocks which perform
+multiplication between a single weight and input activation. There are
+three types of SIMD blocks based on the input word length of weights and
+input activations but only one is implemented using generate statements. 
+
+The output of SIMD is connected to an adder tree which if both the inputs
+are 1-bit reduces to a popcount (counting number of '1's in the SIMD's output.
+
+##### SIMD design unit: mvau_top/mvau_stream/mvu_pe/mvu_pe_simd_\<type\>.sv
+The three different SIMD blocks are
+- mvu_pe_simd_std.sv: Implements a 2's complement multiplication
+- mvu_pe_simd_binary.sv: If one of the two inputs is 1-bit, a '0' is
+interpreted as -1 and '1' is interpreted as +1, meaning the output will
+either be a copy of the other input or a 2's complement of it
+- mvu_pe_simd_xnor.sv: If both inputs are 1-bit, the output is an XNOR
+of the two inputs. This implements an XNOR network.
+
+##### Adder Tree: mvau_top/mvau_stream/mvu_pe/mvu_pe_\<adders/popcount\>.sv
+The output of the SIMD blocks are added together either using an adder
+tree or a popcount (when both weights and input activation are 1-bit).
+A simple for-loop based implementation is selection (at the moment) for
+simplicity, so both design files are identical.
+
+##### Accumulator: mvau_top/mvau_stream/mvu_pe/mvu_pe_acc.sv
+A simple accumulator. The accumulator is resetted every Matrix/SIMD cycles.
+		 
