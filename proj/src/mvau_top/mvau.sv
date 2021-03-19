@@ -1,7 +1,7 @@
 /*
- * Module: mvau
+ * Module: MVAU Top Level (mvau.sv)
  * 
- * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  * 
  * This file lists an RTL implementation of the matrix-vector activation unit
  * It is part of the Xilinx FINN open source framework for implementing
@@ -21,15 +21,11 @@
  * [TO-1:0] out - Output stream, word length TO=TDstI*PE 
  * 
  * Parameters:
- * WMEM_ADDR_BW- Word length of the address for the weight memories (log2(WMEM_DEPTH))
+ * WMEM_ADDR_BW - Word length of the address for the weight memories (log2(WMEM_DEPTH))
  * */
 
 `timescale 1ns/1ns
-/**
- * Including the package definition file
- * The package definition file contains all global parameters
- * that control the generation of the design
- * **/
+// Package file for parameters
 `include "mvau_defn.sv"
 
 module mvau (    
@@ -49,14 +45,21 @@ module mvau (
     * Internal Signals/Wires 
     * */ 
    
-   // Internal signals for the weight memory
+   /* 
+    * Internal signals for the weight memory
+    * */
    // Signal: wmem_addr
    // This signal holds the address of the weight memory
    logic [WMEM_ADDR_BW-1:0]   wmem_addr;
+   // Signal: in_wgt
+   // This holds the streaming weight tile
    logic [0:SIMD-1][TW-1:0]   in_wgt [0:PE-1];   
    
-   // Internal signals for the MVAU_STREAM   
+   // Signal: out_stream
+   // This signal is connected to the output of streaming module (mvau_stream)
    logic [TO-1:0] 	      out_stream;
+   // Signal: in_act
+   // Input activation vector to the streaming module (mvau_stream)
    logic [TI-1:0] 	      in_act;
    
    /*
@@ -64,6 +67,9 @@ module mvau (
     * and for generating the correct weight tile for the
     * matrix vector computation/multiplication unit
     * */
+   // Block: mvau_control_block
+   // Instantiation of the control unit for generation
+   // of address for the weight memory
    mvau_control_block #(.WMEM_ADDR_BW(WMEM_ADDR_BW)
 			)
    mvau_cb_inst (.rst_n,

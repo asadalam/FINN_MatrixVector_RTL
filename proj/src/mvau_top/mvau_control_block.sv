@@ -1,11 +1,10 @@
-/*******************************************************************************
- *
- * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- * \file mvau_control_block.sv
- *
+/*
+ * Module: MVAU Control Block (mvau_control_block.sv)
+ * 
+ * Author(s): Syed Asad Alam
+ * 
  * This file lists an RTL implementation of the control block
- * It is used to control the generation of address for the weight
- * memory
+ * which generates address for weight memory
  * 
  * It is part of the Xilinx FINN open source framework for implementing
  * quantized neural networks on FPGAs
@@ -15,34 +14,21 @@
  * European Union's Horizon 2020 research and innovation programme under the 
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- *******************************************************************************/
-
-/*
- * MVAU Control Block
- * Generates address, write and read enable for the input buffer
- * Free running counters to track as each input activation vector
- * is processed
+ * Parameters:
+ * WMEM_ADDR_BW - Word length of the address for the weight memories
+ * 
+ * Inputs:
+ * rst_n                       - Active low synchronous reset
+ * clk                         - Main clock
+ * 
+ * Outputs:
+ * [WMEM_ADDR_BW-1:0] wmem_addr- Address for the weight memories
  * */
+
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
 
-/**
- * Interface is as follows:
- * *****************
- * Extra parameters:
- * *****************
- * WMEM_ADDR_BW: Word length of the address for the weight memories
- * *******
- * Inputs:
- * *******
- * rst_n                       : Active low synchronous reset
- * clk                         : Main clock
- * ********
- * Outputs:
- * ********
- * [WMEM_ADDR_BW-1:0] wmem_addr: Address for the weight memories
- * **/
 
 module mvau_control_block #(parameter int WMEM_ADDR_BW=2
 			    )
@@ -53,10 +39,6 @@ module mvau_control_block #(parameter int WMEM_ADDR_BW=2
     //output logic [0:SIMD-1][TW-1:0] out_wgt[0:PE-1] // The output weight tile (not used any more)
     );
    
-   /*
-    * Internal Signals
-    * */
-      
    /* 
     * Always block for accessing a weight tile
     * We need to access the weight tile that corresponds

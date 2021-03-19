@@ -1,12 +1,15 @@
-/*******************************************************************************
- *
- * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- * \file mvau_stream_control_block.sv
- *
+/*
+ * Module: MVAU Streaming Block Control Unit (mvau_stream_control_block.sv)
+ * 
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
+ * 
  * This file lists an RTL implementation of the control block
  * It is used to control the input buffer
  * and generation of the correct control signals to control
- * the multiplication operation
+ * the multiplication operation and generate address, write 
+ * and read enable for the input buffer. It also contains 
+ * free running counters to track as each input activation vector
+ * is processed
  * 
  * It is part of the Xilinx FINN open source framework for implementing
  * quantized neural networks on FPGAs
@@ -16,39 +19,24 @@
  * European Union's Horizon 2020 research and innovation programme under the 
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- *******************************************************************************/
+ * Parameters:
+ * SF=MatrixW/SIMD - Number of vertical weight matrix chunks and depth of the input buffer
+ * NF=MatrixH/PE   - Number of horizontal weight matrix chunks
+ * SF_T            - log_2(SF), determines the number of address bits for the input buffer * SF_T
+ * 
+ * Inputs:
+ * rst_n                                      - Active low synchronous reset
+ * clk                                        - Main clock
 
-/*
- * MVAU Stream Control Block
- * Generates address, write and read enable for the input buffer
- * Free running counters to track as each input activation vector
- * is processed
+ * Outputs:
+ * ib_wen                             - Write enable for the input buffer
+ * ib_red                             - Read enable for the input buffer
+ * sf_clr                             - Control signal for resetting the accumulator
+ * [SF_T:0] sf_cnt                    - Address for the input buffer
  * */
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
-
-/**
- * Interface is as follows:
- * *****************
- * Extra parameters:
- * *****************
- * SF=MatrixW/SIMD: Number of vertical weight matrix chunks and depth of the input buffer
- * NF=MatrixH/PE  : Number of horizontal weight matrix chunks
- * SF_T           : log_2(SF), determines the number of address bits for the input buffer * SF_T
- * *******
- * Inputs:
- * *******
- * rst_n                                      : Active low synchronous reset
- * clk                                        : Main clock
- * ********
- * Outputs:
- * ********
- * ib_wen                             : Write enable for the input buffer
- * ib_red                             : Read enable for the input buffer
- * sf_clr                             : Control signal for resetting the accumulator
- * [SF_T:0] sf_cnt                    : Address for the input buffer
- * **/
 
 module mvau_stream_control_block #(
 			    parameter int SF=8,
@@ -68,9 +56,14 @@ module mvau_stream_control_block #(
    /*
     * Local Parameters
     * */
-
+   // Parameter: NF_T
+   // Word length of the NF counter to control reading and writing from the input buffer
    localparam int 	    NF_T=$clog2(NF); // For nf_cnt
+   // Parameter: MatrixH_BW
+   // Word length to represent the weight matrix height
    localparam int 	    MatrixH_BW=$clog2(MatrixH);
+   // Parameter: MatrixW_BW
+   // Word length to represent the weight matrix width
    localparam int 	    MatrixW_BW=$clog2(MatrixW);
 
    /*

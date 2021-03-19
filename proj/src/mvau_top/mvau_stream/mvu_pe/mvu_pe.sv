@@ -1,46 +1,32 @@
-/*******************************************************************************
- *
- *  Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- *
- *  \file mvu_simd.sv
- *
- *  This file lists an RTL implementation of a processing element. 
- * It is part of the Matrix-Vector-Multiplication Unit
+/*
+ * Module: MVU Processing Element (mvu_pe.sv)
+ * 
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
+ * 
+ * This file lists an RTL implementation of the processing element unit. 
+ * It instantiates a number of SIMD units and an adder unit which takes in the SIMD
+ * outputs. It is part of the Matrix-Vector-Multiplication Unit
  *
  * This material is based upon work supported, in part, by Science Foundation
  * Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the 
  * European Union's Horizon 2020 research and innovation programme under the 
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- *******************************************************************************/
+ * Inputs:
+ * rst_n                     - Active low, synchronous reset
+ * clk                       - Main clock
+ * sf_clr                    - Control signal to reset the accumulator
+ * [TI-1:0] in_act           - Input activation stream, word length TI=TSrcI*SIMD
+ * [0:SIMD-1][TW-1:0] in_wgt - Input weight stream for each PE
+ * 
+ * Outputs:
+ * [TDstI-1:0] out           - Output stream, word length TDstI
+ * */
 
-
-/*************************************************
- * Top Level for the processing element unit 
- * Instantiates a number of SIMD units
- * and an adder unit which takes in the SIMD
- * outputs
- /*************************************************/
-
+ 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
 
-
-/**
- * The interface is as follows:
- * *******
- * Inputs:
- * *******
- * rst_n                     : Active low, synchronous reset
- * clk                       : Main clock
- * sf_clr                    : Control signal to reset the accumulator
- * [TI-1:0] in_act           : Input activation stream, word length TI=TSrcI*SIMD
- * [0:SIMD-1][TW-1:0] in_wgt : Input weight stream for each PE
- * ********
- * Outputs:
- * ********
- * [TDstI-1:0] out           : Output stream, word length TDstI
- * **/
 
 module mvu_pe 
   (input logic rst_n,

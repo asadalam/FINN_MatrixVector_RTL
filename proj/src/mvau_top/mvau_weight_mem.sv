@@ -1,16 +1,12 @@
-/*******************************************************************************
- *
- * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- * \file mvau_weight_mem.sv
+/*
+ * Module: MVAU Weight Memory (mvau_weight_mem.sv)
+ * 
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  *
  * This file lists an RTL implementation of the 
- * weight memory
- * 
- * The depth of each weight memory is given by
- *              (KDim^2 * IFMCh * OFMCh)/(SIMD * PE)
- * 
- * The word length of each word is
- *                   SIMD*TW
+ * weight memory. The depth of each weight memory is given by
+ * (KDim^2 * IFMCh * OFMCh)/(SIMD * PE). The word length of each word is
+ * SIMD*TW
  *  
  * It is part of the Xilinx FINN open source framework for implementing
  * quantized neural networks on FPGAs
@@ -20,35 +16,20 @@
  * European Union's Horizon 2020 research and innovation programme under the 
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- *******************************************************************************/
-
-/*
- * MVAU Control Block
- * Generates address, write and read enable for the input buffer
- * Free running counters to track as each input activation vector
- * is processed
+ * Parameters:
+ * WMEM_ID                     - The ID for the weight memory. Helps in reading the right file
+ * WMEM_ADDR_BW                - The word length of the address for the weight memory
+ * 
+ * Inputs:
+ * clk                          - Main clock
+ * [WMEM_ADDR_BW-1:0] wmem_addr - Weight memory address
+ * 
+ * Outputs:
+ * [SIMD*TW-1:0]               - Weight memory output, word lenght SIMDxTW
  * */
 
 `timescale 1ns/1ns
 `include "mvau_defn.sv"
-
-/**
- * Interface is as follows:
- * *****************
- * Extra parameters:
- * *****************
- * WMEM_ID                     : The ID for the weight memory. Helps in reading the right file
- * WMEM_ADDR_BW                : The word length of the address for the weight memory
- * *******
- * Inputs:
- * *******
- * clk                         : Main clock
- * [WMEM_ADDR_BW-1:0] wmem_addr: Weight memory address
- * ********
- * Outputs:
- * ********
- * [SIMD*TW-1:0]               : Weight memory output, word lenght SIMDxTW
- * **/
 
 module mvau_weight_mem #(parameter int WMEM_ID=0,
 			 parameter int WMEM_ADDR_BW=2)

@@ -1,5 +1,5 @@
 /*
- * Module: mvau_stream 
+ * Module: MVAU Streaming Block (mvau_stream.sv)
  * 
  * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
  * 
