@@ -1,0 +1,1 @@
+﻿NDFramePage.OnPageTitleLoaded("File:mvau_weight_mem.sv","mvau_weight_mem.sv");NDSummary.OnSummaryLoaded("File:mvau_weight_mem.sv",[["SystemVerilog","SystemVerilog"]],[["Groups","Group"],["Modules","Module"]],[[43,0,0,"Modules","Modules"],[44,0,1,"<span class=\"Qualifier\">MVAU Weight Memory (mvau_weight_mem.</span>&#8203;sv)","MVAU_Weight_Memory"]]);

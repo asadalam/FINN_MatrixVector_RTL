@@ -1,0 +1,1 @@
+﻿NDSummary.OnToolTipsLoaded("File:mvau_control_block.sv",{33:"<div class=\"NDToolTip TModule LSystemVerilog\"><div class=\"TTSummary\">Author(s): Syed Asad Alam</div></div>"});

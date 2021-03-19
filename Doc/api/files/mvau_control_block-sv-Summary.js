@@ -1,0 +1,1 @@
+﻿NDFramePage.OnPageTitleLoaded("File:mvau_control_block.sv","mvau_control_block.sv");NDSummary.OnSummaryLoaded("File:mvau_control_block.sv",[["SystemVerilog","SystemVerilog"]],[["Groups","Group"],["Modules","Module"]],[[32,0,0,"Modules","Modules"],[33,0,1,"<span class=\"Qualifier\">MVAU Control Block (mvau_control_block.</span>&#8203;sv)","MVAU_Control_Block"]]);

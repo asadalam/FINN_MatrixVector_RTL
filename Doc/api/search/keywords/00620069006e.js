@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("bin",["Module"],[["Binary",,[[,"Binary input based SIMD",,,0,"File:mvau_stream/mvu_pe/mvu_pe_simd_binary.sv:Binary_input_based_SIMD"]]]]);
