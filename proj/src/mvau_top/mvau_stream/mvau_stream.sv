@@ -1,7 +1,7 @@
 /*
  * Module: MVAU Streaming Block (mvau_stream.sv)
  * 
- * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  * 
  * This file lists an RTL implementation of the matrix-vector multiplication unit
  * based on streaming weights. It can either be part of the Matrix-Vector-Activation Unit
@@ -42,22 +42,38 @@ module mvau_stream (
 
    /*
     * Local parameters
-    * */   
+    * */
+   // Parameter: SF
+   // Number of vertical matrix chunks to be processed in parallel by one PE
    localparam int SF=MatrixW/SIMD; // Number of vertical matrix chunks
+   // Parameter: NF
+   // Number of horizontal matrix chunks to be processed by PEs in parallel
    localparam int NF=MatrixH/PE; // Number of horizontal matrix chunks
+   // Parameter: SF_T
+   // Address word length of the buffer
    localparam int SF_T=$clog2(SF); // Address word length for the input buffer
    
    /**
     * Internal Signals
     * **/
    // Internal signals for the input buffer and the control block
-   logic 		      ib_wen; // Write enable for the input buffer
-   logic 		      ib_ren; // Read enable for the input buffer
+   // Signal: ib_wen
+   // Write enable for the input buffer
+   logic 		      ib_wen;
+   // Signal: ib_ren
+   // Read enable for the input buffer
+   logic 		      ib_ren;
+   // Signal: sf_clr
+   // Resets the accumulator as well the sf_cnt
    logic 		      sf_clr;
-   logic [SF_T-1:0] 	      sf_cnt; // Counter keeping track of SF and also address to input buffer
-   logic [TI-1:0] 	      out_act; // Output of the input buffer
-   
-   // Internal signals for the PEs
+   // Signal: sf_cnt
+   // Counter keeping track of SF and also address to input buffer
+   logic [SF_T-1:0] 	      sf_cnt;
+   // Signal out_act
+   // Output of the input buffer
+   logic [TI-1:0] 	      out_act;    
+   // Signal: out_pe
+   // Holds the output from parallel PEs
    logic [0:PE-1][TDstI-1:0]  out_pe;
 
    /*

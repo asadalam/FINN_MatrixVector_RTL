@@ -19,20 +19,20 @@
  * European Union's Horizon 2020 research and innovation programme under the 
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
- * Parameters:
- * SF=MatrixW/SIMD - Number of vertical weight matrix chunks and depth of the input buffer
- * NF=MatrixH/PE   - Number of horizontal weight matrix chunks
- * SF_T            - log_2(SF), determines the number of address bits for the input buffer * SF_T
- * 
  * Inputs:
  * rst_n                                      - Active low synchronous reset
  * clk                                        - Main clock
-
+ * 
  * Outputs:
  * ib_wen                             - Write enable for the input buffer
  * ib_red                             - Read enable for the input buffer
  * sf_clr                             - Control signal for resetting the accumulator
  * [SF_T:0] sf_cnt                    - Address for the input buffer
+ * 
+ * Parameters:
+ * SF=MatrixW/SIMD - Number of vertical weight matrix chunks and depth of the input buffer
+ * NF=MatrixH/PE   - Number of horizontal weight matrix chunks
+ * SF_T            - log_2(SF), determines the number of address bits for the input buffer * SF_T
  * */
 
 `timescale 1ns/1ns
@@ -102,7 +102,8 @@ module mvau_stream_control_block #(
 	 end
       end // block: N_FILTER_BANKS
    endgenerate
-      
+
+   // Signal: sf_clr
    // A one bit control signal to indicate when sf_cnt == SF
    assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
    
