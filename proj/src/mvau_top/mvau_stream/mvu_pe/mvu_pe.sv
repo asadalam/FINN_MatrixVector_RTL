@@ -20,12 +20,13 @@
  * [0:SIMD-1][TW-1:0] in_wgt - Input weight stream for each PE
  * 
  * Outputs:
+ * out_v                     - Output valid
  * [TDstI-1:0] out           - Output stream, word length TDstI
  * */
 
  
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
+`include "../../mvau_defn.sv"
 
 
 module mvu_pe 
@@ -34,6 +35,7 @@ module mvu_pe
    input logic 			  sf_clr,
    input logic [TI-1:0] 	  in_act, // Input activation (packed array): TSrcI*PE
    input logic [0:SIMD-1][TW-1:0] in_wgt , // Input weights (packed array): TW*SIMD
+   output logic 		  out_v, // Output valid
    output logic [TDstI-1:0] 	  out); // Output
    
    /*
@@ -237,6 +239,7 @@ module mvu_pe
 		      .clk,
 		      .sf_clr,
 		      .in_acc(out_add),
+		      .out_acc_v(out_v),
 		      .out_acc(out));
    
 endmodule // mvu_pe

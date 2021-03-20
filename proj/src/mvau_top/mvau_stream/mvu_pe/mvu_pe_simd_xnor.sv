@@ -26,7 +26,7 @@
 
 
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
+`include "../../mvau_defn.sv"
 
 module mvu_pe_simd_xnor 
   ( 
@@ -36,9 +36,9 @@ module mvu_pe_simd_xnor
     input logic [TW-1:0]     in_wgt, //Input weight
     output logic [TDstI-1:0] out); //Output   
 
-   /***************************************
-    * SIMD only performs multiplication
-    * ************************************/
+   // Always_FF: XNOR based SIMD
+   // Performs multiplication by XNOR
+   // Both inputs are '1' bit
    always_ff @(posedge clk) begin: SIMD_MUL
       if(!rst_n)
 	out <= 'd0;

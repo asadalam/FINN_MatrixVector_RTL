@@ -21,31 +21,38 @@
  * [TDstI-1:0] in_acc - Input to the accumulator from the adders, word length TDstI
  * 
  * Outputs:
- * [TDstI-1:0] out_add            - Output from adder, word length TDstI
+ * out_acc_v           - Output valid
+ * [TDstI-1:0] out_acc - Output of the accumulator, word length TDstI
  * */
 
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
+`include "../../mvau_defn.sv"
 
 module mvu_pe_acc 
   ( input logic rst_n,
     input logic 	     clk,
     input logic 	     sf_clr,
     input logic [TDstI-1:0]  in_acc, // Input from the adders/popcount
+    output logic 	     out_acc_v, // Output valid
     output logic [TDstI-1:0] out_acc); //Output
 
+      
    /**
     * Internal signals
     * */
    // Signal: sf_clr_dly
    // A two bit signal to delay the sf_clr input by two clock cycles
    logic [1:0] 		      sf_clr_dly;
-   
-   /**
-    * Delaying sf_clr for two clock cycles
-    * to match the two pipelines
-    * one after SIMD's and one after the adders
-    * */
+
+   // out_acc_v is a copy of the sf_clr_dly[1]
+   // because that is the time we reach the last cycle
+   // of accumulation
+   assign out_acc_v = sf_clr_dly[1];
+
+
+   // Always_FF: SF_CLR_DLY
+   // Sequential 'always' block to delay sf_clr for two clock cycles
+   // to match the two pipelines one after SIMD's and one after the adders
    always_ff @(posedge clk) begin
       if(!rst_n)
 	sf_clr_dly <= 2'd0;
@@ -53,9 +60,9 @@ module mvu_pe_acc
 	sf_clr_dly <= {sf_clr_dly[0],sf_clr};
    end
       
-   /***************************************
-    * Accmulation
-    * ************************************/
+   // Always_FF: Accumulator
+   // Sequential 'always' block to perform accumulation
+   // The accumulator is cleared the sf_clr_dly[1] is asserted
    always_ff @(posedge clk) begin
       if(!rst_n)
 	out_acc <= 'd0;

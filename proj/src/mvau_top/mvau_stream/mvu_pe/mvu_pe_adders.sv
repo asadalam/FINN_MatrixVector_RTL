@@ -20,17 +20,15 @@
  * [TDstI-1:0] out_add            - Output from adder, word length TDstI
  * */
 
-
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
+`include "../../mvau_defn.sv"
 
 module mvu_pe_adders 
   (input logic [TDstI-1:0] in_simd [0:SIMD-1],
    output logic [TDstI-1:0] out_add);
 
-    /****************************
-    * Internal Signals/Wires
-    * *************************/
+   // Always_COMB: Addition
+   // Performs addition using adder tree
    always_comb
      begin: adders
 	// Initializing the output with a value

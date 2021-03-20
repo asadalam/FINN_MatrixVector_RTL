@@ -1,8 +1,7 @@
 /*
- *
- *  Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
- *
- *  \file mvu_pe_popcount.sv
+ * Module: PE Adder Tree based on popcount (mvu_pe_popcount.sv)
+ * 
+ * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  *
  * This file lists an RTL implementation of an adder unit
  * which adds the output of the SIMD units based on counting '1's.
@@ -22,15 +21,16 @@
  * [TDstI-1:0] out_add            - Output from adder, word length TDstI
  * */
 
-
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
+`include "../../mvau_defn.sv"
 
 module mvu_pe_popcount 
   (
    input logic [TDstI-1:0]  in_simd [0:SIMD-1],
    output logic [TDstI-1:0] out_add);
 
+   // Always_COMB: Addition
+   // Performs addition using popcount
    always_comb
      begin: adders
 	// Initializing the output with a value

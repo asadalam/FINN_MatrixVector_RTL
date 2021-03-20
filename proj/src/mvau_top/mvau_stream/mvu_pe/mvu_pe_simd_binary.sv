@@ -30,7 +30,7 @@
  * */
 
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
+`include "../../mvau_defn.sv"
 
 
 module mvu_pe_simd_binary 
@@ -46,6 +46,8 @@ module mvu_pe_simd_binary
     * ************************************/
    generate
       if(TW==1) begin: WGT_1 // if weight is 1-bit
+	 // Always_FF: Binary SIMD
+	 // SIMD when one of the inputs is '1' bit
 	 always_ff @(posedge clk) begin: SIMD_MUL
 	    if(!rst_n)
 	      out <= 'd0;

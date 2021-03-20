@@ -23,7 +23,7 @@
  * */
 
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
+`include "../../mvau_defn.sv"
 
 module mvu_pe_simd_std 
   ( 
@@ -33,9 +33,8 @@ module mvu_pe_simd_std
     input logic [TW-1:0]     in_wgt, //Input weight
     output logic [TDstI-1:0] out); //Output   
 
-   /***************************************
-    * SIMD only performs multiplication
-    * ************************************/
+   // Always_FF: SIMD_MUL
+   // SIMD only performs multiplication
    always_ff @(posedge clk) begin: SIMD_MUL
       if(!rst_n)
 	out <= 'd0;
