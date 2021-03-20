@@ -41,21 +41,29 @@ module mvau_weight_mem #(parameter int WMEM_ID=0,
    /**
     * Local Parameters
     * **/
+   // Parameter: FILE_WEIGHT_MEM
+   // Defines the file to read weight memory contents
    localparam FILE=$sformatf("weight_mem%0d.mem",WMEM_ID);
    
    /**
     * Internal Signals 
     * */
 
-   // The memory itself
+   // Signal: weight_mem
+   // This signal defines the memory itself
    logic [SIMD*TW-1:0] 		weight_mem [0:WMEM_DEPTH];
 
    // Reading the contents of the weight memor from hex file
    initial
      $readmemh(FILE, weight_mem);
-   
-   assign wmem_out = weight_mem[wmem_addr];
 
+   // Always_FF: WMEM_READ_OUT
+   // Sequential 'always' block to read from
+   // weight memory
+   always_ff @(posedge clk) begin: WMEM_READ_OUT
+      wmem_out <= weight_mem[wmem_addr];
+   end
+   
 endmodule // mvau_weight_mem
 
    
