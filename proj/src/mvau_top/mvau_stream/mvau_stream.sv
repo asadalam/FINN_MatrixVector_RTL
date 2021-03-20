@@ -15,12 +15,13 @@
  * Inputs:
  * rst_n - Active low, synchronous reset
  * clk - Main clock
+ * in_v - Input valid when input activation is valid
  * sf_clr - Control signal to reset the accumulator
  * [TI-1:0] in_act - Input activation stream, word length TI=TSrcI*SIMD
  * [0:SIMD-1][TW-1:0] in_wgt [0:PE-1] - Input weight stream
  * 
  * Outputs:			       
- * 
+ * out_v        - Output stream valid
  * [TO-1:0] out - Output stream, word length TO=TDstI*PE
  * 
  * Parameters:
@@ -30,14 +31,16 @@
  * */
 
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
+`include "../mvau_defn.sv"
 
 
 module mvau_stream (
 		    input logic 		   rst_n,
 		    input logic 		   clk,
+		    input logic 		   in_v,
 		    input logic [TI-1:0] 	   in_act ,
 		    input logic [0:SIMD-1][TW-1:0] in_wgt [0:PE-1], // Streaming weight tile
+		    output logic 		   out_v, // Ouptut valid
 		    output logic [TO-1:0] 	   out);
 
    /*
@@ -75,6 +78,9 @@ module mvau_stream (
    // Signal: out_pe
    // Holds the output from parallel PEs
    logic [0:PE-1][TDstI-1:0]  out_pe;
+   // Signal: out_pe_v
+   // Output valid signal from each PE
+   logic [0:PE-1] 	      out_pe_v;   
 
    /*
     * Control logic for reading and writing to input buffer
@@ -88,6 +94,7 @@ module mvau_stream (
 			)
    mvau_stream_cb_inst (.rst_n,
 			.clk,
+			.in_v,
 			.ib_wen,
 			.ib_ren,
 			.sf_clr,
@@ -99,6 +106,7 @@ module mvau_stream (
 		     .BUF_ADDR(SF_T))
    mvau_inb_inst (
 		  .clk,
+		  .in_v,
 		  .in(in_act),
 		  .wr_en(ib_wen),
 		  .rd_en(ib_ren),
@@ -121,6 +129,7 @@ module mvau_stream (
 			       .sf_clr,
 			       .in_act(out_act),
 			       .in_wgt(in_wgt[pe_ind]),
+			       .out_v(out_pe_v[pe_ind]),
 			       .out(out_pe[pe_ind]) // Each PE contribution TDstI bits in the output
 			       );
 	end
@@ -132,6 +141,7 @@ module mvau_stream (
       end
       else begin: NO_ACT
 	 assign out = out_pe;
+	 assign out_v = |out_pe_v;	 
       end      
    endgenerate
 

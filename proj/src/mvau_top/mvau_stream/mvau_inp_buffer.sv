@@ -32,7 +32,7 @@
  * */
 
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
+`include "../mvau_defn.sv"
 
 module mvau_inp_buffer #(
 			 parameter int BUF_LEN=16,
@@ -55,7 +55,9 @@ module mvau_inp_buffer #(
     * Implementing the memory operations
     * */
    assign out = rd_en? inp_buffer[addr] : in;
-   
+
+   // Always_FF: Write_Input_Buffer
+   // Sequential 'always' block to write to the input buffer
    always_ff @(posedge clk) begin
       if (wr_en)
 	inp_buffer[addr] <= in;
