@@ -1,0 +1,14 @@
+language: systemverilog
+env:
+  - TRAVIS_BUILD_DIR=/home/asad/workspace/TCD_workspace/Xilinx_mvau
+before_script:
+  - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Comments.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Comments.txt
+  - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Languages.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Languages.txt
+script:
+  - mono $WITH_ND $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: $TRAVIS_BUILD_DIR/Docs/api
+  on:
+    branch: master
