@@ -8,7 +8,7 @@ script:
   - cd ../../
 deploy:
   provider: pages
-  skip_cleanup: true
-  local_dir: $TRAVIS_BUILD_DIR/Docs/api
+  cleanup: true
+  local_dir: $TRAVIS_BUILD_DIR/Doc/api
   on:
     branch: master
