@@ -1,8 +1,9 @@
 language: SystemVerilog
 before_script:
-  - cd $TRAVIS_BUILD_DIR/Doc/natural_docs
+  - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Comments.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Comments.txt
+  - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Languages.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Languages.txt
 script:
-  - ./nd_gen.sh
+  - mono $WITH_ND $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj
 deploy:
   provider: pages
   cleanup: true
