@@ -1,11 +1,12 @@
-language: csharp
-mono:
-  - latest
+language: SystemVerilog
 before_script:
+  - sudo apt-get install mono-complete
+  - wget https://downloads.sourceforge.net/project/naturaldocs/Stable%20Releases/2.1/Natural_Docs_2.1.zip /tmp/ND.zip
+  - unzip /tmp/ND.zip -d /tmp
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Comments.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Comments.txt
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Languages.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Languages.txt
 script:
-  - mono $WITH_ND $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj
+  - mono /tmp/Natural Docs/NaturalDocs.exe $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj
 deploy:
   provider: pages
   cleanup: true
