@@ -1,1 +1,0 @@
-﻿NDSearch.OnPrefixDataLoaded("buf",["Module"],[["Buffer",,[[,"MVAU Stream Input Buffer",,,0,"File:mvau_stream/mvau_inp_buffer.sv:MVAU_Stream_Input_Buffer"]]]]);
