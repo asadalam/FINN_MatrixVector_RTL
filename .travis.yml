@@ -1,7 +1,7 @@
 language: SystemVerilog
 before_script:
   - sudo apt-get install mono-complete
-  - wget https://sourceforge.net/projects/naturaldocs/files/Stable%20Releases/2.1/Natural_Docs_2.1.zip /tmp/ND.zip
+  - wget https://sourceforge.net/projects/naturaldocs/files/Stable%20Releases/2.1/Natural_Docs_2.1.zip/download -O /tmp/ND.zip
   - unzip /tmp/ND.zip -d /tmp
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Comments.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Comments.txt
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Languages.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Languages.txt
