@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("wri",["AlwaysFF"],[["Write_Input_Buffer",,[[,,,,0,"File:mvau_stream/mvau_inp_buffer.sv:Write_Input_Buffer"]]]]);

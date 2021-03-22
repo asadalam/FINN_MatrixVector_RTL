@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("wei",["Testbench","Signal"],[["Weight",,[[,"MVAU Weight Memory",,,0,"File:mvau_weight_mem.sv:MVAU_Weight_Memory"]]],["weight_mem",,[[,,,,1,"File:mvau_weight_mem.sv:weight_mem"]]],["weights",,[[,,,,1,"File3:mvau_stream_tb_v1.sv:weights"]]]]);

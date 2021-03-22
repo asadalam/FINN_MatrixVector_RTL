@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("add",["Testbench","AlwaysCOMB"],[["Adder",,[[,"PE Adder Tree",,,0,"File:mvau_stream/mvu_pe/mvu_pe_adders.sv:PE_Adder_Tree"],[,"PE Adder Tree based on popcount",,,0,"File:mvau_stream/mvu_pe/mvu_pe_popcount.sv:PE_Adder_Tree_based_on_popcount"]]],["Addition",,[[,,,,1,"File:mvau_stream/mvu_pe/mvu_pe_adders.sv:Addition"]]]]);

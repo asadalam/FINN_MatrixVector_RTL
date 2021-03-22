@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("clk",["Always","Initial"],[["CLK_GEN",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:CLK_GEN"]]],["CLK_RST_GEN",,[[,,,,1,"File3:mvau_stream_tb_v1.sv:CLK_RST_GEN"]]]]);

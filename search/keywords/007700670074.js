@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("wgt",["Always"],[["WGT_GEN_DUT",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:WGT_GEN_DUT"]]],["WGT_MAT_GEN",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:WGT_MAT_GEN"]]]]);
