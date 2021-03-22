@@ -1,4 +1,4 @@
-language: SystemVerilog
+language: csharp
 mono:
   - latest
   - 6.12
