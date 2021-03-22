@@ -1,12 +1,8 @@
 language: SystemVerilog
-mono:
-  - 6.12.0.122
-  - latest
 before_script:
-  - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Comments.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Comments.txt
-  - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Languages.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Languages.txt
+  - cd $TRAVIS_BUILD_DIR/Doc/natural_docs
 script:
-  - mono $WITH_ND $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj
+  - ./nd_gen.sh
 deploy:
   provider: pages
   cleanup: true
