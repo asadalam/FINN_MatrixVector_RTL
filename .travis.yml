@@ -4,7 +4,7 @@ before_script:
   - wget https://sourceforge.net/projects/naturaldocs/files/Stable%20Releases/2.1/Natural_Docs_2.1.zip/download -O /tmp/ND.zip
   - unzip /tmp/ND.zip -d /tmp
   - mv /tmp/Natural\ Docs /tmp/NaturalDocs
-  - mkdir $TRAVIS_BUILD_DIR/Doc/api
+  - mkdir $TRAVIS_BUILD_DIR/docs
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Comments.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Comments.txt
   - sed "s?MVAU_ROOT?$TRAVIS_BUILD_DIR?g" $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Project.txt > $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Project.txt
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Languages.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Languages.txt
@@ -16,6 +16,6 @@ deploy:
   github_token: $GITHUB_TOKEN
   committer_from_gh: true
   verbose: true
-  local_dir: $TRAVIS_BUILD_DIR/Doc/api
+  local_dir: $TRAVIS_BUILD_DIR/docs
   on:
     all_branches: true
