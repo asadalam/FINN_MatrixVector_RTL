@@ -1,4 +1,5 @@
 sv work mvau_stream_tb_v1.sv
+sv work mvau_stream_tb_v2.sv
 sv work ../src/mvau_top/mvau_stream/mvau_stream.sv
 sv work ../src/mvau_top/mvau_stream/mvau_inp_buffer.sv
 sv work ../src/mvau_top/mvau_stream/mvau_stream_control_block.sv
