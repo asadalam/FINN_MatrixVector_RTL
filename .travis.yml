@@ -1,4 +1,4 @@
-language: vba
+language: csharp
 mono:
   - latest
 before_script:
