@@ -48,7 +48,7 @@
 
 <a name="weights"></a><a name="Topic9"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">weights</div>
- <div class="CBody"><p>The weight matrix of dimensions MatrixW/SIMD x MatrixH of word length TW x SIMD</p></div>
+ <div class="CBody"><p>The weight matrix of dimensions (MatrixW/SIMD)*(MatrixH/PE) x MatrixH of word length TW x SIMD</p></div>
 </div>
 
 <a name="in_wgt"></a><a name="Topic10"></a><div class="CTopic TSignal LSystemVerilog">
@@ -85,9 +85,14 @@
  <div class="CBody"><p>Always block for populating the weight matrix from a memory file</p></div>
 </div>
 
-<a name="INP_ACT_MAT_GEN"></a><a name="Topic17"></a><div class="CTopic TAlways LSystemVerilog last">
+<a name="INP_ACT_MAT_GEN"></a><a name="Topic17"></a><div class="CTopic TAlways LSystemVerilog">
  <div class="CTitle">INP_ACT_MAT_GEN</div>
  <div class="CBody"><p>Always block for populating the input activation matrix from a memory file</p></div>
+</div>
+
+<a name="OUT_ACT_MAT_GEN"></a><a name="Topic18"></a><div class="CTopic TAlways LSystemVerilog last">
+ <div class="CTitle">OUT_ACT_MAT_GEN</div>
+ <div class="CBody"><p>Always block for populating the output activation matrix from a memory file</p></div>
 </div>
 
 </body></html>
