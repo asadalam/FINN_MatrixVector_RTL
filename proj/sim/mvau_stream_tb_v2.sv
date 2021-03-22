@@ -62,8 +62,8 @@ module mvau_stream_tb_v2;
    // Input valid
    logic 		     in_v;
    // Signal: weights
-   // The weight matrix of dimensions MatrixW/SIMD x MatrixH of word length TW x SIMD
-   logic [0:SIMD-1][TW-1:0] weights [0:MatrixH-1][0:MatrixW/SIMD-1];
+   // The weight matrix of dimensions (MatrixW/SIMD)*(MatrixH/PE) x MatrixH of word length TW x SIMD
+   logic [PE-1:0][0:SIMD-1][TW-1:0] weights [0:MatrixH/PE-1][0:MatrixW/SIMD-1];
    // Signal: in_wgt
    // Input weight stream to DUT
    // Dimension: PExSIMD, word length: TW
@@ -79,7 +79,7 @@ module mvau_stream_tb_v2;
    // Signal: mvau_beh
    // Output matrix holding output of behavioral simulation
    // Dimension: MatrixH x ACT_MatrixW
-   logic [TDstI-1:0] 	       mvau_beh [0:MatrixH-1][0:ACT_MatrixW-1];
+   logic [TDstI-1:0] 	       mvau_beh [0:ACT_MatrixW-1][0:MatrixH-1];
    
    // Events for synchronizing the simulation
    event 		       gen_inp;    // generate input activation matrix
@@ -110,28 +110,27 @@ module mvau_stream_tb_v2;
 	// Checking DUT output with golden output generated in the test bench
 	#(CLK_PER) // Delaying to synchronize the DUT output
 	// We need to delay more until the final output comes
-	// To-do for tomorrow
-	// for(int i = 0; i < ACT_MatrixW; i++) begin
-	//    for(int j = 0; j < MatrixH/PE; j++)
-	//      begin
-	// 	#(CLK_PER*MatrixW/SIMD)
-	// 	out_packed = out;
-	// 	@(posedge clk) begin: TEST_DATA
-	// 	   if(out_v) begin
-	// 	      for(int k = 0; k < PE; k++) begin
-	// 		 if(out_packed[k] == mvau_beh[j*PE+k][i])
-	// 		   $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
-	// 		 else begin
-	// 		    $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
-	// 		    assert (out_packed[k] == mvau_beh[j*PE+k][i])
-	// 		      else
-	// 			$fatal(1,"Data MisMatch");
-	// 		 end
-	// 	      end
-	// 	   end // if (out_v)
-	// 	end // block: TEST_DATA
-	//      end // for (int j = 0; j < MatrixH/PE; j++)
-	// end // for (int i = 0; i < ACT_MatrixW; i++)
+	for(int i = 0; i < MatrixH/PE; i++) begin
+	   for(int j = 0; j < ACT_MatrixW; j++)
+	     begin
+		#(CLK_PER*MatrixW/SIMD)
+		out_packed = out;
+		@(posedge clk) begin: TEST_DATA
+		   if(out_v) begin
+		      for(int k = 0; k < PE; k++) begin
+			 if(out_packed[k] == mvau_beh[j*PE+k][i])
+			   $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
+			 else begin
+			    $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
+			    assert (out_packed[k] == mvau_beh[j*PE+k][i])
+			      else
+				$fatal(1,"Data MisMatch");
+			 end
+		      end
+		   end // if (out_v)
+		end // block: TEST_DATA
+	     end // for (int j = 0; j < MatrixH/PE; j++)
+	end // for (int i = 0; i < ACT_MatrixW; i++)
 		
 	#RAND_DLY;
 	$display($time, "<< Simulation Complete >>");
@@ -148,7 +147,7 @@ module mvau_stream_tb_v2;
    // Always block for populating the weight matrix from
    // a memory file
    always @(gen_weights) begin: WGT_MAT_GEN
-      $readmemh("weight_mem0.memh",weights);      
+      $readmemh("inp_wgt.memh",weights);      
      end
    
    // Always: INP_ACT_MAT_GEN
@@ -159,94 +158,22 @@ module mvau_stream_tb_v2;
 	$readmemh("inp_act.memh",in_mat);
      end
 
-   /*
-    * Performing behavioral MVAU
-    * Caters for all the following four cases
-    * Case 1: 1-bit input activation and 1-bit weight
-    * Case 2: 1-bit input activation and multi-bit weight
-    * Case 3: Multi-bit weight and 1-bit input activation
-    * Case 4: Multi-bit weight and input activation
-    * */
-   if(TSrcI==1) begin: NONGEN_MVAU1
-      if(TW==1) begin: XNOR_MVAU1
-	 // Case 1
-	 always @(do_mvau_beh)
-	   begin: MVAU_BEH1
-	      for(int i = 0; i < MatrixH; i++)
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j] = '0;
-		   for(int k = 0; k < ACT_MatrixH; k++) 
-		     mvau_beh[i][j] += weights[i][k]^~in_mat[k][j]; // XNOR
-		end
-	   end
-end
-      else begin: BIN_MVAU1
-	 // Case 2
-	 always @(do_mvau_beh)
-	   begin: MVAU_BEH2
-	      for(int i = 0; i < MatrixH; i++)
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j]   = '0;
-		   for(int k = 0; k < ACT_MatrixH; k++) begin
-		      if(in_mat[k][j] == 1'b1) // in_act = +1
-			mvau_beh[i][j] += weights[i][k];		      
-		      else // in_act = -1
-			mvau_beh[i][j] += ~weights[i][k]+1'b1;
-		   end
-		end
-	   end
-end
-   end // block: NONGEN_MVAU1   
-   else if(TW==1) begin: NONGEN_MVAU2
-      if(TSrcI==1) begin: XNOR_MVAU1
-	 // Case 1
-	 always @(do_mvau_beh)
-	   begin: MVAU_BEH3
-	      for(int i = 0; i < MatrixH; i++)
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j] = '0;
-		   for(int k = 0; k < ACT_MatrixH; k++) 
-		     mvau_beh[i][j] += weights[i][k]^~in_mat[k][j]; //XNOR
-		end
-	   end
-end
-      else begin: BIN_MVAU2
-	 // Case 3
-	 always @(do_mvau_beh)
-	   begin: MVAU_BEH4
-	      for(int i = 0; i < MatrixH; i++)
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j] = '0;
-		   for(int k = 0; k < ACT_MatrixH; k++) begin
-		      if(weights[i][k] == 1'b1) // in_wgt = +1
-			mvau_beh[i][j] += in_mat[k][j];
-		      else // in_wgt = -1
-			mvau_beh[i][j] += ~in_mat[k][j]+1'b1;
-		   end
-		end
-	   end
-end      
-   end // block: NONGEN_MVAU2   
-   else begin: GEN_MVAU
-      // Case 4
-      always @(do_mvau_beh)
-	begin: MVAU_BEH
-	   for(int i = 0; i < MatrixH; i++)
-	     for(int j = 0; j < ACT_MatrixW; j++) begin
-		mvau_beh[i][j] = '0;
-		for(int k = 0; k < ACT_MatrixH; k++) 
-		  mvau_beh[i][j] += weights[i][k]*in_mat[k][j];
-	     end
-	end
-end
+   // Always: OUT_ACT_MAT_GEN
+   // Always block for populating the output activation matrix
+   // from a memory file
+   always @(do_mvau_beh)
+     begin: OUT_ACT_MAT_GEN
+	$readmemh("out_act.memh",mvau_beh);
+     end
+   
    
    /*
     * Generating data from DUT
     * */
    always @(test_event)   
      begin
-	for(int i = 0; i < ACT_MatrixH/SIMD; i++) begin
-	   for(int j = 0; j < ACT_MatrixW; j++) begin
+	for(int i = 0; i < ACT_MatrixW; i++) begin
+	   for(int j = 0; j < ACT_MatrixH/SIMD; j++) begin
 	      #(CLK_PER/2);
 	      in_v = 1'b1;
 	      for(int k = 0; k < SIMD; k++) begin
@@ -265,26 +192,26 @@ end
 	   for(int i = 0; i < MatrixH/PE; i++) begin
 	      for(int j = 0; j < MatrixW/SIMD; j++) begin
 		 #(CLK_PER/2);
-		 for(int k = 0; k < SIMD; k++) begin
-		    for(int l = 0; l < PE; l++) begin
-		       in_wgt[l][k] = weights[i*PE+l][j*SIMD+k];
-		    end		 
-		 end
+		 for(int k = PE-1; k >= 0; k--) begin
+		    in_wgt[k] = weights[i][j][k];
+		 end		 
 		 #(CLK_PER/2);
 	      end
 	   end // for (int i = 0; i < MatrixH/PE; i++)
 	end // for (int x = 0; x < ACT_MatrixW; x++)
      end // always @ (test_event)
    
-   // /*
-   //  * DUT Instantiation
-   //  * */
-   // mvau_stream mvau_stream_inst(
-   // 				.rst_n,
-   // 				.clk,
-   // 				.in_act,
-   // 				.in_wgt,
-   // 				.out);
+   /*
+    * DUT Instantiation
+    * */
+   mvau_stream mvau_stream_inst(
+   				.rst_n,
+   				.clk,
+				.in_v,
+   				.in_act,
+   				.in_wgt,
+				.out_v,
+   				.out);
    
 endmodule // mvau_stream_tb
 
