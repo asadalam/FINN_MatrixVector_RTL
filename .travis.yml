@@ -1,6 +1,4 @@
 language: SystemVerilog
-env:
-  - TRAVIS_BUILD_DIR=Xilinx_mvau
 before_script:
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Comments.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Comments.txt
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Languages.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Languages.txt
