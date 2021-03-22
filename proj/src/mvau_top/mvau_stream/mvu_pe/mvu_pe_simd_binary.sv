@@ -52,7 +52,7 @@ module mvu_pe_simd_binary
 	    if(!rst_n)
 	      out <= 'd0;
 	    else 
-	      out <= in_wgt==1'b1 ? in_act : ~in_act+1'b1; // C-like ternary operator
+	      out <= in_wgt==1'b1 ? in_act : 'd0; //temporary change ~in_act+1'b1; // C-like ternary operator
 	 end
       end
    endgenerate
@@ -64,7 +64,7 @@ module mvu_pe_simd_binary
 	    if(!rst_n)
 	      out <= 'd0;
 	    else 
-	      out <= in_act==1'b1 ? in_wgt : ~in_wgt+1'b1; // C-like ternary operator
+	      out <= in_act==1'b1 ? in_wgt : 'd0; //temporary change ~in_wgt+1'b1; // C-like ternary operator
 	 end
       end
    endgenerate

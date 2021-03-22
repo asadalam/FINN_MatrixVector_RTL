@@ -37,10 +37,10 @@
  `define MVAU_DEFN_PKG //set the flag
 package mvau_defn;
    parameter VERSION = "0.1";
-   parameter int KDim=2; // Kernel dimensions
-   parameter int IFMCh=4;// Input feature map channels
-   parameter int OFMCh=4;// Output feature map channels or the number of filter banks
-   parameter int IFMDim=4; // Input feature map dimensions
+   parameter int KDim=3; // Kernel dimensions
+   parameter int IFMCh=2;// Input feature map channels
+   parameter int OFMCh=1;// Output feature map channels or the number of filter banks
+   parameter int IFMDim=8; // Input feature map dimensions
    parameter int PAD=0;    // Padding around the input feature map
    parameter int STRIDE=1; // Number of pixels to move across when applying the filter
    parameter int OFMDim=(IFMDim-KDim+2*PAD)/STRIDE+1; // Output feature map dimensions
