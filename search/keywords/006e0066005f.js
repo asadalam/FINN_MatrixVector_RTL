@@ -1,1 +1,0 @@
-﻿NDSearch.OnPrefixDataLoaded("nf_",["Signal","Parameter"],[["nf_clr",,[[,,,,0,"File:mvau_control_block.sv:nf_clr"]]],["nf_cnt",,[[,,,,0,"File:mvau_control_block.sv:nf_cnt"]]],["NF_T",,[[,,,,1,"File:mvau_control_block.sv:NF_T"]]]]);

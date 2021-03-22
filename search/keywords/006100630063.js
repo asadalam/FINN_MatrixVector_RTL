@@ -1,1 +1,0 @@
-﻿NDSearch.OnPrefixDataLoaded("acc",["Module"],[["Accumulator",,[[,"PE Accumulator",,,0,"File:mvau_stream/mvu_pe/mvu_pe_acc.sv:PE_Accumulator"]]]]);

@@ -1,1 +1,0 @@
-﻿NDSearch.OnPrefixDataLoaded("wme",["Signal","Parameter"],[["wmem_addr",,[[,,,,0,"File:mvau.sv:wmem_addr"]]],["WMEM_ADDR_BW",,[[,,,,1,"File:mvau.sv:WMEM_ADDR_BW"]]],["wmem_en",,[[,,,,0,"File:mvau_control_block.sv:wmem_en"]]]]);
