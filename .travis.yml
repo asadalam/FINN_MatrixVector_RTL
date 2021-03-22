@@ -3,10 +3,11 @@ before_script:
   - sudo apt-get install mono-complete
   - wget https://sourceforge.net/projects/naturaldocs/files/Stable%20Releases/2.1/Natural_Docs_2.1.zip/download -O /tmp/ND.zip
   - unzip /tmp/ND.zip -d /tmp
+  - mv /tmp/Natural\ Docs /tmp/NaturalDocs
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Comments.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Comments.txt
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Languages.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Languages.txt
 script:
-  - mono /tmp/Natural Docs/NaturalDocs.exe $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj
+  - mono /tmp/NaturalDocs/NaturalDocs.exe $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj
 deploy:
   provider: pages
   cleanup: true
