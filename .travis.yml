@@ -16,6 +16,8 @@ deploy:
   github_token: $GITHUB_TOKEN
   committer_from_gh: true
   verbose: true
+  keep-history: true
+  target_branch: gh-pages
   local_dir: $TRAVIS_BUILD_DIR/docs
   on:
     all_branches: true
