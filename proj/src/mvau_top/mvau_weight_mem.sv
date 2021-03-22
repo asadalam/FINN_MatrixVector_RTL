@@ -43,7 +43,7 @@ module mvau_weight_mem #(parameter int WMEM_ID=0,
     * **/
    // Parameter: FILE_WEIGHT_MEM
    // Defines the file to read weight memory contents
-   localparam FILE=$sformatf("weight_mem%0d.mem",WMEM_ID);
+   localparam FILE=$sformatf("weight_mem%0d.memh",WMEM_ID);
    
    /**
     * Internal Signals 

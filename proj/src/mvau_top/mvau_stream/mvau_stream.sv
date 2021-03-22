@@ -33,7 +33,6 @@
 `timescale 1ns/1ns
 `include "../mvau_defn.sv"
 
-
 module mvau_stream (
 		    input logic 		   rst_n,
 		    input logic 		   clk,
@@ -106,7 +105,6 @@ module mvau_stream (
 		     .BUF_ADDR(SF_T))
    mvau_inb_inst (
 		  .clk,
-		  .in_v,
 		  .in(in_act),
 		  .wr_en(ib_wen),
 		  .rd_en(ib_ren),
