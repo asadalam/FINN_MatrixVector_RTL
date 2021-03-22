@@ -14,10 +14,7 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GITHUB_TOKEN
-  keep_history: true
-  repo: asadalam/Xilinx_mvau
-  committer_from_gh: true
   verbose: true
   local_dir: $TRAVIS_BUILD_DIR/Doc/api
   on:
-    all_branches: true
+    branch: master
