@@ -1,11 +1,12 @@
 language: csharp
 before_script:
-  - sudo apt-get install mono-complete
+  - sudo apt install -qq mono-complete
   - wget https://sourceforge.net/projects/naturaldocs/files/Stable%20Releases/2.1/Natural_Docs_2.1.zip/download -O /tmp/ND.zip
   - unzip /tmp/ND.zip -d /tmp
   - mv /tmp/Natural\ Docs /tmp/NaturalDocs
   - mkdir $TRAVIS_BUILD_DIR/Doc/api
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Comments.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Comments.txt
+  - sed "s?MVAU_ROOT?$TRAVIS_BUILD_DIR?g" $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Project.txt > $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Project.txt
   - cp $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/MVAU_Languages.txt $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj/Languages.txt
 script:
   - mono /tmp/NaturalDocs/NaturalDocs.exe $TRAVIS_BUILD_DIR/Doc/natural_docs/Proj
