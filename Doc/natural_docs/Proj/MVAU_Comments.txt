@@ -14,41 +14,99 @@
 
 Comment Type: Module
 
-   Display Name: Module
-   Plural Display: Modules
+Display Name: Module
+Plural Display: Module
 
-   Flags: Code
+Flags: Code
 
-   Keywords:
-	module, modules
+Keywords:
+module, modules
+
+Comment Type: Testbench
+
+Display Name: Testbench
+Plural Display: Testbench
+
+Flags: Code
+
+Keywords:
+testbench
+module, modules
+
+Comment Type: Package
+
+Display Name: Package
+Plural Display: Package
+
+Keywords:
+package, packages
 
 
 Comment Type: Signal
 
+Display Name: Signal
+Plural Display: Signals
 
-   Display Name: Signal
-   Plural Display: Signals
+Flags: Code
 
-   Flags: Code
-
-   Keywords:
-	signal, signals
-	logic
-	wire
-	reg
+Keywords:
+signal, signals
+logic
+wire
+reg
 
 Comment Type: Parameter
 
+Display Name: Parameter
+Plural Display: Parameters
 
-   Display Name: Parameter
-   Plural Display: Parameters
+Flags: Code
 
-   Flags: Code
+Keywords:
+parameter, parameters
+localparam, localparams
 
-   Keywords:
-	parameter, parameters
-	localparam, localparams
+Comment Type: Always_FF
 
+Display Name: Sequential Always Block
+Plural Display Name: Sequential Always Blocks
+
+Flags: Code
+
+Keywords:
+always_ff
+
+Comment Type: Always_COMB
+
+Display Name: Combinatorial Always Block
+Plural Display Name: Combinatorial Always Blocks
+
+Flags: Code
+
+Keywords:
+always_comb
+
+
+Comment Type: Always
+
+Display Name: Combinatorial Always Block
+Plural Display Name: Combinatorial Always Blocks
+
+Flags: Code
+
+Keywords:
+always
+
+
+Comment Type: Initial
+
+Display Name: Initial block
+Plural Display Name: Initial blocks
+
+Flags: Code
+
+Keywords:
+initial
 
 # Each Natural Docs comment has a corresponding type which determine its
 # behavior.  This is how you define them.

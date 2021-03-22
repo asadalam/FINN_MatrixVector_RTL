@@ -45,6 +45,9 @@ Source Folder: MVAU_ROOT/proj/src/mvau_top
 Source Folder: MVAU_ROOT/proj/src/mvau_top/mvau_stream
        Name: MVAU Stream Top
 
+Source Folder: MVAU_ROOT/proj/sim/
+       Name: MVAU Testbenches
+
 # This is where you specify what files and folders Natural Docs should be
 # scanning.  If you use any of these options on the command line, this entire
 # section is ignored except for names and numbers.
@@ -106,7 +109,7 @@ Source Folder: MVAU_ROOT/proj/src/mvau_top/mvau_stream
 # Generated Documentation
 # ------------------------------------------------------------------------
 
-HTML Output Folder: MVAU_ROOT/Doc/api
+HTML Output Folder: MVAU_ROOT/docs
 
 
 # This is where you specify what kind of documentation you want Natural Docs
