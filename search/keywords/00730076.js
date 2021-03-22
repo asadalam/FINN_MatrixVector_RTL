@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("sv",["Class"],[["sv",,[["mvau_defn",,,,0,"File:mvau_defn.sv:mvau_defn.sv","SystemVerilogClass:mvau_defn.sv"]]]]);

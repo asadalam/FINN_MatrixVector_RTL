@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("do_",["Signal"],[["do_mvau",,[[,,,,0,"File:mvau_control_block.sv:do_mvau"]]],["do_mvau_stream",,[[,,,,0,"File:mvau_stream/mvau_stream_control_block.sv:do_mvau_stream"]]]]);

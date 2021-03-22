@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("pe",["Module"],[["PE",,[[,"PE Accumulator",,,0,"File:mvau_stream/mvu_pe/mvu_pe_acc.sv:PE_Accumulator"],[,"PE Adder Tree",,,0,"File:mvau_stream/mvu_pe/mvu_pe_adders.sv:PE_Adder_Tree"],[,"PE Adder Tree based on popcount",,,0,"File:mvau_stream/mvu_pe/mvu_pe_popcount.sv:PE_Adder_Tree_based_on_popcount"]]]]);
