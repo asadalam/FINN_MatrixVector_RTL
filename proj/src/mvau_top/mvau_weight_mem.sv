@@ -21,7 +21,6 @@
  * WMEM_ADDR_BW                - The word length of the address for the weight memory
  * 
  * Inputs:
- * clk                          - Main clock
  * [WMEM_ADDR_BW-1:0] wmem_addr - Weight memory address
  * 
  * Outputs:
@@ -32,9 +31,10 @@
 `include "mvau_defn.sv"
 
 module mvau_weight_mem #(parameter int WMEM_ID=0,
-			 parameter int WMEM_ADDR_BW=2)
+			 parameter int WMEM_ADDR_BW=4)
+   
    (
-    input logic 		   clk,
+    //input 			   clk,
     input logic [WMEM_ADDR_BW-1:0] wmem_addr,
     output logic [(SIMD*TW)-1:0]   wmem_out);
    
@@ -51,17 +51,17 @@ module mvau_weight_mem #(parameter int WMEM_ID=0,
 
    // Signal: weight_mem
    // This signal defines the memory itself
-   logic [SIMD*TW-1:0] 		weight_mem [0:WMEM_DEPTH];
+   logic [SIMD*TW-1:0] 		weight_mem [0:WMEM_DEPTH-1];
 
    // Reading the contents of the weight memor from hex file
    initial
      $readmemh(FILE, weight_mem);
 
-   // Always_FF: WMEM_READ_OUT
-   // Sequential 'always' block to read from
+   // Always_COMB: WMEM_READ_OUT
+   // Combinatorial 'always' block to read from
    // weight memory
-   always_ff @(posedge clk) begin: WMEM_READ_OUT
-      wmem_out <= weight_mem[wmem_addr];
+   always_comb begin//_ff @(posedge clk) begin: WMEM_READ_OUT
+      wmem_out = weight_mem[wmem_addr];
    end
    
 endmodule // mvau_weight_mem

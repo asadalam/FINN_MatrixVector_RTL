@@ -130,7 +130,7 @@ module mvau (
 	 mvau_weight_mem #(.WMEM_ID(wmem),
 			   .WMEM_ADDR_BW(WMEM_ADDR_BW))
 	   mvau_weight_mem_inst(
-				.clk,
+				//.clk,
 				.wmem_addr,
 				.wmem_out(in_wgt[wmem])
 				);

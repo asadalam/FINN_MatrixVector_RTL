@@ -58,6 +58,15 @@ module mvau_stream (
    /**
     * Internal Signals
     * **/
+   // Signal: in_v_reg
+   // Input valid synchronized to clock
+   logic 			       in_v_reg;
+   // Signal: in_act_reg
+   // Input activation stream synchronized to clock
+   logic [TI-1:0] 		       in_act_reg;
+   // Signal: in_wgt_reg
+   // Streaming weight tile synchronized to clock
+   logic [0:SIMD-1][TW-1:0] 	       in_wgt_reg [0:PE-1];
    // Internal signals for the input buffer and the control block
    // Signal: ib_wen
    // Write enable for the input buffer
@@ -79,8 +88,41 @@ module mvau_stream (
    logic [0:PE-1][TDstI-1:0]  out_pe;
    // Signal: out_pe_v
    // Output valid signal from each PE
-   logic [0:PE-1] 	      out_pe_v;   
+   logic [0:PE-1] 	      out_pe_v;
+   // Signal: do_mvau_stream   
+   // Controls how long the MVAU operation continues
+   // Case 1: NF=1 => do_mvau_stream = in_v (input buffer not reused)
+   // Case 2: NF>1 => do_mvau_stream = in_v | (~(nf_clr&sf_clr)) (input buffer reused)
+   logic 		      do_mvau_stream;
+   
+   // Always_FF: INP_REG
+   // Register the input valid and activation
+   always_ff @(posedge clk) begin
+      if(!rst_n) begin
+	 in_v_reg <= 1'b0;
+	 in_act_reg   <= 'd0;
+      end
+      else if(in_v) begin
+	 in_v_reg   <= 1'b1;
+	 in_act_reg <= in_act;
+      end
+      else
+	in_v_reg <= 1'b0;
+   end // always_ff @ (posedge clk)
 
+   // Always_FF: WGT_REG
+   // Register the input weight stream
+   always_ff @(posedge clk) begin
+      if(!rst_n) begin
+	 for(int i = 0; i < PE; i++)
+	   in_wgt_reg[i] <= 'd0;
+      end
+      else begin
+	 for(int i = 0; i < PE; i++)
+	   in_wgt_reg[i] <= in_wgt[i];
+      end
+   end
+   
    /*
     * Control logic for reading and writing to input buffer
     * and for generating the correct weight tile for the
@@ -93,9 +135,10 @@ module mvau_stream (
 			)
    mvau_stream_cb_inst (.rst_n,
 			.clk,
-			.in_v,
+			.in_v(in_v_reg),
 			.ib_wen,
 			.ib_ren,
+			.do_mvau_stream,
 			.sf_clr,
 			.sf_cnt);
    
@@ -105,7 +148,7 @@ module mvau_stream (
 		     .BUF_ADDR(SF_T))
    mvau_inb_inst (
 		  .clk,
-		  .in(in_act),
+		  .in(in_act_reg),
 		  .wr_en(ib_wen),
 		  .rd_en(ib_ren),
 		  .addr(sf_cnt),
@@ -125,8 +168,9 @@ module mvau_stream (
 			       .rst_n,
 			       .clk,
 			       .sf_clr,
+			       .do_mvau_stream,
 			       .in_act(out_act),
-			       .in_wgt(in_wgt[pe_ind]),
+			       .in_wgt(in_wgt_reg[pe_ind]),
 			       .out_v(out_pe_v[pe_ind]),
 			       .out(out_pe[pe_ind]) // Each PE contribution TDstI bits in the output
 			       );

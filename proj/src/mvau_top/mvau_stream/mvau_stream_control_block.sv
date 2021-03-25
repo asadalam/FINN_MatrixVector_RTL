@@ -20,15 +20,18 @@
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
  * Inputs:
- * rst_n                              - Active low synchronous reset
- * clk                                - Main clock
- * in_v                               - Input activation stream valid 
+ * rst_n            - Active low synchronous reset
+ * clk              - Main clock
+ * in_v             - Input activation stream valid 
  * 
  * Outputs:
- * ib_wen                             - Write enable for the input buffer
- * ib_red                             - Read enable for the input buffer
- * sf_clr                             - Control signal for resetting the accumulator and a one bit control signal to indicate when sf_cnt == SF-1
- * [SF_T:0] sf_cnt                    - Address for the input buffer
+ * ib_wen           - Write enable for the input buffer
+ * ib_red           - Read enable for the input buffer
+ * sf_clr           - Control signal for resetting the accumulator and a one bit control signal to indicate when sf_cnt == SF-1
+ * do_mvau_stream   - Controls how long the MVAU operation continues
+ *                    Case 1: NF=1 => do_mvau_stream = in_v (input buffer not reused)
+ *                    Case 2: NF>1 => do_mvau_stream = in_v | (~(nf_clr&sf_clr)) (input buffer reused)
+ * [SF_T:0] sf_cnt  - Address for the input buffer
  * 
  * Parameters:
  * SF=MatrixW/SIMD - Number of vertical weight matrix chunks and depth of the input buffer
@@ -49,7 +52,8 @@ module mvau_stream_control_block #(
     input logic 	    clk,
     input logic 	    in_v, // input activation stream valid
     output logic 	    ib_wen, // Input buffer write enable
-    output logic 	    ib_ren, // INput buffer read enable
+    output logic 	    ib_ren, // Input buffer read enable
+    output logic 	    do_mvau_stream, // Signal to control all operations
     output logic 	    sf_clr, // To reset the sf_cnt
     output logic [SF_T-1:0] sf_cnt // Address for the input buffer
     );
@@ -64,12 +68,7 @@ module mvau_stream_control_block #(
    /*
     * Internal Signals
     * */
-   // Signal: do_mvau_stream
-   // Controls how long the MVAU operation continues
-   // Case 1: NF=1 => do_mvau_stream = in_v (input buffer not reused)
-   // Case 2: NF>1 => do_mvau_stream = in_v | (~(nf_clr&sf_clr)) (input buffer reused)
-   logic 		    do_mvau_stream;   
-
+   
    /*
     * Controlling for when MatrixH is '1' and PE is also '1'
     * Meaning only one output channel

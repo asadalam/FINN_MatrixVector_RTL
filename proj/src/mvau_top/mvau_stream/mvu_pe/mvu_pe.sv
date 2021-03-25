@@ -16,6 +16,9 @@
  * rst_n                     - Active low, synchronous reset
  * clk                       - Main clock
  * sf_clr                    - Control signal to reset the accumulator
+ * do_mvau_stream   - Controls how long the MVAU operation continues
+ *                    Case 1: NF=1 => do_mvau_stream = in_v (input buffer not reused)
+ *                    Case 2: NF>1 => do_mvau_stream = in_v | (~(nf_clr&sf_clr)) (input buffer reused)
  * [TI-1:0] in_act           - Input activation stream, word length TI=TSrcI*SIMD
  * [0:SIMD-1][TW-1:0] in_wgt - Input weight stream for each PE
  * 
@@ -33,6 +36,7 @@ module mvu_pe
   (input logic rst_n,
    input logic 			  clk,
    input logic 			  sf_clr,
+   input logic 			  do_mvau_stream,
    input logic [TI-1:0] 	  in_act, // Input activation (packed array): TSrcI*PE
    input logic [0:SIMD-1][TW-1:0] in_wgt , // Input weights (packed array): TW*SIMD
    output logic 		  out_v, // Output valid
@@ -111,6 +115,7 @@ module mvu_pe
 			mvu_simd_inst(
 				      .rst_n,
 				      .clk,
+				      .do_mvau_stream,
 				      .in_act(in_act_packed[simd_ind]), 
 				      .in_wgt(in_wgt[simd_ind]),
 				      .out(out_simd[simd_ind])
@@ -134,6 +139,7 @@ module mvu_pe
 			mvu_simd_inst(
 				      .rst_n,
 				      .clk,
+				      .do_mvau_stream,
 				      .in_act(in_act_packed[simd_ind]),
 				      .in_wgt(in_wgt[simd_ind]),
 				      .out(out_simd[simd_ind])
@@ -159,6 +165,7 @@ module mvu_pe
 			mvu_simd_inst(
 				      .rst_n,
 				      .clk,
+				      .do_mvau_stream,
 				      .in_act(in_act_packed[simd_ind]),
 				      .in_wgt(in_wgt[simd_ind]),
 				      .out(out_simd[simd_ind])
@@ -178,6 +185,7 @@ module mvu_pe
 		     mvu_pe_simd_inst(
 				      .rst_n,
 				      .clk,
+				      .do_mvau_stream,
 				      .in_act(in_act_packed[simd_ind]),
 				      .in_wgt(in_wgt[simd_ind]),
 				      .out(out_simd[simd_ind])
