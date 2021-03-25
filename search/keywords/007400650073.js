@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("tes",["Signal"],[["test_count",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:test_count"]]]]);

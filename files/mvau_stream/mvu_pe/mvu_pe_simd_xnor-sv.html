@@ -8,20 +8,20 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Testbench"></a><a name="Topic66"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Testbench"></a><a name="Topic104"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Testbench</div>
 </div>
 
-<a name="XNOR_based_SIMD"></a><a name="Topic67"></a><div class="CTopic TTestbench LSystemVerilog">
+<a name="XNOR_based_SIMD"></a><a name="Topic105"></a><div class="CTopic TTestbench LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">XNOR based SIMD (mvu_pe_simd_xnor.</span>&#8203;sv)</div>
- <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of a SIMD unit based on standard multiplication. It performs XNOR of input activation and weight where word length of both inputs is 1-bit.&nbsp; It is part of a processing element which is part of the Matrix-Vector-Multiplication Unit</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">rst_n</td><td class="CDLDefinition"><p>Active low, synchronous reset</p></td></tr><tr><td class="CDLEntry">clk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">[TSrc-1:0] in_act</td><td class="CDLDefinition"><p>Input activation stream, word length TSrcI</p></td></tr><tr><td class="CDLEntry">[TW-1:0]&nbsp; in_wgt</td><td class="CDLDefinition"><p>Input weight, word length TW</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">[TDstI-1:0] out</td><td class="CDLDefinition"><p>Output stream, word length TDstI</p></td></tr></table></div>
+ <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of a SIMD unit based on standard multiplication. It performs XNOR of input activation and weight where word length of both inputs is 1-bit.&nbsp; It is part of a processing element which is part of the Matrix-Vector-Multiplication Unit</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">rst_n</td><td class="CDLDefinition"><p>Active low, synchronous reset</p></td></tr><tr><td class="CDLEntry">clk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">do_mvau_stream</td><td class="CDLDefinition"><p>Controls how long the MVAU operation continues Case 1: NF=1 =&gt; do_mvau_stream = in_v (input buffer not reused) Case 2: NF&gt;1 =&gt; do_mvau_stream = in_v | (~(nf_clr&amp;sf_clr)) (input buffer reused)</p></td></tr><tr><td class="CDLEntry">[TSrc-1:0] in_act</td><td class="CDLDefinition"><p>Input activation stream, word length TSrcI</p></td></tr><tr><td class="CDLEntry">[TW-1:0]&nbsp; in_wgt</td><td class="CDLDefinition"><p>Input weight, word length TW</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">[TDstI-1:0] out</td><td class="CDLDefinition"><p>Output stream, word length TDstI</p></td></tr></table></div>
 </div>
 
-<a name="Sequential_Always_Blocks"></a><a name="Topic68"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks"></a><a name="Topic106"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="XNOR_based_SIMD(2)"></a><a name="Topic69"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+<a name="XNOR_based_SIMD(2)"></a><a name="Topic107"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
  <div class="CTitle">XNOR based SIMD</div>
  <div class="CBody"><p>Performs multiplication by XNOR Both inputs are '1' bit</p></div>
 </div>
