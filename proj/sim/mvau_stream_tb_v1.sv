@@ -26,7 +26,7 @@
 
 `include "../src/mvau_top/mvau_defn.sv" // compile the package file
 
-module mvau_stream_tb;
+module mvau_stream_tb_v1;
 
    // parameters for controlling the simulation and inserting some delays
    parameter int CLK_PER=20;
@@ -35,8 +35,8 @@ module mvau_stream_tb;
    parameter int NO_IN_VEC = 100;
    parameter int ACT_MatrixW = OFMDim*OFMDim; // input activation matrix height
    parameter int ACT_MatrixH = (KDim*KDim*IFMCh); // input activation matrix weight
-   
-   // Signals Declarations
+   parameter int TOTAL_OUTPUTS = MatrixH*ACT_MatrixW;
+      
    // Signals Declarations
    // Signal: clk
    // Main clock
@@ -44,9 +44,6 @@ module mvau_stream_tb;
    // Signal: rst_n
    // Asynchronous active low reset
    logic 	 rst_n;
-   // Signal: weights
-   // The weight matrix of dimensions MatrixW x MatrixH of word length TW
-   logic [TW-1:0] weights [0:MatrixH-1][0:MatrixW-1];
    // Signal: out_v
    // Output valid signal
    logic 	  out_v;
@@ -61,6 +58,9 @@ module mvau_stream_tb;
    // Signal: in_v
    // Input valid
    logic 		     in_v;
+   // Signal: weights
+   // The weight matrix of dimensions MatrixW x MatrixH of word length TW
+   logic [TW-1:0] weights [0:MatrixH-1][0:MatrixW-1];
    // Signal: in_wgt
    // Input weight stream to DUT
    // Dimension: PExSIMD, word length: TW
@@ -77,6 +77,10 @@ module mvau_stream_tb;
    // Output matrix holding output of behavioral simulation
    // Dimension: MatrixH x ACT_MatrixW
    logic [TDstI-1:0] 	       mvau_beh [0:MatrixH-1][0:ACT_MatrixW-1];
+   // Signal: test_count
+   // An integer to count for successful output matching
+   integer 		       test_count;
+   
    
    // Events for synchronizing the simulation
    event 		       gen_inp;    // generate input activation matrix
@@ -92,7 +96,8 @@ module mvau_stream_tb;
 	$display($time, " << Starting Simulation >>");	
 	clk 		      = 0;
 	rst_n 		      = 0;
-
+	test_count 	      = 0;
+	
 	// Generating events to generate input vector and coefficients for test	
 	#1 		      -> gen_inp; // To populate the input data vector
 	#1 		      -> gen_weights; // To generate coefficients
@@ -106,33 +111,41 @@ module mvau_stream_tb;
 	$display($time, " << Starting simulation with System Verilog based data >>");
 
 	// Checking DUT output with golden output generated in the test bench
-	#(CLK_PER) // Delaying to synchronize the DUT output
+	#(CLK_PER*2); // Delaying to synchronize the DUT output
 	// We need to delay more until the final output comes
 	// To-do for tomorrow
 	for(int i = 0; i < ACT_MatrixW; i++) begin
 	   for(int j = 0; j < MatrixH/PE; j++) begin
-	      #(CLK_PER*MatrixW/SIMD)
-	      out_packed = out;
-	      @(posedge clk) begin
+	      #(CLK_PER*MatrixW/SIMD);	      
+	      @(posedge clk) begin: DUT_CHECK		 
 		 if(out_v) begin
+		    out_packed = out;
 		    for(int k = 0; k < PE; k++) begin
-		       if(out_packed[k] == mvau_beh[j*PE+k][i])
-			 $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
+		       if(out_packed[k] == mvau_beh[j*PE+k][i]) begin
+			  $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
+			  test_count++;
+		       end
 		       else begin
 			  $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
 			  assert (out_packed[k] == mvau_beh[j*PE+k][i])
 			    else
 			      $fatal(1,"Data MisMatch");
-		       end			
-		    end
-		 end
-	      end
-	   end // for (int j = 0; j < MatrixH/PE-1; j++)
-	end // for (int i = 0; i < ACT_MatrixW-1; i++)	
-	
+		       end
+		    end // for (int k = 0; k < PE; k++)
+		 end // if (out_v)
+	      end // block: DUT_CHECK
+	   end // for (int j = 0; j < MatrixH/PE; j++)
+	end // for (int i = 0; i < ACT_MatrixW; i++)
+		
 	#RAND_DLY;
-	$display($time, "<< Simulation Complete >>");
-	$stop;		
+	if(test_count == TOTAL_OUTPUTS) begin
+	  $display($time, "<< Simulation Complete. Total successul outputs: %d >>", test_count);
+	   $stop;
+	end
+	else begin
+	   $display($time, "<< Simulation complete, failed >>");
+	   $stop;	   
+	end
      end // initial begin
 
    
@@ -191,7 +204,7 @@ end
 		      if(in_mat[k][j] == 1'b1) // in_act = +1
 			mvau_beh[i][j] += weights[i][k];		      
 		      else // in_act = -1
-			mvau_beh[i][j] += ~weights[i][k]+1'b1;
+			mvau_beh[i][j] += 0;//~weights[i][k]+1'b1;
 		   end
 		end
 	   end
@@ -221,7 +234,7 @@ end
 		      if(weights[i][k] == 1'b1) // in_wgt = +1
 			mvau_beh[i][j] += in_mat[k][j];
 		      else // in_wgt = -1
-			mvau_beh[i][j] += ~in_mat[k][j]+1'b1;
+			mvau_beh[i][j] += 0;//~in_mat[k][j]+1'b1;
 		   end
 		end
 	   end
@@ -253,7 +266,7 @@ end
 	      for(int k = 0; k < SIMD; k++) begin
 		 in_act[k] = in_mat[j*SIMD+k][i];		 
 	      end
-	      $display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in_act);
+	      //$display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in_act);
 	      #(CLK_PER/2);	   
 	   end
 	   //#(CLK_PER/2);
