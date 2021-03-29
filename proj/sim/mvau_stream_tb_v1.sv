@@ -1,7 +1,7 @@
 /*
- * Testbench: mvau_stream_tb_v1.sv
+ * Module: mvau_stream_tb_v1.sv (testbench)
  *
- *  Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
+ * Authors: Syed Asad Alam <syed.asad.alam@tcd.ie>
  * 
  * This file lists a test bench for the matrix-vector activation streaming
  * unit It is part of the Xilinx FINN open source framework for implementing

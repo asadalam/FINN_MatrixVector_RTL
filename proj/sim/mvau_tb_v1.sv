@@ -1,5 +1,5 @@
 /*
- * Testbench: mvau_tb_v1.sv
+ * Module: mvau_tb_v1.sv (testbench)
  * 
  * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  * 

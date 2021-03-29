@@ -1,5 +1,5 @@
 /*
- * Testbench: mvau_stream_tb_v2.sv
+ * Module: mvau_stream_tb_v2.sv (testbench)
  *
  * Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  * 
