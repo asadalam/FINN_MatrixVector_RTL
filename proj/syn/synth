@@ -1,0 +1,179 @@
+#!/bin/csh
+
+#Defining Variables
+#set PART = xc6vlx75t-ff484-2
+#set top_module = fir_top_pp
+
+if ($#argv != 3) then
+  echo Incorrect number of inputs. specify part, top module name and spec name
+  exit 1
+endif
+
+set PART = $1
+set PROJNAME = $2
+set SPECNAME = $3
+set OUTNAME = "${PROJNAME}_${SPECNAME}"
+
+echo $PROJNAME
+echo $SPECNAME
+echo $OUTNAME
+
+#Removing all files
+rm -rf xst
+rm -rf xst_tmp
+rm *.syr
+rm *.lso
+rm *.ngr
+rm *.ngc
+rm *.xrpt
+rm *.syr
+rm *.lso
+rm *.ngr
+rm *.ngc
+rm *.xrpt
+rm *.ngd
+rm *.unroutes
+rm *.csv
+rm *.psr
+rm *.xml
+
+#Creeating temp directories for Synthesis
+echo
+echo "Creating temp directories"
+echo
+mkdir xst
+mkdir xst_tmp
+
+# Synthesis
+echo
+echo "Performing Synthesis"
+echo
+xst -ifn "$PROJNAME.xst" -ofn "$OUTNAME.syr"
+
+echo
+echo "Removing temporary directories"
+echo
+rm -rf xst
+rm -rf xst_tmp
+
+# Translate
+echo
+echo "Pefroming NGDBUILD"
+echo
+#ngdbuild -dd _ngo -sd ../src/xilinx_core_files/fir_srf -nt timestamp -p $PART -uc $PROJNAME.ucf $PROJNAME.ngc $OUTNAME.ngd  
+ngdbuild -dd _ngo -nt timestamp -p $PART -uc $PROJNAME.ucf $PROJNAME.ngc $OUTNAME.ngd  
+
+if($status != 0) then
+    echo
+    echo "Translate Failed"
+    echo
+    exit 1
+endif
+
+set ncd_filename = "${OUTNAME}_map"
+
+# Mapping
+echo
+echo "Performing MAP"
+echo
+map -p $PART -w -ol high -t 1 -register_duplication on -global_opt power -equivalent_register_removal on -mt off -ir off -pr off -c 100 -lc auto -power on -o $ncd_filename.ncd $OUTNAME.ngd $OUTNAME.pcf 
+
+if($status != 0) then
+    echo
+    echo "MAP Failed"
+    echo
+    exit 1
+endif
+
+# Place and Route
+echo
+echo "Performing Place and Route"
+echo
+par -w -ol high -power on $ncd_filename.ncd $OUTNAME.ncd $OUTNAME.pcf 
+
+if($status != 0) then
+    echo
+    echo "PAR Failed"
+    echo
+    exit 1
+endif
+    
+# Timing Analysis
+echo
+echo "Performing Timing Analysis"
+echo
+trce -v 1000 -fastpaths -xml $OUTNAME.twx $OUTNAME.ncd -o $OUTNAME.twr $OUTNAME.pcf 
+
+if($status != 0) then
+    echo
+    echo "Timing Analysis Failed"
+    echo
+    exit 1
+endif
+
+
+# Post PAR Simulation Model
+echo
+echo "Creating Post PAR Simulation Model"
+echo
+netgen -pcf $OUTNAME.pcf -rpw 100 -tpw 0 -ar Structure -tm $OUTNAME -insert_pp_buffers true -w -dir netgen/par -ofmt vhdl -sim $OUTNAME.ncd "${PROJNAME}_timesim".vhd
+
+if($status != 0) then
+    echo
+    echo "Post PAR Simulation Model Creation Failed"
+    echo
+    exit 1
+endif
+
+### Post PAR Simulation
+### Removing all temporary files
+echo
+echo "Removing all temporary files"
+echo
+#rm -f $PROJNAME*.vcd
+vsim -do sim_frm_wb_par.do -c
+
+set par_sim_out = `grep -o "All outputs Matched" transcript`
+echo $par_sim_out
+
+if ("$par_sim_out" == "All outputs Matched") then
+   echo "Post PAR Simulation Successfull"
+   #Power Estimation
+   #./xpower > power_report 
+   echo
+   echo "Performing Power Estimation"
+   echo
+   xpwr -v -s /nobackup/local/simfiles/$OUTNAME.vcd -o $OUTNAME.pwr $OUTNAME.ncd $OUTNAME.pcf
+
+   if($status != 0) then
+	    echo
+	echo "Power Estimatino Failed"
+	echo
+	exit 1
+   endif
+   
+   ### Removing all files
+    # rm -rf _ngo
+    # rm -rf xlnx_auto_0_xdb
+    # rm -f *~
+    # rm -f transcript
+    # rm -f vsim.wlf
+    # rm -f wlf*
+    # rm -f /nobackup/local/simfiles/$OUTNAME.vcd
+    exit 0
+else
+ echo "Post PAR Simulation Failed"
+ exit 1
+  #If simulation fails, begin the same simulation in GUI
+  vsim -do sim_frm_wb_par.do
+endif
+
+
+### Extracting desired data from PAR Report, Timing Analsis Report and Power Report
+#python implementation_data_extract.py > Final_Output $PROJNAME_map.mrp $PROJNAME.twr netgen/par/power_report
+
+# Implementation of FIR Compiler
+# ../fir1/./synth
+
+# Comparison of Implemented Design and FIR Compiler
+# kompare Final_Output ../fir1/Final_Output

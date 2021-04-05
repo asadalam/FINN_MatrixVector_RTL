@@ -1,0 +1,60 @@
+function write_xst(part, name, path, core)
+    
+    fid = fopen(['../../../synthesis/' name '.xst'], 'w'); 
+    
+fprintf(fid,'set -tmpdir "xst_tmp"\n');
+fprintf(fid,'set -xsthdpdir "xst"\n');
+fprintf(fid,'run\n');
+fprintf(fid,'-ifn %s.prj\n', name);
+fprintf(fid,'-ifmt mixed\n');
+fprintf(fid,'-ofn %s\n', name);
+fprintf(fid,'-ofmt NGC\n');
+fprintf(fid,'-p %s\n', part);
+fprintf(fid,'-top %s\n', name);
+fprintf(fid,'-opt_mode Speed\n');
+fprintf(fid,'-opt_level 1\n');
+fprintf(fid,'-power YES\n');
+fprintf(fid,'-iuc NO\n');
+fprintf(fid,'-keep_hierarchy No\n');
+fprintf(fid,'-netlist_hierarchy As_Optimized\n');
+fprintf(fid,'-rtlview Yes\n');
+fprintf(fid,'-glob_opt AllClockNets\n');
+if(core == 1)
+    fprintf(fid,'-read_cores YES\n');
+    fprintf(fid,'-sd {\"../src/xilinx_core_files/%s\"}\n', path);
+end
+fprintf(fid,'-write_timing_constraints YES\n');
+fprintf(fid,'-cross_clock_analysis NO\n');
+fprintf(fid,'-hierarchy_separator /\n');
+fprintf(fid,'-bus_delimiter <>\n');
+fprintf(fid,'-case Maintain\n');
+fprintf(fid,'-slice_utilization_ratio 100\n');
+fprintf(fid,'-bram_utilization_ratio 100\n');
+fprintf(fid,'-dsp_utilization_ratio 100\n');
+fprintf(fid,'-lc Auto\n');
+fprintf(fid,'-reduce_control_sets Auto\n');
+fprintf(fid,'-fsm_extract YES\n'); 
+fprintf(fid,'-fsm_encoding Auto\n');
+fprintf(fid,'-safe_implementation No\n');
+fprintf(fid,'-fsm_style LUT\n');
+fprintf(fid,'-ram_extract Yes\n');
+fprintf(fid,'-ram_style Auto\n');
+fprintf(fid,'-rom_extract Yes\n');
+fprintf(fid,'-shreg_extract YES\n');
+fprintf(fid,'-rom_style Auto\n');
+fprintf(fid,'-auto_bram_packing NO\n');
+fprintf(fid,'-resource_sharing YES\n');
+fprintf(fid,'-async_to_sync NO\n');
+fprintf(fid,'-use_dsp48 Auto\n');
+fprintf(fid,'-iobuf YES\n');
+fprintf(fid,'-max_fanout 100000\n');
+fprintf(fid,'-bufg 32\n');
+fprintf(fid,'-register_duplication YES\n');
+fprintf(fid,'-register_balancing No\n');
+fprintf(fid,'-optimize_primitives NO\n');
+fprintf(fid,'-use_clock_enable Auto\n');
+fprintf(fid,'-use_sync_set Auto\n');
+fprintf(fid,'-use_sync_reset Auto\n');
+fprintf(fid,'-iob Auto\n');
+fprintf(fid,'-equivalent_register_removal YES\n');
+fprintf(fid,'-slice_utilization_ratio_maxmargin 5\n');
