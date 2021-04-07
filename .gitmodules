@@ -1,3 +1,0 @@
-[submodule "proj/-f"]
-	path = proj/-f
-	url = https://github.com/Xilinx/finn-hlslib.git
