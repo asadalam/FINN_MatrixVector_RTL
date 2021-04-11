@@ -8,88 +8,88 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Testbench"></a><a name="Topic156"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Testbench"></a><a name="Topic181"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Testbench</div>
 </div>
 
-<a name="MVAU_Control_Block"></a><a name="Topic157"></a><div class="CTopic TTestbench LSystemVerilog">
+<a name="MVAU_Control_Block"></a><a name="Topic182"></a><div class="CTopic TTestbench LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">MVAU Control Block (mvau_control_block.</span>&#8203;sv)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam</p><p>This file lists an RTL implementation of the control block which generates address for weight memory</p><p>It is part of the Xilinx FINN open source framework for implementing quantized neural networks on FPGAs</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">WMEM_ADDR_BW</td><td class="CDLDefinition"><p>Word length of the address for the weight memories</p></td></tr></table><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">rst_n</td><td class="CDLDefinition"><p>Active low synchronous reset</p></td></tr><tr><td class="CDLEntry">clk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">in_v</td><td class="CDLDefinition"><p>Input valid to indicate valid input stream</p></td></tr></table><div class="CHeading">Outputs</div><p>[WMEM_ADDR_BW-1:0] wmem_addr- Address for the weight memories</p></div>
 </div>
 
-<a name="Parameters"></a><a name="Topic158"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Parameters"></a><a name="Topic183"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Parameters</div>
 </div>
 
-<a name="NF_T"></a><a name="Topic159"></a><div class="CTopic TParameter LSystemVerilog">
+<a name="NF_T"></a><a name="Topic184"></a><div class="CTopic TParameter LSystemVerilog">
  <div class="CTitle">NF_T</div>
  <div class="CBody"><p>Word length of the NF counter to control reading and writing from the input buffer</p></div>
 </div>
 
-<a name="SF_T"></a><a name="Topic160"></a><div class="CTopic TParameter LSystemVerilog">
+<a name="SF_T"></a><a name="Topic185"></a><div class="CTopic TParameter LSystemVerilog">
  <div class="CTitle">SF_T</div>
  <div class="CBody"><p>Address word length of the buffer</p></div>
 </div>
 
-<a name="Signals"></a><a name="Topic161"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Signals"></a><a name="Topic186"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Signals</div>
 </div>
 
-<a name="do_mvau"></a><a name="Topic162"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="do_mvau"></a><a name="Topic187"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">do_mvau</div>
  <div class="CBody"><p>To allow reading of weight memory when computation taking place</p></div>
 </div>
 
-<a name="wmem_en"></a><a name="Topic163"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="wmem_en"></a><a name="Topic188"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">wmem_en</div>
  <div class="CBody"><p>To enable reading of weight memory when the input buffer is being re-used</p></div>
 </div>
 
-<a name="sf_clr"></a><a name="Topic164"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="sf_clr"></a><a name="Topic189"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">sf_clr</div>
  <div class="CBody"><p>Control signal for resetting the accumulator and a one bit control signal to indicate when sf_cnt == SF-1</p></div>
 </div>
 
-<a name="sf_cnt"></a><a name="Topic165"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="sf_cnt"></a><a name="Topic190"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">sf_cnt</div>
  <div class="CBody"><p>Counter to check when a whole weight matrix row has been processed</p></div>
 </div>
 
-<a name="nf_clr"></a><a name="Topic166"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="nf_clr"></a><a name="Topic191"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">nf_clr</div>
  <div class="CBody"><p>Signal to reset the nf_cnt counter Only used when multiple output channel</p></div>
 </div>
 
-<a name="nf_cnt"></a><a name="Topic167"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="nf_cnt"></a><a name="Topic192"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">nf_cnt</div>
  <div class="CBody"><p>A counter to keep track how many weight channels have been processed Only used when multiple output channels</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks"></a><a name="Topic168"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks"></a><a name="Topic193"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="NF_CLR"></a><a name="Topic169"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="NF_CLR"></a><a name="Topic194"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">NF_CLR</div>
  <div class="CBody"><p>A one bit control signal to indicate when nf_cnt == NF</p></div>
 </div>
 
-<a name="NF_CNT"></a><a name="Topic170"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="NF_CNT"></a><a name="Topic195"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">NF_CNT</div>
  <div class="CBody"><p>A counter to keep track when we are done writing to the input buffer so that it can be reused again Similar to the variable nf in mvau.hpp Only used when multiple output channels</p></div>
 </div>
 
-<a name="SF_CLR"></a><a name="Topic171"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="SF_CLR"></a><a name="Topic196"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">SF_CLR</div>
  <div class="CBody"><p>A one bit control signal to indicate when sf_cnt == SF-1</p></div>
 </div>
 
-<a name="SF_CNT"></a><a name="Topic172"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="SF_CNT"></a><a name="Topic197"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">SF_CNT</div>
  <div class="CBody"><p>A sequential 'always' block for a counter which keeps track when one row of weight matrix is accessed Only runs when do_mvau is asserted A counter similar to sf in mvau.hpp Only used when multiple output channels</p></div>
 </div>
 
-<a name="WMEM_ADDR"></a><a name="Topic173"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+<a name="WMEM_ADDR"></a><a name="Topic198"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
  <div class="CTitle">WMEM_ADDR</div>
  <div class="CBody"><p>Control Logic for generating address for the weight memory</p></div>
 </div>

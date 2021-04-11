@@ -8,95 +8,105 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Testbench"></a><a name="Topic123"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Testbench"></a><a name="Topic146"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Testbench</div>
 </div>
 
-<a name="MVAU_Streaming_Block"></a><a name="Topic124"></a><div class="CTopic TTestbench LSystemVerilog">
+<a name="MVAU_Streaming_Block"></a><a name="Topic147"></a><div class="CTopic TTestbench LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">MVAU Streaming Block (mvau_stream.</span>&#8203;sv)</div>
- <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of the matrix-vector multiplication unit based on streaming weights. It can either be part of the Matrix-Vector-Activation Unit or run independently</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">rst_n</td><td class="CDLDefinition"><p>Active low, synchronous reset</p></td></tr><tr><td class="CDLEntry">clk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">in_v</td><td class="CDLDefinition"><p>Input valid when input activation is valid</p></td></tr><tr><td class="CDLEntry">sf_clr</td><td class="CDLDefinition"><p>Control signal to reset the accumulator</p></td></tr><tr><td class="CDLEntry">[TI-1:0] in_act</td><td class="CDLDefinition"><p>Input activation stream, word length TI=TSrcI*SIMD</p></td></tr><tr><td class="CDLEntry">[0:SIMD-1][TW-1:0] in_wgt [0:PE-1]</td><td class="CDLDefinition"><p>Input weight stream</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">out_v</td><td class="CDLDefinition"><p>Output stream valid</p></td></tr><tr><td class="CDLEntry">[TO-1:0] out</td><td class="CDLDefinition"><p>Output stream, word length TO=TDstI*PE</p></td></tr></table><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">SF=MatrixW/SIMD</td><td class="CDLDefinition"><p>Number of vertical weight matrix chunks and depth of the input buffer</p></td></tr><tr><td class="CDLEntry">NF=MatrixH/PE</td><td class="CDLDefinition"><p>Number of horizontal weight matrix chunks</p></td></tr><tr><td class="CDLEntry">SF_T</td><td class="CDLDefinition"><p>log_2(SF), determines the number of address bits for the input buffer</p></td></tr></table></div>
+ <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of the matrix-vector multiplication unit based on streaming weights. It can either be part of the Matrix-Vector-Activation Unit or run independently</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">rst_n</td><td class="CDLDefinition"><p>Active low, synchronous reset</p></td></tr><tr><td class="CDLEntry">clk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">in_v</td><td class="CDLDefinition"><p>Input valid when input activation is valid</p></td></tr><tr><td class="CDLEntry">sf_clr</td><td class="CDLDefinition"><p>Control signal to reset the accumulator</p></td></tr><tr><td class="CDLEntry">[TI-1:0] in_act</td><td class="CDLDefinition"><p>Input activation stream, word length TI=TSrcI*SIMD</p></td></tr><tr><td class="CDLEntry">[0:SIMD*TW-1:0] in_wgt [0:PE-1]</td><td class="CDLDefinition"><p>Input weight stream</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">out_v</td><td class="CDLDefinition"><p>Output stream valid</p></td></tr><tr><td class="CDLEntry">[TO-1:0] out</td><td class="CDLDefinition"><p>Output stream, word length TO=TDstI*PE</p></td></tr></table><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">SF=MatrixW/SIMD</td><td class="CDLDefinition"><p>Number of vertical weight matrix chunks and depth of the input buffer</p></td></tr><tr><td class="CDLEntry">NF=MatrixH/PE</td><td class="CDLDefinition"><p>Number of horizontal weight matrix chunks</p></td></tr><tr><td class="CDLEntry">SF_T</td><td class="CDLDefinition"><p>log_2(SF), determines the number of address bits for the input buffer</p></td></tr></table></div>
 </div>
 
-<a name="Parameters"></a><a name="Topic125"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Parameters"></a><a name="Topic148"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Parameters</div>
 </div>
 
-<a name="SF"></a><a name="Topic126"></a><div class="CTopic TParameter LSystemVerilog">
+<a name="SF"></a><a name="Topic149"></a><div class="CTopic TParameter LSystemVerilog">
  <div class="CTitle">SF</div>
  <div class="CBody"><p>Number of vertical matrix chunks to be processed in parallel by one PE</p></div>
 </div>
 
-<a name="NF"></a><a name="Topic127"></a><div class="CTopic TParameter LSystemVerilog">
+<a name="NF"></a><a name="Topic150"></a><div class="CTopic TParameter LSystemVerilog">
  <div class="CTitle">NF</div>
  <div class="CBody"><p>Number of horizontal matrix chunks to be processed by PEs in parallel</p></div>
 </div>
 
-<a name="SF_T"></a><a name="Topic128"></a><div class="CTopic TParameter LSystemVerilog">
+<a name="SF_T"></a><a name="Topic151"></a><div class="CTopic TParameter LSystemVerilog">
  <div class="CTitle">SF_T</div>
  <div class="CBody"><p>Address word length of the buffer</p></div>
 </div>
 
-<a name="Signals"></a><a name="Topic129"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Signals"></a><a name="Topic152"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Signals</div>
 </div>
 
-<a name="in_v_reg"></a><a name="Topic130"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_v_reg"></a><a name="Topic153"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_v_reg</div>
  <div class="CBody"><p>Input valid synchronized to clock</p></div>
 </div>
 
-<a name="in_act_reg"></a><a name="Topic131"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_act_reg"></a><a name="Topic154"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_act_reg</div>
  <div class="CBody"><p>Input activation stream synchronized to clock</p></div>
 </div>
 
-<a name="in_wgt_reg"></a><a name="Topic132"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_wgt_reg"></a><a name="Topic155"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_wgt_reg</div>
  <div class="CBody"><p>Streaming weight tile synchronized to clock</p></div>
 </div>
 
-<a name="ib_ren"></a><a name="Topic133"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="ib_ren"></a><a name="Topic156"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">ib_ren</div>
  <div class="CBody"><p>Read enable for the input buffer</p></div>
 </div>
 
-<a name="sf_clr"></a><a name="Topic134"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="sf_clr"></a><a name="Topic157"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">sf_clr</div>
  <div class="CBody"><p>Resets the accumulator as well the sf_cnt</p></div>
 </div>
 
-<a name="sf_cnt"></a><a name="Topic135"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="sf_cnt"></a><a name="Topic158"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">sf_cnt</div>
  <div class="CBody"><p>Counter keeping track of SF and also address to input buffer</p></div>
 </div>
 
-<a name="out_pe"></a><a name="Topic136"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out_pe"></a><a name="Topic159"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out_pe</div>
  <div class="CBody"><p>Holds the output from parallel PEs</p></div>
 </div>
 
-<a name="out_pe_v"></a><a name="Topic137"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out_pe_v"></a><a name="Topic160"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out_pe_v</div>
  <div class="CBody"><p>Output valid signal from each PE</p></div>
 </div>
 
-<a name="do_mvau_stream"></a><a name="Topic138"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="do_mvau_stream"></a><a name="Topic161"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">do_mvau_stream</div>
  <div class="CBody"><p>Controls how long the MVAU operation continues Case 1: NF=1 =&gt; do_mvau_stream = in_v (input buffer not reused) Case 2: NF&gt;1 =&gt; do_mvau_stream = in_v | (~(nf_clr&amp;sf_clr)) (input buffer reused)</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks"></a><a name="Topic139"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks"></a><a name="Topic162"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="INP_REG"></a><a name="Topic140"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="INP_REG"></a><a name="Topic163"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">INP_REG</div>
  <div class="CBody"><p>Register the input valid and activation</p></div>
 </div>
 
-<a name="WGT_REG"></a><a name="Topic141"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+<a name="WGT_REG"></a><a name="Topic164"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">WGT_REG</div>
  <div class="CBody"><p>Register the input weight stream</p></div>
+</div>
+
+<a name="OUT_PE_REG"></a><a name="Topic165"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+ <div class="CTitle">OUT_PE_REG</div>
+ <div class="CBody"><p>Registering the output activation stream</p></div>
+</div>
+
+<a name="OUT_V_REG"></a><a name="Topic166"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+ <div class="CTitle">OUT_V_REG</div>
+ <div class="CBody"><p>Registering the output activation stream valid signal</p></div>
 </div>
 
 </body></html>
