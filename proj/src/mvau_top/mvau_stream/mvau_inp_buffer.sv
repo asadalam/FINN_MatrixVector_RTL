@@ -18,6 +18,7 @@
  *  
  * Inputs:
  * clk         - Main clock
+ * rst_n       - Synchronous and active low reset
  * [TI-1:0] in - Input activation stream, word length TI=TSrcI*SIMD
  * 
  * Outputs:
@@ -36,8 +37,10 @@
 
 module mvau_inp_buffer #(
 			 parameter int BUF_LEN=16,
-			 parameter int BUF_ADDR=16)
-   (    input logic 	  clk,
+			 parameter int BUF_ADDR=4)
+   (    
+	input logic 		   clk,
+	input logic 		   rst_n,
 	input logic [TI-1:0] 	   in, // Input stream
 	input logic 		   wr_en, // Write enable signal to write to buffer
 	input logic 		   rd_en, // Read enable signal to read from buffer
@@ -50,18 +53,45 @@ module mvau_inp_buffer #(
    // Signal: inp_buffer
    // The input buffer   
    logic [TI-1:0] 	  inp_buffer [0:BUF_LEN-1];
+        
 
    /*
     * Implementing the memory operations
     * */
-   assign out = rd_en? inp_buffer[addr] : in;
+   // always_ff @(posedge clk) begin
+   //    if(!rst_n)
+   // 	out <= 'd0;
+   //    else if(rd_en)
+   // 	out <= inp_buffer[addr];
+   //    else
+   // 	out <= in;
+   // end
+   // assign out_mem = rd_en? inp_buffer[addr] : in;
+   //always_ff @(posedge clk) begin
+   // assign out_mem = inp_buffer[addr];
+   //end
 
-   // Always_FF: Write_Input_Buffer
+   // always_ff @(posedge clk) begin
+   //    if(!rst_n)
+   // 	out <= 'd0;
+   //    else if(wr_en)
+   // 	out <= in;
+   //    else if(rd_en)
+   // 	out <= out_mem;
+   // end
+      
+   
+   // Always_FF: Write_Input_Buffer in write through mode
    // Sequential 'always' block to write to the input buffer
    always_ff @(posedge clk) begin
-      if (wr_en)
-	inp_buffer[addr] <= in;
-   end
+      if (wr_en) begin
+	 inp_buffer[addr] <= in;
+	 out <= in;
+      end
+      else begin
+	 out <= inp_buffer[addr];
+      end      
+   end   
 
 endmodule // mvau_inp_buffer
 

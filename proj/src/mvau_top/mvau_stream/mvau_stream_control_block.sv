@@ -91,8 +91,17 @@ module mvau_stream_control_block #(
 	 // A counter to keep track how many weight channels have been processed
 	 // Only used when multiple output channels
 	 logic [NF_T-1:0]   nf_cnt; // NF counter, keeping track of the NF
-	 // A one bit control signal to indicate when nf_cnt == NF
-	 assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
+
+	 // Always_FF: NF_CLR
+	 // A one bit control signal to indicate when nf_cnt == NF	 
+	 always_ff @(posedge clk) begin
+	    if(!rst_n)
+	      nf_clr <= 1'b0;
+	    else if(nf_cnt==NF_T'(NF-1)) //assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
+	      nf_clr <= 1'b1;
+	    else
+	      nf_clr <= 1'b0;
+	 end
 	 // Case 2, input buffer to be re-used so computation should continue
 	 assign do_mvau_stream = in_v|ib_ren;
 	 	 
@@ -119,8 +128,16 @@ module mvau_stream_control_block #(
       end // block: N_FILTER_BANKS
    endgenerate
 
-   // A one bit control signal to indicate when sf_cnt == SF
-    assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
+   // Always_FF: SF_CLR
+   // A one bit control signal to indicate when sf_cnt == SF-1   
+   always_ff @(posedge clk) begin
+      if(!rst_n)
+	sf_clr <= 1'b0;
+      else if(sf_cnt == SF_T'(SF-2)) //assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
+	sf_clr <= 1'b1;
+      else
+	sf_clr <= 1'b0;
+   end
    
    // Always_FF: SF_CNT
    // A sequential 'always' block for a counter

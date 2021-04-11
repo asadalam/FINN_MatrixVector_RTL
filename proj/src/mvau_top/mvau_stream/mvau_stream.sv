@@ -18,7 +18,7 @@
  * in_v - Input valid when input activation is valid
  * sf_clr - Control signal to reset the accumulator
  * [TI-1:0] in_act - Input activation stream, word length TI=TSrcI*SIMD
- * [0:SIMD-1][TW-1:0] in_wgt [0:PE-1] - Input weight stream
+ * [0:SIMD*TW-1:0] in_wgt [0:PE-1] - Input weight stream
  * 
  * Outputs:			       
  * out_v        - Output stream valid
@@ -34,13 +34,13 @@
 `include "../mvau_defn.sv"
 
 module mvau_stream (
-		    input logic 		   rst_n,
-		    input logic 		   clk,
-		    input logic 		   in_v,
-		    input logic [TI-1:0] 	   in_act ,
-		    input logic [0:SIMD-1][TW-1:0] in_wgt [0:PE-1], // Streaming weight tile
-		    output logic 		   out_v, // Ouptut valid
-		    output logic [TO-1:0] 	   out);
+		    input logic 	      rst_n,
+		    input logic 	      clk,
+		    input logic 	      in_v,
+		    input logic [TI-1:0]      in_act ,
+		    input logic [0:SIMD*TW-1] in_wgt [0:PE-1], // Streaming weight tile
+		    output logic 	      out_v, // Ouptut valid
+		    output logic [TO-1:0]     out);
 
    /*
     * Local parameters
@@ -141,13 +141,14 @@ module mvau_stream (
 			.do_mvau_stream,
 			.sf_clr,
 			.sf_cnt);
-   
+
    //Insantiating the input buffer
    mvau_inp_buffer #(
 		     .BUF_LEN(SF),
 		     .BUF_ADDR(SF_T))
    mvau_inb_inst (
 		  .clk,
+		  .rst_n,
 		  .in(in_act_reg),
 		  .wr_en(ib_wen),
 		  .rd_en(ib_ren),
@@ -182,8 +183,22 @@ module mvau_stream (
       if(USE_ACT==1) begin: ACT
       end
       else begin: NO_ACT
-	 assign out = out_pe;
-	 assign out_v = |out_pe_v;	 
+	 // Always_FF: OUT_PE_REG
+	 // Registering the output activation stream
+	 always_ff @(posedge clk) begin
+	    if(!rst_n)
+	      out <= 'd0;
+	    else
+	      out <= out_pe;
+	 end
+	 // Always_FF: OUT_V_REG
+	 // Registering the output activation stream valid signal
+	 always_ff @(posedge clk) begin
+	   if(!rst_n)
+	     out_v <= 1'b0;
+	    else
+	      out_v = |out_pe_v;
+	 end
       end      
    endgenerate
 
