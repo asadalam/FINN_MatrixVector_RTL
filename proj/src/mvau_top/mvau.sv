@@ -35,7 +35,6 @@ module mvau (
 		 input logic 	       clk, // main clock
 		 input logic [TI-1:0]  in, // input stream
 		 input logic 	       in_v, // input valid
-		 //input logic [TW-1:0]  weights [0:MatrixH-1][0:MatrixW-1], // The weights matrix
 		 output logic 	       out_v, // Output valid
 		 output logic [TO-1:0] out); //output stream
    /*
@@ -60,10 +59,16 @@ module mvau (
     * */
    // Signal: in_v_reg
    // Input valid synchronized to clock
-   logic 			       in_v_reg;
+   logic  			       in_v_reg;
+   // Signal: in_v_reg_dly
+   // Input valid delayed for one more clock cycle
+   logic 			       in_v_reg_dly;
    // Signal: in_reg
    // Input activation stream synchronized to clock
-   logic [TI-1:0] 		       in_reg;   
+   logic [TI-1:0] 		       in_reg;
+   // Signal: in_reg_dly
+   // Input activation stream delayed by one clock cycle to synchronize with weight stream
+   logic [TI-1:0] 		       in_reg_dly;
    // Signal: wmem_addr
    // This signal holds the address of the weight memory
    logic [WMEM_ADDR_BW-1:0] 	       wmem_addr;
@@ -90,7 +95,19 @@ module mvau (
 	 in_reg   <= in;
       end
    end
-      
+   // Always_FF: IN_REG_DLY
+   // Delays the input activation stream for one more clock cycle
+   always_ff @(posedge clk) begin
+      if(!rst_n) begin
+	 in_v_reg_dly <= 1'b0;
+	 in_reg_dly <= 'd0;
+      end
+      else begin
+	 in_v_reg_dly <= in_v_reg;
+	 in_reg_dly <= in_reg;
+      end
+   end
+
    /*
     * Control logic for reading and writing to input buffer
     * and for generating the correct weight tile for the
@@ -116,25 +133,31 @@ module mvau (
      mvau_stream_inst(
 		      .rst_n,
 		      .clk,
-		      .in_v(in_v_reg), // Input activation valid
-		      .in_act(in_reg), // Input activation
+		      .in_v(in_v_reg_dly), // Input activation valid
+		      .in_act(in_reg_dly), // Input activation
 		      .in_wgt, // A tile of weights
 		      .out_v(out_stream_valid),
 		      .out(out_stream)
 		      );
 
    // Submodule: mvau_weight_mem
-   // Instantiation of the Weights Memory Unit
+   // Instantiation of the Weight Memory Unit
    if(INST_WMEM==1) begin: WGT_MEM
-      for(genvar wmem = 0; wmem < PE; wmem=wmem+1)	 
-	 mvau_weight_mem #(.WMEM_ID(wmem),
-			   .WMEM_ADDR_BW(WMEM_ADDR_BW))
-	   mvau_weight_mem_inst(
-				//.clk,
-				.wmem_addr,
-				.wmem_out(in_wgt[wmem])
-				);
-      end // block: WGT_MEM
+      //for(genvar wmem = 0; wmem < PE; wmem=wmem+1)	 
+      	 // mvau_weight_mem #(.WMEM_ID(wmem),
+      	 // 		   .WMEM_ADDR_BW(WMEM_ADDR_BW))
+      	 //   mvau_weight_mem_inst(
+      	 // 			.clk,
+      	 // 			.wmem_addr,
+      	 // 			.wmem_out(in_wgt[wmem])
+      	 // 			);
+      mvau_weight_mem_merged #(.WMEM_ADDR_BW(WMEM_ADDR_BW))
+      mvau_weigt_mem_inst(
+      			  .clk,
+      			  .wmem_addr,
+      			  .wmem_out(in_wgt)
+      			  );
+   end // block: WGT_MEM
       
    // A place holder for the activation unit to be implemented later
    generate

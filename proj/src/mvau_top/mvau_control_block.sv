@@ -110,9 +110,17 @@ module mvau_control_block #(parameter int SF=8,
 	 // as the input buffer is being re-used	 
 	 assign wmem_en = (nf_cnt=='d0) ? 1'b0 : 1'b1;
 	 assign do_mvau = in_v|wmem_en;
-	 
-	 // A one bit control signal to indicate when nf_cnt == NF
-	 assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
+
+	 // Always_FF: NF_CLR
+	 // A one bit control signal to indicate when nf_cnt == NF	 
+	 always_ff @(posedge clk) begin
+	    if(!rst_n)
+	      nf_clr <= 1'b0;
+	    else if(nf_cnt==NF_T'(NF-1)) //assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
+	      nf_clr <= 1'b1;
+	    else
+	      nf_clr <= 1'b0;
+	 end
 	 // Always_FF: NF_CNT
 	 // A counter to keep track when we are done writing to the
 	 // input buffer so that it can be reused again
@@ -127,8 +135,16 @@ module mvau_control_block #(parameter int SF=8,
 	      nf_cnt <= nf_cnt + 1;
 	 end
 
-	 // A one bit control signal to indicate when sf_cnt == SF
-	 assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
+	 // ALWAYS_FF: SF_CLR
+	 // A one bit control signal to indicate when sf_cnt == SF-1   
+	 always_ff @(posedge clk) begin
+	    if(!rst_n)
+	      sf_clr <= 1'b0;
+	    else if(sf_cnt == SF_T'(SF-2)) //assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
+	      sf_clr <= 1'b1;
+	    else
+	      sf_clr <= 1'b0;
+	 end
 	 
 	 // Always_FF: SF_CNT
 	 // A sequential 'always' block for a counter
