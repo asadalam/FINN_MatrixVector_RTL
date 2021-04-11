@@ -21,6 +21,7 @@
  * WMEM_ADDR_BW                - The word length of the address for the weight memory
  * 
  * Inputs:
+ * clk - Main clock
  * [WMEM_ADDR_BW-1:0] wmem_addr - Weight memory address
  * 
  * Outputs:
@@ -34,7 +35,7 @@ module mvau_weight_mem #(parameter int WMEM_ID=0,
 			 parameter int WMEM_ADDR_BW=4)
    
    (
-    //input 			   clk,
+    input 			   clk,
     input logic [WMEM_ADDR_BW-1:0] wmem_addr,
     output logic [(SIMD*TW)-1:0]   wmem_out);
    
@@ -43,7 +44,7 @@ module mvau_weight_mem #(parameter int WMEM_ID=0,
     * **/
    // Parameter: FILE_WEIGHT_MEM
    // Defines the file to read weight memory contents
-   localparam FILE=$sformatf("weight_mem%0d.memh",WMEM_ID);
+   localparam FILE=$sformatf("weight_mem%0d.memh",WMEM_ID);   
    
    /**
     * Internal Signals 
@@ -51,16 +52,17 @@ module mvau_weight_mem #(parameter int WMEM_ID=0,
 
    // Signal: weight_mem
    // This signal defines the memory itself
-   logic [SIMD*TW-1:0] 		weight_mem [0:WMEM_DEPTH-1];
+   (* ram_style = "block" *) logic [SIMD*TW-1:0] 		weight_mem [0:WMEM_DEPTH-1];
 
    // Reading the contents of the weight memor from hex file
    initial
      $readmemh(FILE, weight_mem);
 
-   // Always_COMB: WMEM_READ_OUT
-   // Combinatorial 'always' block to read from
+   
+   // Always_FF: WMEM_READ_OUT
+   // Sequential 'always' block to read from
    // weight memory
-   always_comb begin//_ff @(posedge clk) begin: WMEM_READ_OUT
+   always_ff @(posedge clk) begin: WMEM_READ_OUT
       wmem_out = weight_mem[wmem_addr];
    end
    
