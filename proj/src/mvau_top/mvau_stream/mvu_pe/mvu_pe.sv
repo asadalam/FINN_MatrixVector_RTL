@@ -57,7 +57,17 @@ module mvu_pe
    // Signal: in_act_packed
    // Packed input activation array, makes for easy access
    logic [0:SIMD-1][TSrcI-1:0] in_act_packed;
+   // Signal: in_wgt_reg
+   // Packed input weight array registered
+   logic [0:SIMD-1][TW-1:0]    in_wgt_reg;
+   // Signal: do_mvau_stream_reg
+   // Registered version of do_mvau_stream
+   logic 		       do_mvau_stream_reg;   
+   // Signal: sf_clr_reg
+   // Registered version of sf_clr
+   logic 		       sf_clr_reg;
    
+      
    /**
     * Re-assigning in_act to in_act_temp
     * and then to a packed array where
@@ -72,6 +82,38 @@ module mvu_pe
 	   assign in_act_packed[act_ind] = in_act_rev[act_ind*TSrcI:act_ind*TSrcI+TSrcI-1];
 	end
    endgenerate
+
+   // Always_FF: WGT_REG
+   // Registering input weights stream
+   always_ff @(posedge clk) begin
+      if(!rst_n) begin
+	 for(int i = 0; i < SIMD; i++)
+	   in_wgt_reg[i] <= 'd0;
+      end
+      else begin
+	 for(int i = 0; i < SIMD; i++)
+	   in_wgt_reg[i] <= in_wgt[i];
+      end
+   end
+
+   // Always_FF: MVAU_STREAM_REG
+   // Registering the do_mvau_stream signal
+   always_ff @(posedge clk) begin
+      if(!rst_n)
+	do_mvau_stream_reg <= 1'b0;
+      else
+	do_mvau_stream_reg <= do_mvau_stream;
+   end
+
+   // Always_FF: SF_CLR_REG
+   // Registering the sf_clr signal
+   always_ff @(posedge clk) begin
+      if(!rst_n)
+	sf_clr_reg <= 1'b0;
+      else
+	sf_clr_reg <= sf_clr;
+   end
+
       
    /*****************************
     * Component Instantiation
@@ -93,62 +135,156 @@ module mvu_pe
     * Case 4: Multi-bit weight and input activation
     * *************************/
    genvar 		     simd_ind;
-   
-   if(TSrcI==1) begin: TSrcI_1
-      if(TW==1) begin: TW_1
-	 /**
-	  * Case 1: 1-bit input activation and 1-bit weight
-	  * Interpretation of values are:
-	  * 1'b0 => -1
-	  * 1'b1 => +1
-	  * 
-	  * SIMD implemented as xnor operation because
-	  * 
-	  * -1 x -1 = +1 maps to 0 xnor 0 = 1
-	  * -1 x +1 = -1 maps to 0 xnor 1 = 0
-	  * +1 x -1 = -1 maps to 1 xnor 0 = 0
-	  * +1 x +1 = +1 maps to 1 xnor 1 = 1
-	  * **/
-	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
-	   begin: SIMD_GEN
-	      mvu_pe_simd_xnor 
-			mvu_simd_inst(
-				      .rst_n,
-				      .clk,
-				      .do_mvau_stream,
-				      .in_act(in_act_packed[simd_ind]), 
-				      .in_wgt(in_wgt[simd_ind]),
-				      .out(out_simd[simd_ind])
-				      );
-	   end // block: SIMD_GEN
-      end // block: TW_1		   
-      else if(TW > 1) begin: TW_gt1
-	 /**
-	  * Case 2: 1-bit activation and multi-bit weight
-	  * Interpretation of the 1-bit activation is:
-	  * 1'b0 => -1
-	  * 1'b1 => +1
-	  * 
-	  * Implementation is simple
-	  * output = input weight if in_act == +1 (1'b1)
-	  * output = 2's complement of input weight if in_act == -1 (1'b0)
-	  * **/
-	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
-	   begin: SIMD_GEN
-	      mvu_pe_simd_binary 
-			mvu_simd_inst(
-				      .rst_n,
-				      .clk,
-				      .do_mvau_stream,
-				      .in_act(in_act_packed[simd_ind]),
-				      .in_wgt(in_wgt[simd_ind]),
-				      .out(out_simd[simd_ind])
-				      );
-	   end // block: SIMD_GEN
-      end // block: TW_gt1
-   end // block: TSrcI_1
-   else if(TW==1) begin: TW_1_2
-      if(TSrcI > 1) begin: TSrcI_gt1
+
+   if(TSrcI_BIN == 1) begin: TSrcI_BIN_1
+      if(TSrcI==1) begin: TSrcI1_1
+	 if(TW_BIN == 1) begin: TW_BIN_1
+	    if(TW==1) begin: TW1_1
+	       /**
+		* Case 1: 1-bit input activation and 1-bit weight
+		* Interpretation of values are:
+		* 1'b0 => -1
+		* 1'b1 => +1
+		* 
+		* SIMD implemented as xnor operation because
+		* 
+		* -1 x -1 = +1 maps to 0 xnor 0 = 1
+		* -1 x +1 = -1 maps to 0 xnor 1 = 0
+		* +1 x -1 = -1 maps to 1 xnor 0 = 0
+		* +1 x +1 = +1 maps to 1 xnor 1 = 1
+		* **/
+	       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+		 begin: SIMD_GEN
+		    mvu_pe_simd_xnor 
+			      mvu_simd_inst(
+					    .rst_n,
+					    .clk,
+					    .do_mvau_stream(do_mvau_stream_reg),
+					    .in_act(in_act_packed[simd_ind]), 
+					    .in_wgt(in_wgt_reg[simd_ind]),
+					    .out(out_simd[simd_ind])
+					    );
+		 end // block: SIMD_GEN
+	    end // block: TW1_1	    
+	    else begin: TW_NBIN_1
+	       /**
+		* Case 2: 1-bit activation and multi-bit weight
+		* Interpretation of the 1-bit activation is:
+		* 1'b0 => -1
+		* 1'b1 => +1
+		* 
+		* Implementation is simple
+		* output = input weight if in_act == +1 (1'b1)
+		* output = 2's complement of input weight if in_act == -1 (1'b0)
+		* **/
+	       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+		 begin: SIMD_GEN
+		    mvu_pe_simd_binary 
+			      mvu_simd_inst(
+					    .rst_n,
+					    .clk,
+					    .do_mvau_stream(do_mvau_stream_reg),
+					    .in_act(in_act_packed[simd_ind]),
+					    .in_wgt(in_wgt_reg[simd_ind]),
+					    .out(out_simd[simd_ind])
+					    );
+		 end // block: SIMD_GEN
+	    end // block: TW_NBIN_1	    
+	 end // block: TW_BIN_1	 
+	 else begin: TW_NBIN_2
+	    /**
+	     * Case 2: 1-bit activation and multi-bit weight
+	     * Interpretation of the 1-bit activation is:
+	     * 1'b0 => -1
+	     * 1'b1 => +1
+	     * 
+	     * Implementation is simple
+	     * output = input weight if in_act == +1 (1'b1)
+	     * output = 2's complement of input weight if in_act == -1 (1'b0)
+	     * **/
+	    for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+	      begin: SIMD_GEN
+		 mvu_pe_simd_binary 
+			   mvu_simd_inst(
+					 .rst_n,
+					 .clk,
+					 .do_mvau_stream(do_mvau_stream_reg),
+					 .in_act(in_act_packed[simd_ind]),
+					 .in_wgt(in_wgt_reg[simd_ind]),
+					 .out(out_simd[simd_ind])
+					 );
+	      end // block: SIMD_GEN
+	 end // block: TW_NBIN_2	 
+      end // block: TSrcI1_1      
+      else begin: TSrcI_NBIN_1
+	 if(TW_BIN == 1) begin: TW_BIN_2
+	    if(TW==1) begin: TW1_2
+	       /**
+		* Case 3: Multi-bit activation and 1-bit weight
+		* Interpretation of the 1-bit weight is:
+		* 1'b0 => -1
+		* 1'b1 => +1
+		* 
+		* Implementation is simple
+		* output = input activation if in_act == +1 (1'b1)
+		* output = 2's complement of input activation if in_act == -1 (1'b0)
+		* **/
+	       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+		 begin: SIMD_GEN
+		    mvu_pe_simd_binary 
+			      mvu_simd_inst(
+					    .rst_n,
+					    .clk,
+					    .do_mvau_stream(do_mvau_stream_reg),
+					    .in_act(in_act_packed[simd_ind]),
+					    .in_wgt(in_wgt_reg[simd_ind]),
+					    .out(out_simd[simd_ind])
+					    );
+		 end // block: SIMD_GEN
+	    end // block: TW1_2	    
+	    else begin: TSrcI_TW_NBIN_1
+	       /**
+		* Case 4: Multi-bit input activation and Multi-bit weight
+		* 
+		* Simple multiplication
+		* **/
+	       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+		 begin: SIMD_GEN
+		    mvu_pe_simd_std 
+			      mvu_pe_simd_inst(
+					       .rst_n,
+					       .clk,
+					       .do_mvau_stream(do_mvau_stream_reg),
+					       .in_act(in_act_packed[simd_ind]),
+					       .in_wgt(in_wgt_reg[simd_ind]),
+					       .out(out_simd[simd_ind])
+					       );
+		 end // block: SIMD_GEN
+	    end // block: TSrcI_TW_NBIN_1	    
+	 end // block: TW_BIN_2	 
+	 else begin: TSrcI_TW_NBIN_2
+	    /**
+	     * Case 4: Multi-bit input activation and Multi-bit weight
+	     * 
+	     * Simple multiplication
+	     * **/
+	    for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+	      begin: SIMD_GEN
+		 mvu_pe_simd_std 
+			   mvu_pe_simd_inst(
+					    .rst_n,
+					    .clk,
+					    .do_mvau_stream(do_mvau_stream_reg),
+					    .in_act(in_act_packed[simd_ind]),
+					    .in_wgt(in_wgt_reg[simd_ind]),
+					    .out(out_simd[simd_ind])
+					    );
+	      end // block: SIMD_GEN
+	 end // block: TSrcI_TW_NBIN_2	 
+      end // block: TSrcI_NBIN_1      
+   end // block: TSrcI_BIN_1   
+   else if(TW_BIN==1) begin: TW_BIN_3
+      if(TW==1) begin: TW_1_3
 	 /**
 	  * Case 3: Multi-bit activation and 1-bit weight
 	  * Interpretation of the 1-bit weight is:
@@ -165,15 +301,34 @@ module mvu_pe
 			mvu_simd_inst(
 				      .rst_n,
 				      .clk,
-				      .do_mvau_stream,
+				      .do_mvau_stream(do_mvau_stream_reg),
 				      .in_act(in_act_packed[simd_ind]),
-				      .in_wgt(in_wgt[simd_ind]),
+				      .in_wgt(in_wgt_reg[simd_ind]),
 				      .out(out_simd[simd_ind])
 				      );
 	   end // block: SIMD_GEN
-      end // block: TSrcI_gt1
-   end // block: TW_1_2
-   else begin: TSrcI_TWeight_gt1
+      end // block: TW_1_3      
+      else begin: TW_NBIN_3
+	 /**
+	  * Case 4: Multi-bit input activation and Multi-bit weight
+	  * 
+	  * Simple multiplication
+	  * **/
+	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
+	   begin: SIMD_GEN
+	      mvu_pe_simd_std 
+			mvu_pe_simd_inst(
+					 .rst_n,
+					 .clk,
+					 .do_mvau_stream(do_mvau_stream_reg),
+					 .in_act(in_act_packed[simd_ind]),
+					 .in_wgt(in_wgt_reg[simd_ind]),
+					 .out(out_simd[simd_ind])
+					 );
+	   end // block: SIMD_GEN
+      end // block: TW_NBIN_3
+   end // block: TW_BIN_3      
+   else begin: TSrcI_TW_NBIN_3
       /**
        * Case 4: Multi-bit input activation and Multi-bit weight
        * 
@@ -185,13 +340,13 @@ module mvu_pe
 		     mvu_pe_simd_inst(
 				      .rst_n,
 				      .clk,
-				      .do_mvau_stream,
+				      .do_mvau_stream(do_mvau_stream_reg),
 				      .in_act(in_act_packed[simd_ind]),
-				      .in_wgt(in_wgt[simd_ind]),
+				      .in_wgt(in_wgt_reg[simd_ind]),
 				      .out(out_simd[simd_ind])
 				      );
 	end // block: SIMD_GEN
-   end // block: TSrcI_TWeight_gt1
+   end // block: TSrcI_TW_NBIN_3
 
    /************************************
     * Adders for summing SIMD output
@@ -212,6 +367,8 @@ module mvu_pe
       if(TW==1) begin: TW_1_Add // Popcount based addition
 	 mvu_pe_popcount
 	   mvu_pe_popcount_inst (
+				 .clk,
+				 .rst_n,
 				 .in_simd(out_simd),
 				 .out_add(out_add)
 				 );	
@@ -222,6 +379,8 @@ module mvu_pe
 	  * **/
 	 mvu_pe_adders 
 	   mvu_pe_adders_ins (
+			      .clk,
+			      .rst_n,
 			      .in_simd(out_simd),
 			      .out_add(out_add)
 			      );
@@ -233,6 +392,8 @@ module mvu_pe
        * **/
       mvu_pe_adders 
 	mvu_pe_adders_ins (
+			   .clk,
+			   .rst_n,
 			   .in_simd(out_simd),
 			   .out_add(out_add)
 			   );
@@ -245,7 +406,7 @@ module mvu_pe
      mvu_pe_acc_inst (
 		      .rst_n,
 		      .clk,
-		      .sf_clr,
+		      .sf_clr(sf_clr_reg),
 		      .in_acc(out_add),
 		      .out_acc_v(out_v),
 		      .out_acc(out));

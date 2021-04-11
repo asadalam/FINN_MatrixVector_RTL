@@ -14,6 +14,8 @@
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
  * Inputs:
+ * clk - Main clock
+ * rst_n - Synchronous and active low reset * 
  * [TDstI-1:0] in_simd [0:SIMD-1] - Input from the SIMD unit, word length TDstI
  * 
  * Outputs:
@@ -23,20 +25,54 @@
 `timescale 1ns/1ns
 `include "../../mvau_defn.sv"
 
-module mvu_pe_adders 
-  (input logic [TDstI-1:0] in_simd [0:SIMD-1],
+module mvu_pe_adders  
+  (
+   input 		    clk,
+   input 		    rst_n,
+   input logic [TDstI-1:0]  in_simd [0:SIMD-1],
    output logic [TDstI-1:0] out_add);
 
+   // Signal: out_add_int
+   // Internal signal holding the combinatorial output of adder tree
+   logic [TDstI-1:0] 	    out_add_int;
+
+   // Signal: in_simd_reg
+   // Internal signal for holding the registered version of input data
+   logic [TDstI-1:0] 	    in_simd_reg [0:SIMD-1];
+
+   // Always_FF: IN_SIMD_REG
+   // Registering in_simd
+   always_ff @(posedge clk) begin
+      if(!rst_n) begin
+	 for(int i = 0; i<SIMD; i++)
+	   in_simd_reg[i] <= 'd0;
+      end
+      else begin
+	 for(int i = 0; i<SIMD; i++)
+	   in_simd_reg[i] <= in_simd[i];
+      end
+   end
+   
+   
    // Always_COMB: Addition
    // Performs addition using adder tree
    always_comb
      begin: adders
 	// Initializing the output with a value
-	out_add = in_simd[0]; // Picking up the first element to initialize
+	out_add_int = in_simd_reg[0]; // Picking up the first element to initialize
 	for(int i = 1; i < SIMD; i++) begin
-	   out_add = out_add + in_simd[i]; // always_comb makes sure no latches are inferred
+	   out_add_int = out_add_int + in_simd_reg[i]; // always_comb makes sure no latches are inferred
 	end
      end
+
+   // Always_FF: OUT_REG
+   // Registered output
+   always_ff @(posedge clk) begin
+      if(!rst_n)
+	out_add <= 'd0;
+      else
+	out_add <= out_add_int;
+   end
    
 endmodule // mvu_pe_adders
 

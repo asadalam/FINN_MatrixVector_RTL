@@ -41,13 +41,13 @@ module mvu_pe_acc
     * Internal signals
     * */
    // Signal: sf_clr_dly
-   // A two bit signal to delay the sf_clr input by two clock cycles
-   logic [1:0] 		      sf_clr_dly;
+   // A four bit signal to delay the sf_clr input by two clock cycles
+   logic [3:0] 		      sf_clr_dly;
 
    // out_acc_v is a copy of the sf_clr_dly[1]
    // because that is the time we reach the last cycle
    // of accumulation
-   assign out_acc_v = sf_clr_dly[1];
+   assign out_acc_v = sf_clr_dly[3];
 
 
    // Always_FF: SF_CLR_DLY
@@ -55,9 +55,9 @@ module mvu_pe_acc
    // to match the two pipelines one after SIMD's and one after the adders
    always_ff @(posedge clk) begin
       if(!rst_n)
-	sf_clr_dly <= 2'd0;
+	sf_clr_dly <= 4'd0;
       else
-	sf_clr_dly <= {sf_clr_dly[0],sf_clr};
+	sf_clr_dly <= {sf_clr_dly[2:0],sf_clr};
    end
       
    // Always_FF: Accumulator
@@ -66,7 +66,7 @@ module mvu_pe_acc
    always_ff @(posedge clk) begin
       if(!rst_n)
 	out_acc <= 'd0;
-      else if(sf_clr_dly[1])
+      else if(sf_clr_dly[3])
 	out_acc <= in_acc; // resetting the accumulator
       else
 	out_acc <= out_acc + in_acc;      
