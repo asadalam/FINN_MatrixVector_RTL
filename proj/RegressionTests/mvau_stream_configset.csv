@@ -1,0 +1,5 @@
+Parameter #,IFM_Ch,IFM_Dim,OFM_Ch,KDim,Inp_Act,Wgt_Prec,Out_Act,SIMD,PE
+0,2,2,2,2,1,1,1,1,1
+1,2,2,2,2,1,1,1,1,2
+2,2,2,2,2,1,1,1,2,1
+3,2,2,2,2,1,1,1,2,2
