@@ -108,7 +108,7 @@ module mvau_tb_v1;
 	$display($time, " << Starting simulation with System Verilog based data >>");
 
 	// Checking DUT output with golden output generated in the test bench
-	#(CLK_PER*3); // Delaying to synchronize the DUT output
+	#(CLK_PER*5); // Delaying to synchronize the DUT output
 	// We need to delay more until the final output comes
 	// To-do for tomorrow
 	for(int i = 0; i < ACT_MatrixW; i++) begin

@@ -20,6 +20,7 @@
  * NO_IN_VEC = 100 - Number of input vectors
  * ACT_MatrixW = OFMDim*OFMDim; - Input activation matrix height
  * ACT_MatrixH = (KDim*KDim*IFMCh) - Input activation matrix weight
+ * TOTAL_OUTPUTS = MatrixH*ACT_MatrixW - Total number of outputs to be matched
  * */
 
 `timescale 1ns/1ns
@@ -63,8 +64,12 @@ module mvau_stream_tb_v1;
    logic [TW-1:0] weights [0:MatrixH-1][0:MatrixW-1];
    // Signal: in_wgt
    // Input weight stream to DUT
+   // Dimension: PE, word length: TW*SIMD
+   logic [0:SIMD*TW-1] in_wgt[0:PE-1];
+   // Signal: in_wgt_um
+   // Input weight stream extracting weights from weight matrix
    // Dimension: PExSIMD, word length: TW
-   logic [0:SIMD-1][TW-1:0]    in_wgt[0:PE-1];
+   logic [0:SIMD-1][TW-1:0] in_wgt_um[0:PE-1];
    // Signal: in_mat
    // Input activation matrix
    // Dimension: ACT_MatrixH x ACT_MatrixW, word length: TSrcI
@@ -111,7 +116,7 @@ module mvau_stream_tb_v1;
 	$display($time, " << Starting simulation with System Verilog based data >>");
 
 	// Checking DUT output with golden output generated in the test bench
-	#(CLK_PER*2); // Delaying to synchronize the DUT output
+	#(CLK_PER*6); // Delaying to synchronize the DUT output
 	// We need to delay more until the final output comes
 	// To-do for tomorrow
 	for(int i = 0; i < ACT_MatrixW; i++) begin
@@ -180,51 +185,168 @@ module mvau_stream_tb_v1;
     * Case 3: Multi-bit weight and 1-bit input activation
     * Case 4: Multi-bit weight and input activation
     * */
-   if(TSrcI==1) begin: NONGEN_MVAU1
-      if(TW==1) begin: XNOR_MVAU1
-	 // Case 1
-	 always @(do_mvau_beh)
-	   begin: MVAU_BEH1
-	      for(int i = 0; i < MatrixH; i++)
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j] = '0;
-		   for(int k = 0; k < ACT_MatrixH; k++) 
-		     mvau_beh[i][j] += weights[i][k]^~in_mat[k][j]; // XNOR
-		end
-	   end
-end
-      else begin: BIN_MVAU1
-	 // Case 2
-	 always @(do_mvau_beh)
-	   begin: MVAU_BEH2
-	      for(int i = 0; i < MatrixH; i++)
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j]   = '0;
-		   for(int k = 0; k < ACT_MatrixH; k++) begin
-		      if(in_mat[k][j] == 1'b1) // in_act = +1
-			mvau_beh[i][j] += weights[i][k];		      
-		      else // in_act = -1
-			mvau_beh[i][j] += 0;//~weights[i][k]+1'b1;
-		   end
-		end
-	   end
-end
-   end // block: NONGEN_MVAU1   
-   else if(TW==1) begin: NONGEN_MVAU2
-      if(TSrcI==1) begin: XNOR_MVAU1
-	 // Case 1
-	 always @(do_mvau_beh)
-	   begin: MVAU_BEH3
-	      for(int i = 0; i < MatrixH; i++)
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j] = '0;
-		   for(int k = 0; k < ACT_MatrixH; k++) 
-		     mvau_beh[i][j] += weights[i][k]^~in_mat[k][j]; //XNOR
-		end
-	   end
-end
-      else begin: BIN_MVAU2
-	 // Case 3
+   if(TSrcI_BIN == 1) begin: TSrcI_BIN_1
+      if(TSrcI==1) begin: TSrcI1_1
+	 if(TW_BIN == 1) begin: TW_BIN_1
+	    if(TW==1) begin: TW1_1
+	       /**
+		* Case 1: 1-bit input activation and 1-bit weight
+		* Interpretation of values are:
+		* 1'b0 => -1
+		* 1'b1 => +1
+		* 
+		* SIMD implemented as xnor operation because
+		* 
+		* -1 x -1 = +1 maps to 0 xnor 0 = 1
+		* -1 x +1 = -1 maps to 0 xnor 1 = 0
+		* +1 x -1 = -1 maps to 1 xnor 0 = 0
+		* +1 x +1 = +1 maps to 1 xnor 1 = 1
+		* **/
+	       always @(do_mvau_beh)
+		 begin: MVAU_BEH1
+		    for(int i = 0; i < MatrixH; i++) begin
+		      for(int j = 0; j < ACT_MatrixW; j++) begin
+			 mvau_beh[i][j] = '0;
+			 for(int k = 0; k < ACT_MatrixH; k++) begin
+			   mvau_beh[i][j] += weights[i][k]^~in_mat[k][j]; // XNOR
+			 end
+		      end
+		    end
+		 end
+	    end // block: TW1_1	    
+	    else begin: TW_NBIN_1
+	       /**
+		* Case 2: 1-bit activation and multi-bit weight
+		* Interpretation of the 1-bit activation is:
+		* 1'b0 => -1
+		* 1'b1 => +1
+		* 
+		* Implementation is simple
+		* output = input weight if in_act == +1 (1'b1)
+		* output = 2's complement of input weight if in_act == -1 (1'b0)
+		* **/
+	       always @(do_mvau_beh)
+		 begin: MVAU_BEH2
+		    for(int i = 0; i < MatrixH; i++) begin
+		      for(int j = 0; j < ACT_MatrixW; j++) begin
+			 mvau_beh[i][j]   = '0;
+			 for(int k = 0; k < ACT_MatrixH; k++) begin
+			    if(in_mat[k][j] == 1'b1) // in_act = +1
+			      mvau_beh[i][j] += weights[i][k];		      
+			    else // in_act = -1
+			      mvau_beh[i][j] += ~weights[i][k]+1'b1;
+			 end
+		      end
+		    end // for (int i = 0; i < MatrixH; i++)
+		 end // block: MVAU_BEH2
+   	    end // block: TW_NBIN_1	    
+	 end // block: TW_BIN_1	 
+	 else begin: TW_NBIN_2
+	    /**
+	     * Case 2: 1-bit activation and multi-bit weight
+	     * Interpretation of the 1-bit activation is:
+	     * 1'b0 => -1
+	     * 1'b1 => +1
+	     * 
+	     * Implementation is simple
+	     * output = input weight if in_act == +1 (1'b1)
+	     * output = 2's complement of input weight if in_act == -1 (1'b0)
+	     * **/
+	    always @(do_mvau_beh)
+	      begin: MVAU_BEH2
+		 for(int i = 0; i < MatrixH; i++) begin
+		    for(int j = 0; j < ACT_MatrixW; j++) begin
+		       mvau_beh[i][j]   = '0;
+		       for(int k = 0; k < ACT_MatrixH; k++) begin
+			  if(in_mat[k][j] == 1'b1) // in_act = +1
+			    mvau_beh[i][j] += weights[i][k];		      
+			  else // in_act = -1
+			    mvau_beh[i][j] += ~weights[i][k]+1'b1;
+		       end
+		    end
+		 end // for (int i = 0; i < MatrixH; i++)
+	      end // block: MVAU_BEH2
+	 end // block: TW_NBIN_2	 
+      end // block: TSrcI1_1      
+      else begin: TSrcI_NBIN_1
+	 if(TW_BIN == 1) begin: TW_BIN_2
+	    if(TW==1) begin: TW1_2
+	       /**
+		* Case 3: Multi-bit activation and 1-bit weight
+		* Interpretation of the 1-bit weight is:
+		* 1'b0 => -1
+		* 1'b1 => +1
+		* 
+		* Implementation is simple
+		* output = input activation if in_act == +1 (1'b1)
+		* output = 2's complement of input activation if in_act == -1 (1'b0)
+		* **/
+	       always @(do_mvau_beh)
+		 begin: MVAU_BEH4
+		    for(int i = 0; i < MatrixH; i++) begin
+		       for(int j = 0; j < ACT_MatrixW; j++) begin
+			  mvau_beh[i][j] = '0;
+			  for(int k = 0; k < ACT_MatrixH; k++) begin
+			     if(weights[i][k] == 1'b1) // in_wgt = +1
+			       mvau_beh[i][j] += in_mat[k][j];
+			     else // in_wgt = -1
+			       mvau_beh[i][j] += ~in_mat[k][j]+1'b1;
+			  end
+		       end
+		    end // for (int i = 0; i < MatrixH; i++)
+		 end // block: MVAU_BEH4   
+	    end // block: TW1_2	    
+	    else begin: TSrcI_TW_NBIN_1
+	       /**
+		* Case 4: Multi-bit input activation and Multi-bit weight
+		* 
+		* Simple multiplication
+		* **/
+	       always @(do_mvau_beh)
+		 begin: MVAU_BEH
+		    for(int i = 0; i < MatrixH; i++) begin
+		      for(int j = 0; j < ACT_MatrixW; j++) begin
+			 mvau_beh[i][j] = '0;
+			 for(int k = 0; k < ACT_MatrixH; k++) begin
+			   mvau_beh[i][j] += weights[i][k]*in_mat[k][j];
+			 end
+		      end
+		    end
+		 end
+   	    end // block: TSrcI_TW_NBIN_1	    
+	 end // block: TW_BIN_2	 
+	 else begin: TSrcI_TW_NBIN_2
+	    /**
+	     * Case 4: Multi-bit input activation and Multi-bit weight
+	     * 
+	     * Simple multiplication
+	     * **/
+	    always @(do_mvau_beh)
+	      begin: MVAU_BEH
+		 for(int i = 0; i < MatrixH; i++) begin
+		    for(int j = 0; j < ACT_MatrixW; j++) begin
+		       mvau_beh[i][j] = '0;
+		       for(int k = 0; k < ACT_MatrixH; k++) begin
+			  mvau_beh[i][j] += weights[i][k]*in_mat[k][j];
+		       end
+		    end
+		 end
+	      end
+	 end // block: TSrcI_TW_NBIN_2	 
+      end // block: TSrcI_NBIN_1      
+   end // block: TSrcI_BIN_1   
+   else if(TW_BIN==1) begin: TW_BIN_3
+      if(TW==1) begin: TW_1_3
+	 /**
+	  * Case 3: Multi-bit activation and 1-bit weight
+	  * Interpretation of the 1-bit weight is:
+	  * 1'b0 => -1
+	  * 1'b1 => +1
+	  * 
+	  * Implementation is simple
+	  * output = input activation if in_act == +1 (1'b1)
+	  * output = 2's complement of input activation if in_act == -1 (1'b0)
+	  * **/
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH4
 	      for(int i = 0; i < MatrixH; i++)
@@ -234,24 +356,48 @@ end
 		      if(weights[i][k] == 1'b1) // in_wgt = +1
 			mvau_beh[i][j] += in_mat[k][j];
 		      else // in_wgt = -1
-			mvau_beh[i][j] += 0;//~in_mat[k][j]+1'b1;
+			mvau_beh[i][j] += ~in_mat[k][j]+1'b1;
 		   end
 		end
 	   end
-end      
-   end // block: NONGEN_MVAU2   
-   else begin: GEN_MVAU
-      // Case 4
+      end // block: TW_1_3      
+      else begin: TW_NBIN_3
+	 /**
+	  * Case 4: Multi-bit input activation and Multi-bit weight
+	  * 
+	  * Simple multiplication
+	  * **/
+	 always @(do_mvau_beh)
+	   begin: MVAU_BEH
+	      for(int i = 0; i < MatrixH; i++) begin
+		for(int j = 0; j < ACT_MatrixW; j++) begin
+		   mvau_beh[i][j] = '0;
+		   for(int k = 0; k < ACT_MatrixH; k++) begin
+		     mvau_beh[i][j] += weights[i][k]*in_mat[k][j];
+		   end
+		end
+	      end
+	   end   
+      end // block: TW_NBIN_3
+   end // block: TW_BIN_3      
+   else begin: TSrcI_TW_NBIN_3
+      /**
+       * Case 4: Multi-bit input activation and Multi-bit weight
+       * 
+       * Simple multiplication
+       * **/
       always @(do_mvau_beh)
 	begin: MVAU_BEH
-	   for(int i = 0; i < MatrixH; i++)
-	     for(int j = 0; j < ACT_MatrixW; j++) begin
-		mvau_beh[i][j] = '0;
-		for(int k = 0; k < ACT_MatrixH; k++) 
-		  mvau_beh[i][j] += weights[i][k]*in_mat[k][j];
-	     end
-	end
-end
+	   for(int i = 0; i < MatrixH; i++) begin
+	      for(int j = 0; j < ACT_MatrixW; j++) begin
+		 mvau_beh[i][j] = '0;
+		 for(int k = 0; k < ACT_MatrixH; k++) begin
+		    mvau_beh[i][j] += weights[i][k]*in_mat[k][j];
+		 end
+	      end
+	   end
+	end   
+   end // block: TSrcI_TW_NBIN_3
    
    // Always: INP_ACT_GEN_DUT
    // Generating input activation stream data for DUT
@@ -284,7 +430,7 @@ end
 		 #(CLK_PER/2);
 		 for(int k = 0; k < SIMD; k++) begin
 		    for(int l = 0; l < PE; l++) begin
-		       in_wgt[l][k] = weights[i*PE+l][j*SIMD+k];
+		       in_wgt_um[l][k] = weights[i*PE+l][j*SIMD+k];
 		    end		 
 		 end
 		 #(CLK_PER/2);
@@ -292,6 +438,8 @@ end
 	   end // for (int i = 0; i < MatrixH/PE; i++)
 	end // for (int x = 0; x < ACT_MatrixW; x++)
      end // always @ (test_event)
+   assign in_wgt = in_wgt_um;
+   
    
    /*
     * DUT Instantiation
