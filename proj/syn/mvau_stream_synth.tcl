@@ -20,15 +20,16 @@ file mkdir $outputDir
 read_verilog -sv [ glob ../src/mvau_top/mvau_defn.sv ]
 read_verilog -sv [ glob ../src/mvau_top/mvau_stream/*.sv ]
 read_verilog -sv [ glob ../src/mvau_top/mvau_stream/mvu_pe/*.sv ]
+
 read_xdc -mode out_of_context ./mvau_stream.xdc
-#-mode out_of_context
+
 synth_design -top mvau_stream -part xczu3eg-sbva484-1-i -mode out_of_context -retiming
+
 write_checkpoint -force $outputDir/post_synth.dcp
 report_timing_summary -delay_type max -datasheet -file $outputDir/post_synth_timing_summary.rpt
 report_timing -delay_type max -path_type summary -file $outputDir/post_synth_timing.rpt
 report_utilization -file $outputDir/post_synth_util.rpt
 
-report_utilization -file $outputDir/post_synth_util.rpt
 opt_design
 report_timing_summary -delay_type max -datasheet -file $outputDir/post_opt_timing_summary.rpt
 report_timing -delay_type max -path_type summary -file $outputDir/post_opt_timing.rpt
