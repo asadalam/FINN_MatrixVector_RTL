@@ -67,23 +67,6 @@ def calc_savings(hls_lst, rtl_lst):
             sv_lst.append(round(((sv[0] - sv[1])/sv[0]*100)*10**2)/10**2)
     return sv_lst
 
-def write_data(hls_block, hls_tp, rtl_block, rtl_tp, col_names, out_file):
-    try:
-        print("Writing the results to an CSV file")
-        hls_lst = hls_block + [hls_tp]
-        rtl_lst = rtl_block + [rtl_tp]
-        sv_lst = calc_savings(hls_lst, rtl_lst)
-        pd_lst = hls_lst + rtl_lst+sv_lst
-        pd_dict = {'Results': pd_lst}
-        clen = len(col_names)//2
-        for i in np.arange(clen):
-            col_names.append("%")
-        df=pd.DataFrame.from_dict(pd_dict, orient='index', columns=col_names)
-        df.to_csv(out_file,index=False)
-    except:
-        print("Cannot write to CSV output file")
-        raise
-    return 0
 
 
 def parser():
@@ -106,7 +89,12 @@ if __name__ == '__main__':
     hls_run = args.hls_run
     rtl_run = args.rtl_run
     clk_per = args.clk
+    main(hls_run, rtl_run, clk_per)
+    
+def main(hls_run, rtl_run, clk_per):
+    extract(hls_run, rtl_run, clk_per):
 
+def extract(hls_run, rtl_run, clk_per):
     # Directory from where HLS reports to be read
     hls_syn_dir = hls_run.replace("_","-")
     hls_dir = "../../finn-hlslib/tb/hls-syn-"+hls_syn_dir+"/sol1/impl/report/verilog/"
@@ -131,16 +119,23 @@ if __name__ == '__main__':
     # Extracting data from RTL timing report file
     rtl_tp = extract_rtl_timing_data(rtl_timefile,clk_per)
 
+    hls_lst = hls_block + [hls_tp]
+    rtl_lst = rtl_block + [rtl_tp]
+    sv_lst = calc_savings(hls_lst, rtl_lst)
+    pd_lst = hls_lst + rtl_lst+sv_lst
+
+    return pd_lst
+
     # Columns names for CSV file
-    col_names = []
-    for h in hls_param:
-        col_names.append("HLS "+h)
-    col_names.append("HLS Time")
-    for r in rtl_param:
-        col_names.append("RTL "+r)
-    col_names.append("RTL Time")
+    # col_names = []
+    # for h in hls_param:
+    #     col_names.append("HLS "+h)
+    # col_names.append("HLS Time")
+    # for r in rtl_param:
+    #     col_names.append("RTL "+r)
+    # col_names.append("RTL Time")
     
-    write_data(hls_block, hls_tp, rtl_block, rtl_tp, col_names, args.out_file)
+    # write_data(hls_block, hls_tp, rtl_block, rtl_tp, col_names, args.out_file)
 
     exit(0)
 
