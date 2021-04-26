@@ -8,9 +8,21 @@ import time
 from openpyxl.utils import get_column_letter
 import argparse
 from signal import signal, SIGINT
-from math import log2, ceil
+from math import ceil, log2
 
-
+class MyHandler:
+    def __init__(self, rpt_dict, rpt_col_names, config_dict, config_col_names, out_file):
+        self.rpt_dict = rpt_dict
+        self.rpt_col_names = rpt_col_names
+        self.config_dict = config_dict
+        self.config_col_names = config_col_names
+        self.out_file = out_file
+    def __call__(self, signo, frame):
+        print('SIGINT or CTRL-C detected, exiting gracefully by writing to output')
+        write_rpt_file(self.rpt_dict, self.rpt_col_names, self.config_dict,
+                       self.config_col_names, self.out_file)
+        exit(0)
+        
 def write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file):
     try:
         print("Writing the results to an Excel file")
@@ -68,7 +80,7 @@ def extract_rtl_block_data(log_file,param):
     block = []
     try:
         print("Extracting data from RTL utilization report")
-        
+
         for p in param:
             with open(log_file) as log_line:
                 for line in log_line:
@@ -209,7 +221,7 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
     config_set = 0
     config_dict = dict()
     rpt_dict = dict()
-    
+        
     for ifm_ch, ifm_dim, ofm_ch in zip(ifm_ch_arr, ifm_dim_arr, ofm_ch_arr):
         for kdim in kdim_arr:
             #for ifm_ch in ifm_ch_arr:
@@ -223,7 +235,7 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                 #for inp_wl in inp_wl_arr:
                 #for wgt_wl in wgt_wl_arr:
                 #for out_wl in out_wl_arr:
-                out_wl = min(16,inp_wl+wgt_wl+ceil(log2(kdim*kdim*ifm_ch))) ### overriding the array to reduce the number of runs
+                out_wl = min(16,inp_wl+wgt_wl+ceil(log2(kdim*kdim*ifm_ch)))
                 for s,p in zip(simd, pe):
                     #for s in simd:
                     ### Skipping this config set when ifm channel is an integer multiple of SIMD
@@ -232,12 +244,12 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                     #for p in pe:
                     ### Skipping this config set when ofm channel is an integer multiple of PE
                     if(ofm_ch%p!=0 or p>ofm_ch):
-                        continue
+                        continue                    
                     ### Preparing a dict to write to a file with config details
                     config_dict_key = str(config_set)
                     config_dict[config_dict_key] = [ifm_ch, ifm_dim, ofm_ch, kdim, inp_wl, wgt_wl, out_wl, s, p]
                     print("#######################################")
-                    print(f'### MVAU Stream Configuration Set: {config_set}')
+                    print(f'### MVAU Batch Configuration Set: {config_set}')
                     print(f'### IFM Channels: {ifm_ch}')
                     print(f'### IFM Dimensions: {ifm_dim}')
                     print(f'### OFM Channels: {ofm_ch}')
@@ -246,13 +258,12 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                     print(f'### Weight precision: {wgt_wl}')
                     print(f'### Output precision: {out_wl}')
                     print(f'### SIMD: {s}')
-                    print(f'### PE: {p}')
-                    ### Calling the test scripts in FINN_HLS_ROOT/tb directory
-                    if(inp_wl == 1 and wgt_wl == 1):
+                    print(f'### PE: {p}')                    
+                    if(inp_wl == 1 and wgt_wl == 1): ### XNOR
                         print(f'### SIMD: XNOR')
                         print("#######################################")
                         ### Calling the HLS test script
-                        sp = subprocess.call(['./test_mvau_stream_xnor.sh',
+                        sp = subprocess.call(['./test_mvau_xnor.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
                                               str(inp_wl), str(wgt_wl), str(out_wl), str(s), str(p)],
                                              cwd = finn_tb)
@@ -260,7 +271,7 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                             print("HLS XNOR Test Failed")
                             sys.exit(1)
                         ### Calling the RTL test script
-                        sp = subprocess.call(['./test_mvau_stream_xnor_rtl.sh',
+                        sp = subprocess.call(['./test_mvau_xnor_rtl.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
                                               str(inp_wl), str(1), str(wgt_wl), str(1), str(out_wl),
                                               str(s), str(p)],
@@ -270,14 +281,14 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                             sys.exit(1)
                         ### Extracting results    
                         rpt_dict_key = "Config set: "+str(config_set)+" (XNOR)"
-                        rpt_lst = extract_data('mvau_stream_xnor','mvau_stream',
+                        rpt_lst = extract_data('mvau_xnor','mvau',
                                                5.0, finn_tb, mvau_env)
                         rpt_dict[rpt_dict_key] = rpt_lst
                     elif(wgt_wl == 1):
                         print(f'### SIMD: Binary Weights')
                         print("#######################################")
                         ### Calling the HLS test script
-                        sp = subprocess.call(['./test_mvau_stream_binwgt.sh',
+                        sp = subprocess.call(['./test_mvau_binwgt.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
                                               str(inp_wl), str(wgt_wl), str(out_wl), str(s), str(p)],
                                              cwd = finn_tb)
@@ -285,7 +296,7 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                             print("HLS Binary Weight Test Failed")
                             sys.exit(1)
                         ### Calling the RTL test script
-                        sp = subprocess.call(['./test_mvau_stream_binwgt_rtl.sh',
+                        sp = subprocess.call(['./test_mvau_binwgt_rtl.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
                                               str(inp_wl), str(0), str(wgt_wl), str(1), str(out_wl),
                                               str(s), str(p)],
@@ -295,14 +306,19 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                             sys.exit(1)
                         ### Extracting results
                         rpt_dict_key = "Config set: "+str(config_set)+" (BIN WGT)"
-                        rpt_lst = extract_data('mvau_stream_binwgt','mvau_stream',
+                        rpt_lst = extract_data('mvau_binwgt','mvau',
                                                5.0, finn_tb, mvau_env)
                         rpt_dict[rpt_dict_key] = rpt_lst
                     else:
                         print(f'### SIMD: Standard')
                         print("#######################################")
+                        ### Preparing a dict to write to a file with config details
+                        config_dict_key = str(config_set)
+                        config_dict[config_dict_key] = [ifm_ch, ifm_dim, ofm_ch, kdim, inp_wl, wgt_wl, out_wl, s, p]
+                        print(f'### SIMD: Standard')
+                        print("#######################################")
                         ### Calling the HLS test script
-                        sp = subprocess.call(['./test_mvau_stream_std.sh',
+                        sp = subprocess.call(['./test_mvau_std.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
                                               str(inp_wl), str(wgt_wl), str(out_wl), str(s), str(p)],
                                              cwd = finn_tb)
@@ -310,7 +326,7 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                             print("HLS Standard Test Failed")
                             sys.exit(1)
                         ### Calling the RTL test script
-                        sp = subprocess.call(['./test_mvau_stream_std_rtl.sh',
+                        sp = subprocess.call(['./test_mvau_std_rtl.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
                                               str(inp_wl), str(0), str(wgt_wl), str(0), str(out_wl),
                                               str(s), str(p)],
@@ -320,36 +336,35 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                             sys.exit(1)
                         ### Extracting results
                         rpt_dict_key = "Config set: "+str(config_set)+" (STD)"
-                        rpt_lst = extract_data('mvau_stream_std','mvau_stream',
+                        rpt_lst = extract_data('mvau_std','mvau',
                                                5.0, finn_tb, mvau_env)
                         rpt_dict[rpt_dict_key] = rpt_lst
                         
                     print(f'"RTL and Synthesis complete for config set: {config_set}"')
                     config_set = config_set + 1
-                        
+                    signal(SIGINT, MyHandler(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file))
+                    
     write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
     return 0
 
 def parser():
     parser = argparse.ArgumentParser(description='Python data script for regression test for FINN HLS and RTL implementation')
-    parser.add_argument('-o','--out_file',default="mvau_stream_report.xlsx",
+    parser.add_argument('-o','--out_file',default="mvau_report.xlsx",
 			help="Output file")
-
     return parser
-
 
 if __name__ == '__main__':
 
-    kdim_arr    = np.array([4])#7))
-    ifm_ch_arr  = np.array([256])#,4,6,10,12,16,18,20])
-    ofm_ch_arr  = np.array([128])#,6,8,10,12,14,16,20])
-    ifm_dim_arr = np.array([32])#,8,12,16,20,24,28,32])
-    inp_wl_arr  = np.array([1])#1,4,8,12])
+    kdim_arr    = np.array([4])#np.arange(4,5))#7))
+    ifm_ch_arr  = np.array([32,64])#,4,6,10,12,16,18,20])
+    ofm_ch_arr  = np.array([128,256])#,6,8,10,12,14,16,20])
+    ifm_dim_arr = np.array([16,32])#,8,12,16,20,24,28,32])
+    inp_wl_arr  = np.array([1,4,8])#1,4,8,12])
     out_wl_arr  = np.array(np.arange(2,3))
-    wgt_wl_arr  = np.array([1])#,2,4,8])
+    wgt_wl_arr  = np.array([1,1,8])#,2,4,8])
 
-    simd = np.array([64])#np.arange(4,5))#10))
-    pe = np.array([32])#np.arange(4,5))#10))
+    simd = np.array([32,64])#np.arange(64,65))#10))
+    pe = np.array([32,64])#np.arange(64,65))#10))
     
     args = parser().parse_args()
     out_file = args.out_file    
