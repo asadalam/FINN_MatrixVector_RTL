@@ -6,8 +6,8 @@
  * This file lists an RTL implementation of an adder unit
  * which adds the output of the SIMD units based on counting '1's.
  * The basic word lenght is '1' bit, so implemented as a popcount.
- * A completely combinatorial circuit. It is part of a processing element
- * which is part of the Matrix-Vector-Multiplication Unit
+ * It is part of a processing element which is part of the 
+ * Matrix-Vector-Multiplication Unit
  *
  * This material is based upon work supported, in part, by Science Foundation
  * Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the 

@@ -52,7 +52,7 @@ module mvau_inp_buffer #(
     * */
    // Signal: inp_buffer
    // The input buffer   
-   logic [TI-1:0] 	  inp_buffer [0:BUF_LEN-1];
+   (* ram_style = "distributed" *) logic [TI-1:0] 	  inp_buffer [0:BUF_LEN-1];
         
 
    /*

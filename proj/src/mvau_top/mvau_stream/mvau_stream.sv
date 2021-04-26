@@ -54,6 +54,7 @@ module mvau_stream (
    // Parameter: SF_T
    // Address word length of the buffer
    localparam int SF_T=$clog2(SF); // Address word length for the input buffer
+   //logic [0:PE-1][0:SIMD*TW-1] in_wgt_um = in_wgt;
    
    /**
     * Internal Signals

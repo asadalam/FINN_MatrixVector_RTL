@@ -43,11 +43,14 @@ module mvu_pe_simd_xnor
    // Always_FF: XNOR based SIMD
    // Performs multiplication by XNOR
    // Both inputs are '1' bit
+   // Output is also '1' bit with extra output bits forced to zero
    always_ff @(posedge clk) begin: SIMD_MUL
       if(!rst_n)
 	out <= 'd0;
-      else if(do_mvau_stream)
-	out <= in_act^~in_wgt;
+      else if(do_mvau_stream) begin
+	 out[0] <= in_act^~in_wgt;
+	 out[TDstI-1:1] <= 'd0;	 
+      end
    end
 
 endmodule // mvu_simd

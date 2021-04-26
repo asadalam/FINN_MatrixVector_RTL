@@ -72,9 +72,9 @@ module mvau (
    // Signal: wmem_addr
    // This signal holds the address of the weight memory
    logic [WMEM_ADDR_BW-1:0] 	       wmem_addr;
-   // Signal: in_wgt
+   // Signal: wmem_out
    // This holds the streaming weight tile
-   logic [0:SIMD-1][TW-1:0] 	       in_wgt [0:PE-1];   
+   logic [0:SIMD*TW-1] 		       wmem_out [0:PE-1];   
    
    // Signal: out_stream
    // This signal is connected to the output of streaming module (mvau_stream)
@@ -124,8 +124,6 @@ module mvau (
 		 .clk,
 		 .in_v(in_v_reg),
 		 .wmem_addr);
-   		 //.out_wgt(in_wgt));
-
    
    // Submodule: mvau_stream
    // Instantiation of the Multiply Vector Multiplication Unit   
@@ -135,7 +133,7 @@ module mvau (
 		      .clk,
 		      .in_v(in_v_reg_dly), // Input activation valid
 		      .in_act(in_reg_dly), // Input activation
-		      .in_wgt, // A tile of weights
+		      .in_wgt(wmem_out), // A tile of weights
 		      .out_v(out_stream_valid),
 		      .out(out_stream)
 		      );
@@ -143,19 +141,11 @@ module mvau (
    // Submodule: mvau_weight_mem
    // Instantiation of the Weight Memory Unit
    if(INST_WMEM==1) begin: WGT_MEM
-      //for(genvar wmem = 0; wmem < PE; wmem=wmem+1)	 
-      	 // mvau_weight_mem #(.WMEM_ID(wmem),
-      	 // 		   .WMEM_ADDR_BW(WMEM_ADDR_BW))
-      	 //   mvau_weight_mem_inst(
-      	 // 			.clk,
-      	 // 			.wmem_addr,
-      	 // 			.wmem_out(in_wgt[wmem])
-      	 // 			);
       mvau_weight_mem_merged #(.WMEM_ADDR_BW(WMEM_ADDR_BW))
       mvau_weigt_mem_inst(
       			  .clk,
       			  .wmem_addr,
-      			  .wmem_out(in_wgt)
+      			  .wmem_out(wmem_out)
       			  );
    end // block: WGT_MEM
       
