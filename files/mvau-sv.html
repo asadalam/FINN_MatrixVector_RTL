@@ -8,88 +8,88 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Testbench"></a><a name="Topic247"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Testbench"></a><a name="Topic245"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Testbench</div>
 </div>
 
-<a name="MVAU_Top_Level"></a><a name="Topic248"></a><div class="CTopic TTestbench LSystemVerilog">
+<a name="MVAU_Top_Level"></a><a name="Topic246"></a><div class="CTopic TTestbench LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">MVAU Top Level (mvau.</span>&#8203;sv)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of the matrix-vector activation unit It is part of the Xilinx FINN open source framework for implementing quantized neural networks on FPGAs</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">rst_n</td><td class="CDLDefinition"><p>Active low synchronous reset</p></td></tr><tr><td class="CDLEntry">clk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">[TI-1:0] in</td><td class="CDLDefinition"><p>Input stream, word length TI=TSrcI*SIMD</p></td></tr><tr><td class="CDLEntry">in_v</td><td class="CDLDefinition"><p>Input valid, indicates valid input</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">out_v</td><td class="CDLDefinition"><p>Output stream valid</p></td></tr><tr><td class="CDLEntry">[TO-1:0] out</td><td class="CDLDefinition"><p>Output stream, word length TO=TDstI*PE</p></td></tr></table><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">WMEM_ADDR_BW</td><td class="CDLDefinition"><p>Word length of the address for the weight memories (log2(WMEM_DEPTH))</p></td></tr></table></div>
 </div>
 
-<a name="Parameters"></a><a name="Topic249"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Parameters"></a><a name="Topic247"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Parameters</div>
 </div>
 
-<a name="WMEM_ADDR_BW"></a><a name="Topic250"></a><div class="CTopic TParameter LSystemVerilog">
+<a name="WMEM_ADDR_BW"></a><a name="Topic248"></a><div class="CTopic TParameter LSystemVerilog">
  <div class="CTitle">WMEM_ADDR_BW</div>
  <div class="CBody"><p>Word length of the weight memory address</p></div>
 </div>
 
-<a name="SF"></a><a name="Topic251"></a><div class="CTopic TParameter LSystemVerilog">
+<a name="SF"></a><a name="Topic249"></a><div class="CTopic TParameter LSystemVerilog">
  <div class="CTitle">SF</div>
  <div class="CBody"><p>Number of vertical matrix chunks to be processed in parallel by one PE</p></div>
 </div>
 
-<a name="NF"></a><a name="Topic252"></a><div class="CTopic TParameter LSystemVerilog">
+<a name="NF"></a><a name="Topic250"></a><div class="CTopic TParameter LSystemVerilog">
  <div class="CTitle">NF</div>
  <div class="CBody"><p>Number of horizontal matrix chunks to be processed by PEs in parallel</p></div>
 </div>
 
-<a name="Signals"></a><a name="Topic253"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Signals"></a><a name="Topic251"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Signals</div>
 </div>
 
-<a name="in_v_reg"></a><a name="Topic254"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_v_reg"></a><a name="Topic252"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_v_reg</div>
  <div class="CBody"><p>Input valid synchronized to clock</p></div>
 </div>
 
-<a name="in_v_reg_dly"></a><a name="Topic255"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_v_reg_dly"></a><a name="Topic253"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_v_reg_dly</div>
  <div class="CBody"><p>Input valid delayed for one more clock cycle</p></div>
 </div>
 
-<a name="in_reg"></a><a name="Topic256"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_reg"></a><a name="Topic254"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_reg</div>
  <div class="CBody"><p>Input activation stream synchronized to clock</p></div>
 </div>
 
-<a name="in_reg_dly"></a><a name="Topic257"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_reg_dly"></a><a name="Topic255"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_reg_dly</div>
  <div class="CBody"><p>Input activation stream delayed by one clock cycle to synchronize with weight stream</p></div>
 </div>
 
-<a name="wmem_addr"></a><a name="Topic258"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="wmem_addr"></a><a name="Topic256"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">wmem_addr</div>
  <div class="CBody"><p>This signal holds the address of the weight memory</p></div>
 </div>
 
-<a name="in_wgt"></a><a name="Topic259"></a><div class="CTopic TSignal LSystemVerilog">
- <div class="CTitle">in_wgt</div>
+<a name="wmem_out"></a><a name="Topic257"></a><div class="CTopic TSignal LSystemVerilog">
+ <div class="CTitle">wmem_out</div>
  <div class="CBody"><p>This holds the streaming weight tile</p></div>
 </div>
 
-<a name="out_stream"></a><a name="Topic260"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out_stream"></a><a name="Topic258"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out_stream</div>
  <div class="CBody"><p>This signal is connected to the output of streaming module (mvau_stream)</p></div>
 </div>
 
-<a name="out_stream_valid"></a><a name="Topic261"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out_stream_valid"></a><a name="Topic259"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out_stream_valid</div>
  <div class="CBody"><p>Signal showing when output from the MVAU Stream block is valid</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks"></a><a name="Topic262"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks"></a><a name="Topic260"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="INP_REG"></a><a name="Topic263"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="INP_REG"></a><a name="Topic261"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">INP_REG</div>
  <div class="CBody"><p>Register the input valid and activation</p></div>
 </div>
 
-<a name="IN_REG_DLY"></a><a name="Topic264"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+<a name="IN_REG_DLY"></a><a name="Topic262"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
  <div class="CTitle">IN_REG_DLY</div>
  <div class="CBody"><p>Delays the input activation stream for one more clock cycle</p></div>
 </div>

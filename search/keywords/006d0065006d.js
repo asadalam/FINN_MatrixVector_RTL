@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("mem",["Testbench"],[["Memory",,[[,"MVAU Merged Weight Memory",,,0,"File:mvau_weight_mem_merged.sv:MVAU_Merged_Weight_Memory"],[,"MVAU Weight Memory",,,0,"File:mvau_weight_mem.sv:MVAU_Weight_Memory"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("mem",["Testbench"],[["Memory",,[[,"MVAU Merged Weight Memory",,,0,"File:mvau_weight_mem_merged.sv:MVAU_Merged_Weight_Memory"],[,"MVAU Weight Memory Generator File",,,0,"File:gen_mvau_weight_mem.py:MVAU_Weight_Memory_Generator_File"]]]]);
