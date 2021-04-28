@@ -12,5 +12,8 @@ Project folder, contains the following sub-folders
   - Simulation Folder (sim): Files related to simulation like test benches
   - Synthesis Folder (syn) - Files related to synthesis
 
-### Environmental Variables
+## Environmental Variables
+In order to run simulation and synthesis, set the following two environmental variables
+  - FINN_HLS_ROOT: Xilinx_mvau/proj/finn-hlslib
+  - MVAU_RTL_ROOT: Xilinx_mvau
 
