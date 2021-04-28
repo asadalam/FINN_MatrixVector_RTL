@@ -22,17 +22,6 @@ Flags: Code
 Keywords:
 module, modules
 
-Comment Type: Testbench
-
-Display Name: Testbench
-Plural Display: Testbench
-
-Flags: Code
-
-Keywords:
-testbench
-module, modules
-
 Comment Type: Package
 
 Display Name: Package
