@@ -3,7 +3,10 @@ sv work mvau_tb_v2.sv
 sv work mvau_tb_v3.sv
 sv work ../src/mvau_top/mvau.sv
 sv work ../src/mvau_top/mvau_control_block.sv
-sv work ../src/mvau_top/mvau_weight_mem.sv
+sv work ../src/mvau_top/mvau_weight_mem0.sv
+sv work ../src/mvau_top/mvau_weight_mem1.sv
+sv work ../src/mvau_top/mvau_weight_mem2.sv
+sv work ../src/mvau_top/mvau_weight_mem3.sv
 sv work ../src/mvau_top/mvau_weight_mem_merged.sv
 sv work ../src/mvau_top/mvau_stream/mvau_stream.sv
 sv work ../src/mvau_top/mvau_stream/mvau_inp_buffer.sv
