@@ -8,52 +8,38 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Testbench"></a><a name="Topic149"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Testbench"></a><a name="Topic150"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Testbench</div>
 </div>
 
-<a name="PE_Adder_Tree"></a><a name="Topic150"></a><div class="CTopic TTestbench LSystemVerilog">
+<a name="PE_Adder_Tree"></a><a name="Topic151"></a><div class="CTopic TTestbench LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">PE Adder Tree (mvu_pe_adders.</span>&#8203;sv)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of an adder unit which adds the output of the SIMD units. Starting off as a simple adder tree.&nbsp; It is part of a processing element which is part of the Matrix-Vector-Multiplication Unit</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">clk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">rst_n</td><td class="CDLDefinition"><p>Synchronous and active low reset *</p></td></tr><tr><td class="CDLEntry">[TDstI-1:0] in_simd [0:SIMD-1]</td><td class="CDLDefinition"><p>Input from the SIMD unit, word length TDstI</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">[TDstI-1:0] out_add</td><td class="CDLDefinition"><p>Output from adder, word length TDstI</p></td></tr></table></div>
 </div>
 
-<a name="Signals"></a><a name="Topic151"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Signals"></a><a name="Topic152"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Signals</div>
 </div>
 
-<a name="out_add_int"></a><a name="Topic152"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out_add_int"></a><a name="Topic153"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out_add_int</div>
  <div class="CBody"><p>Internal signal holding the combinatorial output of adder tree</p></div>
 </div>
 
-<a name="in_simd_reg"></a><a name="Topic153"></a><div class="CTopic TSignal LSystemVerilog">
- <div class="CTitle">in_simd_reg</div>
- <div class="CBody"><p>Internal signal for holding the registered version of input data</p></div>
-</div>
-
-<a name="Sequential_Always_Blocks"></a><a name="Topic154"></a><div class="CTopic TGroup LSystemVerilog">
- <div class="CTitle">Sequential Always Blocks</div>
-</div>
-
-<a name="IN_SIMD_REG"></a><a name="Topic155"></a><div class="CTopic TAlwaysFF LSystemVerilog">
- <div class="CTitle">IN_SIMD_REG</div>
- <div class="CBody"><p>Registering in_simd</p></div>
-</div>
-
-<a name="Combinatorial_Always_Blocks"></a><a name="Topic156"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Combinatorial_Always_Blocks"></a><a name="Topic154"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Combinatorial Always Blocks</div>
 </div>
 
-<a name="Addition"></a><a name="Topic157"></a><div class="CTopic TAlwaysCOMB LSystemVerilog">
+<a name="Addition"></a><a name="Topic155"></a><div class="CTopic TAlwaysCOMB LSystemVerilog">
  <div class="CTitle">Addition</div>
  <div class="CBody"><p>Performs addition using adder tree</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks(2)"></a><a name="Topic158"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks"></a><a name="Topic156"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="OUT_REG"></a><a name="Topic159"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+<a name="OUT_REG"></a><a name="Topic157"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
  <div class="CTitle">OUT_REG</div>
  <div class="CBody"><p>Registered output</p></div>
 </div>
