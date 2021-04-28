@@ -11,3 +11,6 @@ Project folder, contains the following sub-folders
   - Source Folder (src): All source code
   - Simulation Folder (sim): Files related to simulation like test benches
   - Synthesis Folder (syn) - Files related to synthesis
+
+### Environmental Variables
+
