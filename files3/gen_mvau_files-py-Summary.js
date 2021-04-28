@@ -1,0 +1,1 @@
+﻿NDFramePage.OnPageTitleLoaded("File3:gen_mvau_files.py","gen_mvau_files.py");NDSummary.OnSummaryLoaded("File3:gen_mvau_files.py",[["Python","Python"]],[["Groups","Group"],["Testbench","Testbench"]],[[94,0,0,"Testbench","Testbench"],[95,0,1,"<span class=\"Qualifier\">MVAU Project File Generator (gen_mvau_files.</span>&#8203;py)","MVAU_Project_File_Generator"]]);
