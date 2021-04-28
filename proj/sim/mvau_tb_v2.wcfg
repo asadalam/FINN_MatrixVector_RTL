@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="mvau_tb_v2.wdb" id="1">
+         <top_modules>
+            <top_module name="mvau_defn" />
+            <top_module name="mvau_tb_v2" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="475fs"></ZoomEndTime>
+      <Cursor1Time time="470fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="233"></NameColumnWidth>
+      <ValueColumnWidth column_width="100"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="35" />
+   <wvobject fp_name="divider10" type="divider">
+      <obj_property name="label">Testbench</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/rst_n">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/out_v">
+      <obj_property name="ElementShortName">out_v</obj_property>
+      <obj_property name="ObjectShortName">out_v</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/out">
+      <obj_property name="ElementShortName">out[31:0]</obj_property>
+      <obj_property name="ObjectShortName">out[31:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/out_packed">
+      <obj_property name="ElementShortName">out_packed[0:1][15:0]</obj_property>
+      <obj_property name="ObjectShortName">out_packed[0:1][15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/in_v">
+      <obj_property name="ElementShortName">in_v</obj_property>
+      <obj_property name="ObjectShortName">in_v</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/in_mat">
+      <obj_property name="ElementShortName">in_mat[0:3][0:17][0:1][7:0]</obj_property>
+      <obj_property name="ObjectShortName">in_mat[0:3][0:17][0:1][7:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0]">
+         <obj_property name="ElementShortName">[0][0:17][0:1][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][0:17][0:1][7:0]</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][0]">
+            <obj_property name="ElementShortName">[0][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[0][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][1]">
+            <obj_property name="ElementShortName">[1][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[1][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][2]">
+            <obj_property name="ElementShortName">[2][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[2][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][3]">
+            <obj_property name="ElementShortName">[3][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[3][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][4]">
+            <obj_property name="ElementShortName">[4][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[4][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][5]">
+            <obj_property name="ElementShortName">[5][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[5][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][6]">
+            <obj_property name="ElementShortName">[6][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[6][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][7]">
+            <obj_property name="ElementShortName">[7][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[7][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][8]">
+            <obj_property name="ElementShortName">[8][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[8][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][9]">
+            <obj_property name="ElementShortName">[9][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[9][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][10]">
+            <obj_property name="ElementShortName">[10][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[10][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][11]">
+            <obj_property name="ElementShortName">[11][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[11][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][12]">
+            <obj_property name="ElementShortName">[12][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[12][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][13]">
+            <obj_property name="ElementShortName">[13][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[13][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][14]">
+            <obj_property name="ElementShortName">[14][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[14][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][15]">
+            <obj_property name="ElementShortName">[15][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[15][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][16]">
+            <obj_property name="ElementShortName">[16][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[16][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[0][17]">
+            <obj_property name="ElementShortName">[17][0:1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[17][0:1][7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[1]">
+         <obj_property name="ElementShortName">[1][0:17][0:1][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][0:17][0:1][7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[2]">
+         <obj_property name="ElementShortName">[2][0:17][0:1][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][0:17][0:1][7:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/in_mat[3]">
+         <obj_property name="ElementShortName">[3][0:17][0:1][7:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][0:17][0:1][7:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/in">
+      <obj_property name="ElementShortName">in[0:1][7:0]</obj_property>
+      <obj_property name="ObjectShortName">in[0:1][7:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_beh">
+      <obj_property name="ElementShortName">mvau_beh[0:3][0:1][1:0][15:0]</obj_property>
+      <obj_property name="ObjectShortName">mvau_beh[0:3][0:1][1:0][15:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/mvau_tb_v2/mvau_beh[0]">
+         <obj_property name="ElementShortName">[0][0:1][1:0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][0:1][1:0][15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/mvau_beh[1]">
+         <obj_property name="ElementShortName">[1][0:1][1:0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][0:1][1:0][15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/mvau_beh[2]">
+         <obj_property name="ElementShortName">[2][0:1][1:0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][0:1][1:0][15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/mvau_beh[3]">
+         <obj_property name="ElementShortName">[3][0:1][1:0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][0:1][1:0][15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/mvau_beh[0]">
+         <obj_property name="ElementShortName">[0][0:1][1:0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][0:1][1:0][15:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/mvau_beh[1]">
+         <obj_property name="ElementShortName">[1][0:1][1:0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][0:1][1:0][15:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/mvau_beh[2]">
+         <obj_property name="ElementShortName">[2][0:1][1:0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][0:1][1:0][15:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/mvau_tb_v2/mvau_beh[3]">
+         <obj_property name="ElementShortName">[3][0:1][1:0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][0:1][1:0][15:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider59" type="divider">
+      <obj_property name="label">DUT</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/mvau_inst/rst_n">
+      <obj_property name="ElementShortName">rst_n</obj_property>
+      <obj_property name="ObjectShortName">rst_n</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/mvau_inst/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/in">
+      <obj_property name="ElementShortName">in[15:0]</obj_property>
+      <obj_property name="ObjectShortName">in[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/mvau_inst/in_v">
+      <obj_property name="ElementShortName">in_v</obj_property>
+      <obj_property name="ObjectShortName">in_v</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/mvau_inst/out_v">
+      <obj_property name="ElementShortName">out_v</obj_property>
+      <obj_property name="ObjectShortName">out_v</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/out">
+      <obj_property name="ElementShortName">out[31:0]</obj_property>
+      <obj_property name="ObjectShortName">out[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/mvau_inst/in_v_reg">
+      <obj_property name="ElementShortName">in_v_reg</obj_property>
+      <obj_property name="ObjectShortName">in_v_reg</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/in_reg">
+      <obj_property name="ElementShortName">in_reg[15:0]</obj_property>
+      <obj_property name="ObjectShortName">in_reg[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/wmem_addr">
+      <obj_property name="ElementShortName">wmem_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">wmem_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/in_wgt">
+      <obj_property name="ElementShortName">in_wgt[0:1][0:1][3:0]</obj_property>
+      <obj_property name="ObjectShortName">in_wgt[0:1][0:1][3:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/out_stream">
+      <obj_property name="ElementShortName">out_stream[31:0]</obj_property>
+      <obj_property name="ObjectShortName">out_stream[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_tb_v2/mvau_inst/out_stream_valid">
+      <obj_property name="ElementShortName">out_stream_valid</obj_property>
+      <obj_property name="ObjectShortName">out_stream_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider161" type="divider">
+      <obj_property name="label">WMEM0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[0].mvau_weight_mem_inst /wmem_addr">
+      <obj_property name="ElementShortName">wmem_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">wmem_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[0].mvau_weight_mem_inst /wmem_out">
+      <obj_property name="ElementShortName">wmem_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wmem_out[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[0].mvau_weight_mem_inst /weight_mem">
+      <obj_property name="ElementShortName">weight_mem[0:35][7:0]</obj_property>
+      <obj_property name="ObjectShortName">weight_mem[0:35][7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[0].mvau_weight_mem_inst /WMEM_ID">
+      <obj_property name="ElementShortName">WMEM_ID[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WMEM_ID[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[0].mvau_weight_mem_inst /WMEM_ADDR_BW">
+      <obj_property name="ElementShortName">WMEM_ADDR_BW[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WMEM_ADDR_BW[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider167" type="divider">
+      <obj_property name="label">WMEM1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[1].mvau_weight_mem_inst /wmem_addr">
+      <obj_property name="ElementShortName">wmem_addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">wmem_addr[5:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[1].mvau_weight_mem_inst /wmem_out">
+      <obj_property name="ElementShortName">wmem_out[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wmem_out[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[1].mvau_weight_mem_inst /weight_mem">
+      <obj_property name="ElementShortName">weight_mem[0:35][7:0]</obj_property>
+      <obj_property name="ObjectShortName">weight_mem[0:35][7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[1].mvau_weight_mem_inst /WMEM_ID">
+      <obj_property name="ElementShortName">WMEM_ID[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WMEM_ID[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_tb_v2/mvau_inst/\WGT_MEM.genblk1[1].mvau_weight_mem_inst /WMEM_ADDR_BW">
+      <obj_property name="ElementShortName">WMEM_ADDR_BW[31:0]</obj_property>
+      <obj_property name="ObjectShortName">WMEM_ADDR_BW[31:0]</obj_property>
+   </wvobject>
+</wave_config>
