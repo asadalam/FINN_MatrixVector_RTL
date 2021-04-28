@@ -42,8 +42,8 @@ else
     echo "RTL simulation successful"
 fi
 echo "Synthesizing MVAU Batch RTL"
-#cd $MVAU_RTL_ROOT/proj/syn
-#vivado -mode batch -source mvau_synth.tcl -tclargs ${pe}
+cd $MVAU_RTL_ROOT/proj/syn
+vivado -mode batch -source mvau_synth.tcl -tclargs ${pe}
 if [ $? -eq 0 ]; then
     echo "RTL synthesis successfull"
 else

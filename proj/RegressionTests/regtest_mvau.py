@@ -10,6 +10,7 @@ import argparse
 from signal import signal, SIGINT
 from math import ceil, log2
 
+### Class defining the handler to capture Ctrl+C
 class MyHandler:
     def __init__(self, rpt_dict, rpt_col_names, config_dict, config_col_names, out_file):
         self.rpt_dict = rpt_dict
@@ -60,7 +61,7 @@ def extract_hls_data(log_file,param):
     tp = 0
     try:
         print("Extracting data from HLS log file")
-
+        ### Going through each parameter for which data to be captured
         with open(log_file) as log_line:
             for line in log_line:
                 for p in param:
@@ -80,7 +81,7 @@ def extract_rtl_block_data(log_file,param):
     block = []
     try:
         print("Extracting data from RTL utilization report")
-
+        ### Going through each parameter for which data to be captured
         for p in param:
             with open(log_file) as log_line:
                 for line in log_line:
@@ -204,7 +205,8 @@ def extract_data(hls_run, rtl_run, clk_per, finn_tb, mvau_env):
     rtl_latency = extract_rtl_latency(rtl_latfile)
     # Extracting RTL execution time (only synthesis)
     rtl_exec = extract_rtl_exec(rtl_execfile)
-                                      
+
+    ### Creating lists of performance data
     hls_lst = hls_block + [hls_tp] + [hls_latency] + [hls_exec]
     rtl_lst = rtl_block + [rtl_tp] + [rtl_latency] + [rtl_exec]
     sv_lst = calc_savings(hls_lst, rtl_lst)
@@ -213,7 +215,7 @@ def extract_data(hls_run, rtl_run, clk_per, finn_tb, mvau_env):
     return pd_lst
 
 def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
-         inp_wl_arr, out_wl_arr, wgt_wl_arr, simd, pe,
+         inp_wl_arr, wgt_wl_arr, simd, pe,
          finn_tb, mvau_env, mvau_tb, out_file):
     config_col_names = ["IFM_Ch","IFM_Dim", "OFM_Ch", "KDim","Inp_Act","Wgt_Prec","Out_Act","SIMD","PE"]
     rpt_col_names = ["HLS LUT", "HLS FF", "HLS DSPs", "HLS BRAM", "HLS Time", "HLS Latency", "HLS Exec. Time",
@@ -221,27 +223,21 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
     config_set = 0
     config_dict = dict()
     rpt_dict = dict()
+
+    ### Handling Ctrl+C gracefully
+    signal(SIGINT, MyHandler(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file))                    
         
     for ifm_ch, ifm_dim, ofm_ch in zip(ifm_ch_arr, ifm_dim_arr, ofm_ch_arr):
         for kdim in kdim_arr:
-            #for ifm_ch in ifm_ch_arr:
-            #    for ifm_dim in ifm_dim_arr:
-            #        for ofm_ch in ofm_ch_arr:
-            #            for kdim in kdim_arr:
             ### Skipping if kdim>ifm_dim
             if(kdim > ifm_dim):
                 continue
             for inp_wl, wgt_wl in zip(inp_wl_arr, wgt_wl_arr):
-                #for inp_wl in inp_wl_arr:
-                #for wgt_wl in wgt_wl_arr:
-                #for out_wl in out_wl_arr:
                 out_wl = min(16,inp_wl+wgt_wl+ceil(log2(kdim*kdim*ifm_ch)))
                 for s,p in zip(simd, pe):
-                    #for s in simd:
                     ### Skipping this config set when ifm channel is an integer multiple of SIMD
                     if(ifm_ch%s!=0 or s>ifm_ch):
                         continue
-                    #for p in pe:
                     ### Skipping this config set when ofm channel is an integer multiple of PE
                     if(ofm_ch%p!=0 or p>ofm_ch):
                         continue                    
@@ -315,8 +311,6 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                         ### Preparing a dict to write to a file with config details
                         config_dict_key = str(config_set)
                         config_dict[config_dict_key] = [ifm_ch, ifm_dim, ofm_ch, kdim, inp_wl, wgt_wl, out_wl, s, p]
-                        print(f'### SIMD: Standard')
-                        print("#######################################")
                         ### Calling the HLS test script
                         sp = subprocess.call(['./test_mvau_std.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
@@ -342,7 +336,6 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                         
                     print(f'"RTL and Synthesis complete for config set: {config_set}"')
                     config_set = config_set + 1
-                    signal(SIGINT, MyHandler(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file))
                     
     write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
     return 0
@@ -356,15 +349,14 @@ def parser():
 if __name__ == '__main__':
 
     kdim_arr    = np.array([4])#np.arange(4,5))#7))
-    ifm_ch_arr  = np.array([32,64])#,4,6,10,12,16,18,20])
-    ofm_ch_arr  = np.array([128,256])#,6,8,10,12,14,16,20])
-    ifm_dim_arr = np.array([16,32])#,8,12,16,20,24,28,32])
+    ifm_ch_arr  = np.array([16])#,4,6,10,12,16,18,20])
+    ofm_ch_arr  = np.array([16])#,6,8,10,12,14,16,20])
+    ifm_dim_arr = np.array([8])#,8,12,16,20,24,28,32])
     inp_wl_arr  = np.array([1,4,8])#1,4,8,12])
-    out_wl_arr  = np.array(np.arange(2,3))
     wgt_wl_arr  = np.array([1,1,8])#,2,4,8])
 
-    simd = np.array([32,64])#np.arange(64,65))#10))
-    pe = np.array([32,64])#np.arange(64,65))#10))
+    simd = np.array([4])#np.arange(64,65))#10))
+    pe = np.array([4])#np.arange(64,65))#10))
     
     args = parser().parse_args()
     out_file = args.out_file    
@@ -377,10 +369,6 @@ if __name__ == '__main__':
     finn_tb = finn_env+'/tb/'
 
     main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr, inp_wl_arr,
-         out_wl_arr, wgt_wl_arr, simd, pe, finn_tb, mvau_env, mvau_tb, out_file)
+         wgt_wl_arr, simd, pe, finn_tb, mvau_env, mvau_tb, out_file)
 
     sys.exit(0)
-
-                                        
-
-    
