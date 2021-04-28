@@ -12,6 +12,12 @@ file that contains the performance parameters of HLS and RTL.
 Proper error handling is implemented to catch any simulation or synthesis error and gracefully
 exit. The script also gracefully handles Ctrl+C and dumps performanc data extracted upto that point
 
+To run, say the following on the terminal:
+
+- python regtest_mvau.py -o <Output Excel File>
+
+Values of various parameters can be modified from within the script.
+
 ## MVAU Stream Regression Test Script: regtest_mvau_stream.py
 This is self contained script only need one command line argument for the output file name.
 This file can be used to run HLS and RTL simulation and synthesis and generates an output
@@ -19,6 +25,12 @@ file that contains the performance parameters of HLS and RTL.
 
 Proper error handling is implemented to catch any simulation or synthesis error and gracefully
 exit. The script also gracefully handles Ctrl+C and dumps performanc data extracted upto that point
+
+To run, say the following on the terminal:
+
+- python regtest_mvau.py -o <Output Excel File>
+
+Values of various parameters can be modified from within the script.
 
 ## MVAU Batch RTL Simulation and Synthesis Scripts: test_mvau_<std/xnor/binwgt>_rtl.sh
 A shell script which handles RTL simulation and synthesis by calling respective scripts from
