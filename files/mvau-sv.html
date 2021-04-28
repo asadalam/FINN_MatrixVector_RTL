@@ -8,11 +8,11 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Testbench"></a><a name="Topic243"></a><div class="CTopic TGroup LSystemVerilog first">
- <div class="CTitle">Testbench</div>
+<a name="Module"></a><a name="Topic243"></a><div class="CTopic TGroup LSystemVerilog first">
+ <div class="CTitle">Module</div>
 </div>
 
-<a name="MVAU_Top_Level"></a><a name="Topic244"></a><div class="CTopic TTestbench LSystemVerilog">
+<a name="MVAU_Top_Level"></a><a name="Topic244"></a><div class="CTopic TModule LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">MVAU Top Level (mvau.</span>&#8203;sv)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of the matrix-vector activation unit It is part of the Xilinx FINN open source framework for implementing quantized neural networks on FPGAs</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">rst_n</td><td class="CDLDefinition"><p>Active low synchronous reset</p></td></tr><tr><td class="CDLEntry">clk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">[TI-1:0] in</td><td class="CDLDefinition"><p>Input stream, word length TI=TSrcI*SIMD</p></td></tr><tr><td class="CDLEntry">in_v</td><td class="CDLDefinition"><p>Input valid, indicates valid input</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">out_v</td><td class="CDLDefinition"><p>Output stream valid</p></td></tr><tr><td class="CDLEntry">[TO-1:0] out</td><td class="CDLDefinition"><p>Output stream, word length TO=TDstI*PE</p></td></tr></table><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">WMEM_ADDR_BW</td><td class="CDLDefinition"><p>Word length of the address for the weight memories (log2(WMEM_DEPTH))</p></td></tr></table></div>
 </div>

@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("mvu",["Testbench"],[["MVU",,[[,"MVU Processing Element",,,0,"File:mvau_stream/mvu_pe/mvu_pe.sv:MVU_Processing_Element"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("mvu",["Module"],[["MVU",,[[,"MVU Processing Element",,,0,"File:mvau_stream/mvu_pe/mvu_pe.sv:MVU_Processing_Element"]]]]);

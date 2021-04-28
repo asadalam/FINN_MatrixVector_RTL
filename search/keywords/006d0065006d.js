@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("mem",["Testbench"],[["Memory",,[[,"MVAU Weight Memory Generator File",,,0,"File:gen_mvau_weight_mem.py:MVAU_Weight_Memory_Generator_File"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("mem",["Module"],[["Memory",,[[,"MVAU Weight Memory Generator File",,,0,"File:gen_mvau_weight_mem.py:MVAU_Weight_Memory_Generator_File"]]]]);
