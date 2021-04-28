@@ -41,7 +41,7 @@ module mvau_tb_v3;
    parameter int NO_IN_VEC = 100;
    parameter int ACT_MatrixW = OFMDim*OFMDim; // input activation matrix height
    parameter int ACT_MatrixH = (KDim*KDim*IFMCh); // input activation matrix weight
-   parameter int TOTAL_OUTPUTS = MatrixH*ACT_MatrixW;
+   parameter int TOTAL_OUTPUTS = MMV*MatrixH*ACT_MatrixW;
    
    // Signals Declarations
    // Signal: clk
@@ -67,7 +67,7 @@ module mvau_tb_v3;
    // Signal: in_mat
    // Input activation matrix
    // Dimension: ACT_MatrixH x ACT_MatrixW, word length: TSrcI
-   logic [0:SIMD-1][TSrcI-1:0] in_mat [0:ACT_MatrixW-1][0:ACT_MatrixH/SIMD-1];
+   logic [0:SIMD-1][TSrcI-1:0] in_mat [0:MMV-1][0:ACT_MatrixW-1][0:ACT_MatrixH/SIMD-1];
    // Signal: in
    // Input activation stream to DUT
    // Dimension: SIMD, word length: TSrcI
@@ -75,7 +75,7 @@ module mvau_tb_v3;
    // Signal: mvau_beh
    // Output matrix holding output of behavioral simulation
    // Dimension: MatrixH x ACT_MatrixW
-   logic [TDstI-1:0] 	       mvau_beh [0:ACT_MatrixW-1][0:MatrixH-1];
+   logic [TDstI-1:0] 	       mvau_beh [0:MMV-1][0:ACT_MatrixW-1][0:MatrixH-1];
    // Signal: test_count
    // An integer to count for successful output matching
    integer 		       test_count;
@@ -85,13 +85,14 @@ module mvau_tb_v3;
    // Signal: sim_start
    // A signal which indicates when simulation starts
    logic 		       sim_start;
-   
+   // Signal: do_comp
+   // A signal which indicates the comparison is done, helps in debugging
+   logic 		       do_comp;
    // Events for synchronizing the simulation
    event 		       gen_inp;    // generate input activation matrix
    event 		       gen_weights;// generate weight matrix
    event 		       do_mvau_beh;// perform behavioral mvau
    event 		       test_event; // to start testing
-   
    
    // Initial: CLK_RST_GEN
    // Initialization of Clock and Reset and performing validation
@@ -114,41 +115,49 @@ module mvau_tb_v3;
 	
 	rst_n 		      = 1; // Coming out of reset
 	sim_start = 1; // Simulation starts
+	do_comp = 0;
 	
 	$display($time, " << Coming out of reset >>");
 	$display($time, " << Starting simulation with System Verilog based data >>");
 
 	// Checking DUT output with golden output generated in the test bench
-	#(CLK_PER*8) // Delaying to synchronize the DUT output
-	for(int i = 0; i < ACT_MatrixW; i++) begin
-	   for(int j = 0; j < MatrixH/PE; j++) begin
-	      #(CLK_PER*MatrixW/SIMD)
-	      @(posedge clk) begin: DUT_BEH_MATCH
-		 if(out_v) begin		    
-		    out_packed = out;
-		    for(int k = 0; k < PE; k++) begin
-		       if(out_packed[k] == mvau_beh[i][j*PE+k]) begin
-			  $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[i][j*PE+k]);
-			  test_count++;
-		       end
-		       else begin
-			  $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[i][j*PE+k]);
-			  assert (out_packed[k] == mvau_beh[j*PE+k][i])
-			    else
-			      $fatal(1,"Data MisMatch");
-		       end
-		    end // for (int k = 0; k < PE; k++)
-		 end // if (out_v)
-	      end // block: DUT_BEH_MATCH
-	   end // for (int j = 0; j < MatrixH/PE; j++)
-	end // for (int i = 0; i < ACT_MatrixW; i++)
+	#(CLK_PER*5) // Delaying to synchronize the DUT output
+	for(int m = 0; m < MMV; m++) begin
+	   for(int i = 0; i < ACT_MatrixW; i++) begin
+	      for(int j = 0; j < MatrixH/PE; j++) begin
+		 #(CLK_PER*MatrixW/SIMD)
+		 do_comp = 1; // Indicating when actual comparison is done, helps in debugging		 
+		 @(posedge clk) begin: DUT_BEH_MATCH
+		    if(out_v) begin		    
+		       out_packed = out;
+		       for(int k = 0; k < PE; k++) begin
+			  if(out_packed[k] == mvau_beh[m][i][j*PE+k]) begin
+			     $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",
+				      k,out_packed[k],i,j*PE+k,mvau_beh[m][i][j*PE+k]);
+			     test_count++;
+			  end
+			  else begin
+			     $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",
+				      k,out_packed[k],i,j*PE+k,mvau_beh[m][i][j*PE+k]);
+			     assert (out_packed[k] == mvau_beh[m][i][j*PE+k])
+			       else
+				 $fatal(1,"Data MisMatch");
+			  end
+		       end // for (int k = 0; k < PE; k++)
+		    end // if (out_v)
+		 end // block: DUT_BEH_MATCH
+		 do_comp = 0;		 
+	      end // for (int j = 0; j < MatrixH/PE; j++)
+	   end // for (int i = 0; i < ACT_MatrixW; i++)
+	end // for (int m = 0; m < MMV; m++)
+	
 	sim_start = 0;
 		
 	#RAND_DLY;
 	if(test_count == TOTAL_OUTPUTS) begin
 	   integer f;
 	   $display($time, " << Simulation Complete. Total successul outputs: %d >>", test_count);
-	   $display($time, " << Latency: %d >>", latency);
+	   $display($time, " << Latency: %d >>", latency/MMV);
 	   f = $fopen("latency.txt","w");
 	   $fwrite(f,"%d",latency);
 	   $fclose(f);	   
@@ -171,7 +180,7 @@ module mvau_tb_v3;
    // from a memory file
    always @(gen_inp)
      begin: INP_ACT_MAT_GEN
-	$readmemh("inp_act.memh",in_mat);
+	$readmemh("inp_act.mem",in_mat);
      end
    
    // Always: OUT_ACT_MAT_GEN
@@ -179,7 +188,7 @@ module mvau_tb_v3;
    // from a memory file
    always @(do_mvau_beh)
      begin: OUT_ACT_MAT_GEN
-	$readmemh("out_act.memh",mvau_beh);
+	$readmemh("out_act.mem",mvau_beh);
      end
    
    // Always_FF: CALC_LATENCY
@@ -198,18 +207,20 @@ module mvau_tb_v3;
     * */
    always @(test_event)   
      begin
-	for(int i = 0; i < ACT_MatrixW; i++) begin
-	   for(int j = 0; j < ACT_MatrixH/SIMD; j++) begin
-	      #(CLK_PER/2);
-	      in_v = 1'b1;
-	      for(int k = 0; k < SIMD; k++) begin
-		 in[k] = in_mat[i][j][k];
+	for(int m = 0; m < MMV; m++) begin
+	   for(int i = 0; i < ACT_MatrixW; i++) begin
+	      for(int j = 0; j < ACT_MatrixH/SIMD; j++) begin
+		 #(CLK_PER/2);
+		 in_v = 1'b1;
+		 for(int k = 0; k < SIMD; k++) begin
+		    in[k] = in_mat[m][i][j][k];
+		 end
+		 //$display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in);
+		 #(CLK_PER/2);	   
 	      end
-	      //$display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in);
-	      #(CLK_PER/2);	   
-	   end
-	   in_v = 1'b0;
-	   #(CLK_PER*((MatrixW/SIMD)*(MatrixH/PE-1)));
+	      in_v = 1'b0;
+	      #(CLK_PER*((MatrixW/SIMD)*(MatrixH/PE-1)));
+	   end // for (int i = 0; i < ACT_MatrixW; i++)
 	end
      end
 

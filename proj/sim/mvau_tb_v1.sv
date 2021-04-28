@@ -77,6 +77,9 @@ module mvau_tb_v1;
    // Signal: test_count
    // An integer to count for successful output matching
    integer 		       test_count;
+   // Signal: do_comp
+   // A signal which indicates the comparison is done, helps in debugging
+   logic 		       do_comp;
    
    // Events for synchronizing the simulation
    event 		       gen_inp;    // generate input activation matrix
@@ -104,6 +107,7 @@ module mvau_tb_v1;
 	#(CLK_PER/2);
 	
 	rst_n 		      = 1; // Coming out of reset
+	do_comp = 0;	
 	$display($time, " << Coming out of reset >>");
 	$display($time, " << Starting simulation with System Verilog based data >>");
 
@@ -114,6 +118,7 @@ module mvau_tb_v1;
 	for(int i = 0; i < ACT_MatrixW; i++) begin
 	   for(int j = 0; j < MatrixH/PE; j++) begin
 	      #(CLK_PER*MatrixW/SIMD);
+	      do_comp = 1;	      
 	      @(posedge clk) begin: DUT_BEH_MATCH
 		 if(out_v) begin
 		    out_packed = out;
@@ -131,6 +136,7 @@ module mvau_tb_v1;
 		    end // for (int k = 0; k < PE; k++)
 		 end // if (out_v)
 	      end // block: DUT_BEH_MATCH
+	      do_comp = 0;	      
 	   end // for (int j = 0; j < MatrixH/PE; j++)
 	end // for (int i = 0; i < ACT_MatrixW; i++)
 	
@@ -154,7 +160,7 @@ module mvau_tb_v1;
    // Always: WGT_MAT_GEN
    // Generates a weight matrix using memory files
    always @(gen_weights) begin: WGT_MAT_GEN
-      $readmemh("weights_mem_full.memh", weights);
+      $readmemh("weights_mem_full.mem", weights);
    end
    
    // Always: INP_MAT_GEN
@@ -202,7 +208,7 @@ end // block: XNOR_MVAU1
 			 if(in_mat[k*SIMD+l][j] == 1'b1) // in = +1
 			   mvau_beh[i][j] += weights[i][k][l];		      
 			 else // in = -1
-			   mvau_beh[i][j] += 0;//~weights[i][k][l]+1'b1;
+			   mvau_beh[i][j] += ~weights[i][k][l]+1'b1;
 		      end
 		   end
 		end // for (int j = 0; j < ACT_MatrixW; j++)
@@ -239,7 +245,7 @@ end // block: XNOR_MVAU2
 			 if(weights[i][k][l] == 1'b1) // in_wgt = +1
 			   mvau_beh[i][j] += in_mat[k*SIMD+l][j];
 			 else // in_wgt = -1
-			   mvau_beh[i][j] += 0;//~in_mat[k*SIMD+l][j]+1'b1;
+			   mvau_beh[i][j] += ~in_mat[k*SIMD+l][j]+1'b1;
 		      end
 		   end
 		end // for (int j = 0; j < ACT_MatrixW; j++)

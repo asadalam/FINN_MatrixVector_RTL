@@ -85,8 +85,9 @@ module mvau_stream_tb_v1;
    // Signal: test_count
    // An integer to count for successful output matching
    integer 		       test_count;
-   
-   
+   // Signal: do_comp
+   // A signal which indicates the comparison is done, helps in debugging
+   logic 		       do_comp;   
    // Events for synchronizing the simulation
    event 		       gen_inp;    // generate input activation matrix
    event 		       gen_weights;// generate weight matrix
@@ -112,16 +113,18 @@ module mvau_stream_tb_v1;
 	#(CLK_PER/2);
 	
 	rst_n 		      = 1; // Coming out of reset
+	do_comp = 0;	
 	$display($time, " << Coming out of reset >>");
 	$display($time, " << Starting simulation with System Verilog based data >>");
 
 	// Checking DUT output with golden output generated in the test bench
-	#(CLK_PER*6); // Delaying to synchronize the DUT output
+	#(CLK_PER*4); // Delaying to synchronize the DUT output
 	// We need to delay more until the final output comes
 	// To-do for tomorrow
 	for(int i = 0; i < ACT_MatrixW; i++) begin
 	   for(int j = 0; j < MatrixH/PE; j++) begin
-	      #(CLK_PER*MatrixW/SIMD);	      
+	      #(CLK_PER*MatrixW/SIMD);
+	      do_comp = 1;	      
 	      @(posedge clk) begin: DUT_CHECK		 
 		 if(out_v) begin
 		    out_packed = out;
@@ -139,6 +142,7 @@ module mvau_stream_tb_v1;
 		    end // for (int k = 0; k < PE; k++)
 		 end // if (out_v)
 	      end // block: DUT_CHECK
+	      do_comp = 0;	      
 	   end // for (int j = 0; j < MatrixH/PE; j++)
 	end // for (int i = 0; i < ACT_MatrixW; i++)
 		

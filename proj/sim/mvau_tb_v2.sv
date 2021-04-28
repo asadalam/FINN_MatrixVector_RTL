@@ -110,7 +110,7 @@ module mvau_tb_v2;
 	$display($time, " << Starting simulation with System Verilog based data >>");
 
 	// Checking DUT output with golden output generated in the test bench
-	#(CLK_PER*7) // Delaying to synchronize the DUT output
+	#(CLK_PER*8) // Delaying to synchronize the DUT output
 	// We need to delay more until the final output comes
 	// To-do for tomorrow
 	for(int i = 0; i < ACT_MatrixW; i++) begin
@@ -157,7 +157,7 @@ module mvau_tb_v2;
    // Input matrix generation using random data
    always @(gen_inp)
      begin: INP_ACT_MAT_GEN
-	$readmemh("inp_act.memh",in_mat);
+	$readmemh("inp_act.mem",in_mat);
      end
    
    // Always: OUT_ACT_MAT_GEN
@@ -165,7 +165,7 @@ module mvau_tb_v2;
    // from a memory file
    always @(do_mvau_beh)
      begin: OUT_ACT_MAT_GEN
-	$readmemh("out_act.memh",mvau_beh);
+	$readmemh("out_act.mem",mvau_beh);
      end
    
    /*
