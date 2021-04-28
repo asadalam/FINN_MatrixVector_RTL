@@ -31,7 +31,6 @@
 `timescale 1ns/1ns
 `include "../../mvau_defn.sv"
 
-
 module mvu_pe 
   (input logic rst_n,
    input logic 			  clk,
@@ -57,17 +56,10 @@ module mvu_pe
    // Signal: in_act_packed
    // Packed input activation array, makes for easy access
    logic [0:SIMD-1][TSrcI-1:0] in_act_packed;
-   // Signal: in_wgt_reg
-   // Packed input weight array registered
-   logic [0:SIMD-1][TW-1:0]    in_wgt_reg;
    // Signal: do_mvau_stream_reg
    // Registered version of do_mvau_stream
    logic 		       do_mvau_stream_reg;   
-   // Signal: sf_clr_reg
-   // Registered version of sf_clr
-   logic 		       sf_clr_reg;
-   
-      
+         
    /**
     * Re-assigning in_act to in_act_temp
     * and then to a packed array where
@@ -83,37 +75,14 @@ module mvu_pe
 	end
    endgenerate
 
-   // Always_FF: WGT_REG
-   // Registering input weights stream
-   always_ff @(posedge clk) begin
-      if(!rst_n) begin
-	 for(int i = 0; i < SIMD; i++)
-	   in_wgt_reg[i] <= 'd0;
-      end
-      else begin
-	 for(int i = 0; i < SIMD; i++)
-	   in_wgt_reg[i] <= in_wgt[i];
-      end
-   end
-
    // Always_FF: MVAU_STREAM_REG
    // Registering the do_mvau_stream signal
    always_ff @(posedge clk) begin
       if(!rst_n)
-	do_mvau_stream_reg <= 1'b0;
+   	do_mvau_stream_reg <= 1'b0;
       else
-	do_mvau_stream_reg <= do_mvau_stream;
+   	do_mvau_stream_reg <= do_mvau_stream;
    end
-
-   // Always_FF: SF_CLR_REG
-   // Registering the sf_clr signal
-   always_ff @(posedge clk) begin
-      if(!rst_n)
-	sf_clr_reg <= 1'b0;
-      else
-	sf_clr_reg <= sf_clr;
-   end
-
       
    /*****************************
     * Component Instantiation
@@ -157,11 +126,8 @@ module mvu_pe
 		 begin: SIMD_GEN
 		    mvu_pe_simd_xnor 
 			      mvu_simd_inst(
-					    .rst_n,
-					    .clk,
-					    .do_mvau_stream(do_mvau_stream_reg),
 					    .in_act(in_act_packed[simd_ind]), 
-					    .in_wgt(in_wgt_reg[simd_ind]),
+					    .in_wgt(in_wgt[simd_ind]),
 					    .out(out_simd[simd_ind])
 					    );
 		 end // block: SIMD_GEN
@@ -181,11 +147,8 @@ module mvu_pe
 		 begin: SIMD_GEN
 		    mvu_pe_simd_binary 
 			      mvu_simd_inst(
-					    .rst_n,
-					    .clk,
-					    .do_mvau_stream(do_mvau_stream_reg),
 					    .in_act(in_act_packed[simd_ind]),
-					    .in_wgt(in_wgt_reg[simd_ind]),
+					    .in_wgt(in_wgt[simd_ind]),
 					    .out(out_simd[simd_ind])
 					    );
 		 end // block: SIMD_GEN
@@ -206,11 +169,8 @@ module mvu_pe
 	      begin: SIMD_GEN
 		 mvu_pe_simd_binary 
 			   mvu_simd_inst(
-					 .rst_n,
-					 .clk,
-					 .do_mvau_stream(do_mvau_stream_reg),
 					 .in_act(in_act_packed[simd_ind]),
-					 .in_wgt(in_wgt_reg[simd_ind]),
+					 .in_wgt(in_wgt[simd_ind]),
 					 .out(out_simd[simd_ind])
 					 );
 	      end // block: SIMD_GEN
@@ -233,11 +193,8 @@ module mvu_pe
 		 begin: SIMD_GEN
 		    mvu_pe_simd_binary 
 			      mvu_simd_inst(
-					    .rst_n,
-					    .clk,
-					    .do_mvau_stream(do_mvau_stream_reg),
 					    .in_act(in_act_packed[simd_ind]),
-					    .in_wgt(in_wgt_reg[simd_ind]),
+					    .in_wgt(in_wgt[simd_ind]),
 					    .out(out_simd[simd_ind])
 					    );
 		 end // block: SIMD_GEN
@@ -252,11 +209,8 @@ module mvu_pe
 		 begin: SIMD_GEN
 		    mvu_pe_simd_std 
 			      mvu_pe_simd_inst(
-					       .rst_n,
-					       .clk,
-					       .do_mvau_stream(do_mvau_stream_reg),
 					       .in_act(in_act_packed[simd_ind]),
-					       .in_wgt(in_wgt_reg[simd_ind]),
+					       .in_wgt(in_wgt[simd_ind]),
 					       .out(out_simd[simd_ind])
 					       );
 		 end // block: SIMD_GEN
@@ -272,11 +226,8 @@ module mvu_pe
 	      begin: SIMD_GEN
 		 mvu_pe_simd_std 
 			   mvu_pe_simd_inst(
-					    .rst_n,
-					    .clk,
-					    .do_mvau_stream(do_mvau_stream_reg),
 					    .in_act(in_act_packed[simd_ind]),
-					    .in_wgt(in_wgt_reg[simd_ind]),
+					    .in_wgt(in_wgt[simd_ind]),
 					    .out(out_simd[simd_ind])
 					    );
 	      end // block: SIMD_GEN
@@ -299,11 +250,8 @@ module mvu_pe
 	   begin: SIMD_GEN
 	      mvu_pe_simd_binary 
 			mvu_simd_inst(
-				      .rst_n,
-				      .clk,
-				      .do_mvau_stream(do_mvau_stream_reg),
 				      .in_act(in_act_packed[simd_ind]),
-				      .in_wgt(in_wgt_reg[simd_ind]),
+				      .in_wgt(in_wgt[simd_ind]),
 				      .out(out_simd[simd_ind])
 				      );
 	   end // block: SIMD_GEN
@@ -318,11 +266,8 @@ module mvu_pe
 	   begin: SIMD_GEN
 	      mvu_pe_simd_std 
 			mvu_pe_simd_inst(
-					 .rst_n,
-					 .clk,
-					 .do_mvau_stream(do_mvau_stream_reg),
 					 .in_act(in_act_packed[simd_ind]),
-					 .in_wgt(in_wgt_reg[simd_ind]),
+					 .in_wgt(in_wgt[simd_ind]),
 					 .out(out_simd[simd_ind])
 					 );
 	   end // block: SIMD_GEN
@@ -338,11 +283,8 @@ module mvu_pe
 	begin: SIMD_GEN
 	   mvu_pe_simd_std 
 		     mvu_pe_simd_inst(
-				      .rst_n,
-				      .clk,
-				      .do_mvau_stream(do_mvau_stream_reg),
 				      .in_act(in_act_packed[simd_ind]),
-				      .in_wgt(in_wgt_reg[simd_ind]),
+				      .in_wgt(in_wgt[simd_ind]),
 				      .out(out_simd[simd_ind])
 				      );
 	end // block: SIMD_GEN
@@ -406,7 +348,8 @@ module mvu_pe
      mvu_pe_acc_inst (
 		      .rst_n,
 		      .clk,
-		      .sf_clr(sf_clr_reg),
+		      .do_mvau_stream(do_mvau_stream_reg),
+		      .sf_clr(sf_clr),
 		      .in_acc(out_add),
 		      .out_acc_v(out_v),
 		      .out_acc(out));

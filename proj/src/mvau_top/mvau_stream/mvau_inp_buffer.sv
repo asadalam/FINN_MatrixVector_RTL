@@ -52,34 +52,13 @@ module mvau_inp_buffer #(
     * */
    // Signal: inp_buffer
    // The input buffer   
-   (* ram_style = "distributed" *) logic [TI-1:0] 	  inp_buffer [0:BUF_LEN-1];
+   //(* ram_style = "distributed" *) 
+   logic [TI-1:0] 	  inp_buffer [0:BUF_LEN-1];
         
 
    /*
     * Implementing the memory operations
-    * */
-   // always_ff @(posedge clk) begin
-   //    if(!rst_n)
-   // 	out <= 'd0;
-   //    else if(rd_en)
-   // 	out <= inp_buffer[addr];
-   //    else
-   // 	out <= in;
-   // end
-   // assign out_mem = rd_en? inp_buffer[addr] : in;
-   //always_ff @(posedge clk) begin
-   // assign out_mem = inp_buffer[addr];
-   //end
-
-   // always_ff @(posedge clk) begin
-   //    if(!rst_n)
-   // 	out <= 'd0;
-   //    else if(wr_en)
-   // 	out <= in;
-   //    else if(rd_en)
-   // 	out <= out_mem;
-   // end
-      
+    * */         
    
    // Always_FF: Write_Input_Buffer in write through mode
    // Sequential 'always' block to write to the input buffer

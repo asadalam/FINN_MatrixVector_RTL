@@ -203,6 +203,4 @@ module mvau_stream (
       end      
    endgenerate
 
-endmodule // mvu
-
-   
+endmodule // mvau_stream

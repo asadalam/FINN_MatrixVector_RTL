@@ -31,6 +31,7 @@
 module mvu_pe_acc 
   ( input logic rst_n,
     input logic 	     clk,
+    input logic 	     do_mvau_stream,
     input logic 	     sf_clr,
     input logic [TDstI-1:0]  in_acc, // Input from the adders/popcount
     output logic 	     out_acc_v, // Output valid
@@ -41,23 +42,32 @@ module mvu_pe_acc
     * Internal signals
     * */
    // Signal: sf_clr_dly
-   // A four bit signal to delay the sf_clr input by two clock cycles
-   logic [3:0] 		      sf_clr_dly;
-
+   // A two bit signal to delay the sf_clr input by two clock cycles
+   logic [2:0] 		      sf_clr_dly;
+   // Signal: do_mvau_stream_reg
+   // One bit signal to delay a control input by one clock cycle
+   logic 		      do_mvau_stream_reg;
+      
    // out_acc_v is a copy of the sf_clr_dly[1]
    // because that is the time we reach the last cycle
    // of accumulation
-   assign out_acc_v = sf_clr_dly[3];
+   assign out_acc_v = sf_clr_dly[2];
 
-
+   always_ff @(posedge clk) begin
+      if(!rst_n)
+	do_mvau_stream_reg <= 1'b0;
+      else
+	do_mvau_stream_reg <= do_mvau_stream;
+   end   
+   
    // Always_FF: SF_CLR_DLY
    // Sequential 'always' block to delay sf_clr for two clock cycles
    // to match the two pipelines one after SIMD's and one after the adders
    always_ff @(posedge clk) begin
       if(!rst_n)
-	sf_clr_dly <= 4'd0;
+   	sf_clr_dly <= 'd0;
       else
-	sf_clr_dly <= {sf_clr_dly[2:0],sf_clr};
+   	sf_clr_dly <= {sf_clr_dly[1:0],sf_clr};
    end
       
    // Always_FF: Accumulator
@@ -66,10 +76,12 @@ module mvu_pe_acc
    always_ff @(posedge clk) begin
       if(!rst_n)
 	out_acc <= 'd0;
-      else if(sf_clr_dly[3])
-	out_acc <= in_acc; // resetting the accumulator
-      else
-	out_acc <= out_acc + in_acc;      
+      else if(do_mvau_stream_reg) begin
+	 if(sf_clr_dly[2])
+	   out_acc <= in_acc; // resetting the accumulator
+	 else
+	   out_acc <= out_acc + in_acc;
+      end      
    end
 
 endmodule // mvu_simd

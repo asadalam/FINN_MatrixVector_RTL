@@ -36,33 +36,15 @@ module mvu_pe_popcount
    // Signal: out_add_int
    // Internal signal holding the combinatorial output of adder tree
    logic [TDstI-1:0] 	    out_add_int;
-
-   // Signal: in_simd_reg
-   // Internal signal for holding the registered version of input data
-   logic [TDstI-1:0] 	    in_simd_reg [0:SIMD-1];
-
-   // Always_FF: IN_SIMD_REG
-   // Registering in_simd
-   always_ff @(posedge clk) begin
-      if(!rst_n) begin
-	 for(int i = 0; i<SIMD; i++)
-	   in_simd_reg[i] <= 'd0;
-      end
-      else begin
-	 for(int i = 0; i<SIMD; i++)
-	   in_simd_reg[i] <= in_simd[i];
-      end
-   end
-
    
    // Always_COMB: Addition
    // Performs addition using popcount
    always_comb
      begin: adders
 	// Initializing the output with a value
-	out_add_int = in_simd_reg[0]; // Initializing with the initial value
+	out_add_int = in_simd[0]; // Initializing with the initial value
 	for(int i = 1; i < SIMD; i++) begin
-	   out_add_int = out_add_int + in_simd_reg[i]; // always_comb ensures no latches are inferred
+	   out_add_int = out_add_int + in_simd[i]; // always_comb ensures no latches are inferred
 	end
      end
 

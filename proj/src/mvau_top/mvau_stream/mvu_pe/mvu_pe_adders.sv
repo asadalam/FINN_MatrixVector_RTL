@@ -34,34 +34,16 @@ module mvu_pe_adders
 
    // Signal: out_add_int
    // Internal signal holding the combinatorial output of adder tree
-   logic [TDstI-1:0] 	    out_add_int;
-
-   // Signal: in_simd_reg
-   // Internal signal for holding the registered version of input data
-   logic [TDstI-1:0] 	    in_simd_reg [0:SIMD-1];
-
-   // Always_FF: IN_SIMD_REG
-   // Registering in_simd
-   always_ff @(posedge clk) begin
-      if(!rst_n) begin
-	 for(int i = 0; i<SIMD; i++)
-	   in_simd_reg[i] <= 'd0;
-      end
-      else begin
-	 for(int i = 0; i<SIMD; i++)
-	   in_simd_reg[i] <= in_simd[i];
-      end
-   end
-   
+   logic [TDstI-1:0] 	    out_add_int;   
    
    // Always_COMB: Addition
    // Performs addition using adder tree
    always_comb
      begin: adders
 	// Initializing the output with a value
-	out_add_int = in_simd_reg[0]; // Picking up the first element to initialize
+	out_add_int = in_simd[0]; // Picking up the first element to initialize
 	for(int i = 1; i < SIMD; i++) begin
-	   out_add_int = out_add_int + in_simd_reg[i]; // always_comb makes sure no latches are inferred
+	   out_add_int = out_add_int + in_simd[i]; // always_comb makes sure no latches are inferred
 	end
      end
 

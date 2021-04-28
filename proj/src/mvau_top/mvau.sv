@@ -95,19 +95,7 @@ module mvau (
 	 in_reg   <= in;
       end
    end
-   // Always_FF: IN_REG_DLY
-   // Delays the input activation stream for one more clock cycle
-   always_ff @(posedge clk) begin
-      if(!rst_n) begin
-	 in_v_reg_dly <= 1'b0;
-	 in_reg_dly <= 'd0;
-      end
-      else begin
-	 in_v_reg_dly <= in_v_reg;
-	 in_reg_dly <= in_reg;
-      end
-   end
-
+   
    /*
     * Control logic for reading and writing to input buffer
     * and for generating the correct weight tile for the
@@ -131,8 +119,8 @@ module mvau (
      mvau_stream_inst(
 		      .rst_n,
 		      .clk,
-		      .in_v(in_v_reg_dly), // Input activation valid
-		      .in_act(in_reg_dly), // Input activation
+		      .in_v(in_v_reg), // Input activation valid
+		      .in_act(in_reg), // Input activation
 		      .in_wgt(wmem_out), // A tile of weights
 		      .out_v(out_stream_valid),
 		      .out(out_stream)
