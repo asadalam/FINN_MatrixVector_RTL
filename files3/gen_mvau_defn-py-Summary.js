@@ -1,0 +1,1 @@
+﻿NDFramePage.OnPageTitleLoaded("File3:gen_mvau_defn.py","gen_mvau_defn.py");NDSummary.OnSummaryLoaded("File3:gen_mvau_defn.py",[["Python","Python"]],[["Groups","Group"],["Module","Module"]],[[50,0,0,"Module","Module"],[51,0,1,"MVAU Parameter Generation file","MVAU_Parameter_Generation_file"]]);

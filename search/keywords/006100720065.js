@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("are",["Signal"],[["aresetn",,[[,,,,0,"File3:mvau_tb_v3.sv:aresetn"]]]]);
