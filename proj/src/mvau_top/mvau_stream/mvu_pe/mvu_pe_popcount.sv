@@ -15,8 +15,8 @@
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
  * Inputs:
- * clk - Main clock
- * rst_n - Synchronous and active low reset 
+ * aclk - Main clock
+ * aresetn - Synchronous and active low reset 
  * [TDstI-1:0] in_simd [0:SIMD-1] - Input from the SIMD unit, word length TDstI
  * 
  * Outputs:
@@ -24,12 +24,14 @@
  * */
 
 `timescale 1ns/1ns
-`include "../../mvau_defn.sv"
+//`include "../../mvau_defn.sv"
 
-module mvu_pe_popcount 
+module mvu_pe_popcount #(
+			 parameter int SIMD=2,
+			 parameter int TDstI=4)
   (
-   input 		    clk,
-   input 		    rst_n,
+   input 		    aclk,
+   input 		    aresetn,
    input logic [TDstI-1:0]  in_simd [0:SIMD-1],
    output logic [TDstI-1:0] out_add);
 
@@ -50,8 +52,8 @@ module mvu_pe_popcount
 
    // Always_FF: OUT_REG
    // Registered output
-   always_ff @(posedge clk) begin
-      if(!rst_n)
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
 	out_add <= 'd0;
       else
 	out_add <= out_add_int;

@@ -28,14 +28,13 @@
  * */
 
 `timescale 1ns/1ns
-`include "../../mvau_defn.sv"
+//`include "../../mvau_defn.sv"
 
-
-module mvu_pe_simd_binary 
+module mvu_pe_simd_binary #(
+			    parameter int TSrcI=4,
+			    parameter int TW=1,
+			    parameter int TDstI=4)
   ( 
-    input logic 	     rst_n,
-    input logic 	     clk,
-    input logic 	     do_mvau_stream,
     input logic [TSrcI-1:0]  in_act, //Input activation
     input logic [TW-1:0]     in_wgt, //Input weight
     output logic [TDstI-1:0] out); //Output   

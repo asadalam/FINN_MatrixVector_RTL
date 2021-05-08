@@ -13,8 +13,8 @@
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
  * Inputs:
- * rst_n                     - Active low, synchronous reset
- * clk                       - Main clock
+ * aresetn                     - Active low, synchronous reset
+ * aclk                       - Main clock
  * sf_clr                    - Control signal to reset the accumulator
  * do_mvau_stream   - Controls how long the MVAU operation continues
  *                    Case 1: NF=1 => do_mvau_stream = in_v (input buffer not reused)
@@ -29,17 +29,27 @@
 
  
 `timescale 1ns/1ns
-`include "../../mvau_defn.sv"
+//`include "../../mvau_defn.sv"
 
-module mvu_pe 
-  (input logic rst_n,
-   input logic 			  clk,
-   input logic 			  sf_clr,
-   input logic 			  do_mvau_stream,
-   input logic [TI-1:0] 	  in_act, // Input activation (packed array): TSrcI*PE
-   input logic [0:SIMD-1][TW-1:0] in_wgt , // Input weights (packed array): TW*SIMD
-   output logic 		  out_v, // Output valid
-   output logic [TDstI-1:0] 	  out); // Output
+module mvu_pe #(
+		parameter int SIMD=2,
+		parameter int PE=2,
+		parameter int TSrcI=4,
+		parameter int TSrcI_BIN=0,
+		parameter int TI=8,
+		parameter int TW=1,
+		parameter int TW_BIN=1,
+		parameter int TDstI=4,
+		parameter int TO=8)
+   
+   (input logic aresetn,
+    input logic 		   aclk,
+    input logic 		   sf_clr,
+    input logic 		   do_mvau_stream,
+    input logic [TI-1:0] 	   in_act, // Input activation (packed array): TSrcI*PE
+    input logic [0:SIMD-1][TW-1:0] in_wgt , // Input weights (packed array): TW*SIMD
+    output logic 		   out_v, // Output valid
+    output logic [TDstI-1:0] 	   out); // Output
    
    /*
     * Internal Signals/Wires
@@ -77,8 +87,8 @@ module mvu_pe
 
    // Always_FF: MVAU_STREAM_REG
    // Registering the do_mvau_stream signal
-   always_ff @(posedge clk) begin
-      if(!rst_n)
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
    	do_mvau_stream_reg <= 1'b0;
       else
    	do_mvau_stream_reg <= do_mvau_stream;
@@ -124,12 +134,15 @@ module mvu_pe
 		* **/
 	       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 		 begin: SIMD_GEN
-		    mvu_pe_simd_xnor 
-			      mvu_simd_inst(
-					    .in_act(in_act_packed[simd_ind]), 
-					    .in_wgt(in_wgt[simd_ind]),
-					    .out(out_simd[simd_ind])
-					    );
+		    mvu_pe_simd_xnor #(
+				       .TSrcI(TSrcI),
+				       .TW(TW),
+				       .TDstI(TDstI))
+		    mvu_simd_inst(
+				  .in_act(in_act_packed[simd_ind]), 
+				  .in_wgt(in_wgt[simd_ind]),
+				  .out(out_simd[simd_ind])
+				  );
 		 end // block: SIMD_GEN
 	    end // block: TW1_1	    
 	    else begin: TW_NBIN_1
@@ -145,12 +158,15 @@ module mvu_pe
 		* **/
 	       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 		 begin: SIMD_GEN
-		    mvu_pe_simd_binary 
-			      mvu_simd_inst(
-					    .in_act(in_act_packed[simd_ind]),
-					    .in_wgt(in_wgt[simd_ind]),
-					    .out(out_simd[simd_ind])
-					    );
+		    mvu_pe_simd_binary #(
+					 .TSrcI(TSrcI),
+					 .TW(TW),
+					 .TDstI(TDstI))
+		    mvu_simd_inst(
+				  .in_act(in_act_packed[simd_ind]),
+				  .in_wgt(in_wgt[simd_ind]),
+				  .out(out_simd[simd_ind])
+				  );
 		 end // block: SIMD_GEN
 	    end // block: TW_NBIN_1	    
 	 end // block: TW_BIN_1	 
@@ -167,12 +183,15 @@ module mvu_pe
 	     * **/
 	    for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	      begin: SIMD_GEN
-		 mvu_pe_simd_binary 
-			   mvu_simd_inst(
-					 .in_act(in_act_packed[simd_ind]),
-					 .in_wgt(in_wgt[simd_ind]),
-					 .out(out_simd[simd_ind])
-					 );
+		 mvu_pe_simd_binary #(
+				       .TSrcI(TSrcI),
+				       .TW(TW),
+				       .TDstI(TDstI))
+		 mvu_simd_inst(
+			       .in_act(in_act_packed[simd_ind]),
+			       .in_wgt(in_wgt[simd_ind]),
+			       .out(out_simd[simd_ind])
+			       );
 	      end // block: SIMD_GEN
 	 end // block: TW_NBIN_2	 
       end // block: TSrcI1_1      
@@ -191,12 +210,15 @@ module mvu_pe
 		* **/
 	       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 		 begin: SIMD_GEN
-		    mvu_pe_simd_binary 
-			      mvu_simd_inst(
-					    .in_act(in_act_packed[simd_ind]),
-					    .in_wgt(in_wgt[simd_ind]),
-					    .out(out_simd[simd_ind])
-					    );
+		    mvu_pe_simd_binary #(
+				       .TSrcI(TSrcI),
+				       .TW(TW),
+				       .TDstI(TDstI))
+		    mvu_simd_inst(
+				  .in_act(in_act_packed[simd_ind]),
+				  .in_wgt(in_wgt[simd_ind]),
+				  .out(out_simd[simd_ind])
+				  );
 		 end // block: SIMD_GEN
 	    end // block: TW1_2	    
 	    else begin: TSrcI_TW_NBIN_1
@@ -207,12 +229,15 @@ module mvu_pe
 		* **/
 	       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 		 begin: SIMD_GEN
-		    mvu_pe_simd_std 
-			      mvu_pe_simd_inst(
-					       .in_act(in_act_packed[simd_ind]),
-					       .in_wgt(in_wgt[simd_ind]),
-					       .out(out_simd[simd_ind])
-					       );
+		    mvu_pe_simd_std #(
+				      .TSrcI(TSrcI),
+				      .TW(TW),
+				      .TDstI(TDstI))
+		    mvu_pe_simd_inst(
+				     .in_act(in_act_packed[simd_ind]),
+				     .in_wgt(in_wgt[simd_ind]),
+				     .out(out_simd[simd_ind])
+				     );
 		 end // block: SIMD_GEN
 	    end // block: TSrcI_TW_NBIN_1	    
 	 end // block: TW_BIN_2	 
@@ -224,12 +249,15 @@ module mvu_pe
 	     * **/
 	    for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	      begin: SIMD_GEN
-		 mvu_pe_simd_std 
-			   mvu_pe_simd_inst(
-					    .in_act(in_act_packed[simd_ind]),
-					    .in_wgt(in_wgt[simd_ind]),
-					    .out(out_simd[simd_ind])
-					    );
+		 mvu_pe_simd_std #(
+				   .TSrcI(TSrcI),
+				   .TW(TW),
+				   .TDstI(TDstI))
+		 mvu_pe_simd_inst(
+				  .in_act(in_act_packed[simd_ind]),
+				  .in_wgt(in_wgt[simd_ind]),
+				  .out(out_simd[simd_ind])
+				  );
 	      end // block: SIMD_GEN
 	 end // block: TSrcI_TW_NBIN_2	 
       end // block: TSrcI_NBIN_1      
@@ -248,12 +276,15 @@ module mvu_pe
 	  * **/
 	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	   begin: SIMD_GEN
-	      mvu_pe_simd_binary 
-			mvu_simd_inst(
-				      .in_act(in_act_packed[simd_ind]),
-				      .in_wgt(in_wgt[simd_ind]),
-				      .out(out_simd[simd_ind])
-				      );
+	      mvu_pe_simd_binary #(
+				   .TSrcI(TSrcI),
+				   .TW(TW),
+				   .TDstI(TDstI))
+	      mvu_simd_inst(
+			    .in_act(in_act_packed[simd_ind]),
+			    .in_wgt(in_wgt[simd_ind]),
+			    .out(out_simd[simd_ind])
+			    );
 	   end // block: SIMD_GEN
       end // block: TW_1_3      
       else begin: TW_NBIN_3
@@ -264,12 +295,15 @@ module mvu_pe
 	  * **/
 	 for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	   begin: SIMD_GEN
-	      mvu_pe_simd_std 
-			mvu_pe_simd_inst(
-					 .in_act(in_act_packed[simd_ind]),
-					 .in_wgt(in_wgt[simd_ind]),
-					 .out(out_simd[simd_ind])
-					 );
+	      mvu_pe_simd_std #(
+				.TSrcI(TSrcI),
+				.TW(TW),
+				.TDstI(TDstI))
+	      mvu_pe_simd_inst(
+			       .in_act(in_act_packed[simd_ind]),
+			       .in_wgt(in_wgt[simd_ind]),
+			       .out(out_simd[simd_ind])
+			       );
 	   end // block: SIMD_GEN
       end // block: TW_NBIN_3
    end // block: TW_BIN_3      
@@ -281,12 +315,15 @@ module mvu_pe
        * **/
       for(simd_ind = 0; simd_ind < SIMD; simd_ind = simd_ind+1)
 	begin: SIMD_GEN
-	   mvu_pe_simd_std 
-		     mvu_pe_simd_inst(
-				      .in_act(in_act_packed[simd_ind]),
-				      .in_wgt(in_wgt[simd_ind]),
-				      .out(out_simd[simd_ind])
-				      );
+	   mvu_pe_simd_std #(
+			     .TSrcI(TSrcI),
+			     .TW(TW),
+			     .TDstI(TDstI))
+	   mvu_pe_simd_inst(
+			    .in_act(in_act_packed[simd_ind]),
+			    .in_wgt(in_wgt[simd_ind]),
+			    .out(out_simd[simd_ind])
+			    );
 	end // block: SIMD_GEN
    end // block: TSrcI_TW_NBIN_3
 
@@ -307,52 +344,58 @@ module mvu_pe
        * in the combined SIMD output
        * **/
       if(TW==1) begin: TW_1_Add // Popcount based addition
-	 mvu_pe_popcount
-	   mvu_pe_popcount_inst (
-				 .clk,
-				 .rst_n,
-				 .in_simd(out_simd),
-				 .out_add(out_add)
-				 );	
+	 mvu_pe_popcount #(
+			   .SIMD(SIMD),
+			   .TDstI(TDstI))
+	 mvu_pe_popcount_inst (
+			       .aclk,
+			       .aresetn,
+			       .in_simd(out_simd),
+			       .out_add(out_add)
+			       );	
       end // block: TDestI_1_Add
       else begin: All_Add // Normal addition
 	 /**
 	  * Case 2: Simple adder tree
 	  * **/
-	 mvu_pe_adders 
-	   mvu_pe_adders_ins (
-			      .clk,
-			      .rst_n,
-			      .in_simd(out_simd),
-			      .out_add(out_add)
-			      );
+	 mvu_pe_adders #(
+			 .SIMD(SIMD),
+			 .TDstI(TDstI))
+	 mvu_pe_adders_ins (
+			    .aclk,
+			    .aresetn,
+			    .in_simd(out_simd),
+			    .out_add(out_add)
+			    );
       end      
    end // block: TSrcI_1_Add
    else begin: All_Add // Normal addition
       /**
        * Case 2: Simple adder tree
        * **/
-      mvu_pe_adders 
-	mvu_pe_adders_ins (
-			   .clk,
-			   .rst_n,
-			   .in_simd(out_simd),
-			   .out_add(out_add)
-			   );
+      mvu_pe_adders #(
+		      .SIMD(SIMD),
+		      .TDstI(TDstI))
+      mvu_pe_adders_ins (
+			 .aclk,
+			 .aresetn,
+			 .in_simd(out_simd),
+			 .out_add(out_add)
+			 );
    end // block: All_Add
    
    /**
     * Accumulator
     * */
-   mvu_pe_acc 
-     mvu_pe_acc_inst (
-		      .rst_n,
-		      .clk,
-		      .do_mvau_stream(do_mvau_stream_reg),
-		      .sf_clr(sf_clr),
-		      .in_acc(out_add),
-		      .out_acc_v(out_v),
-		      .out_acc(out));
+   mvu_pe_acc #(.TDstI(TDstI))
+   mvu_pe_acc_inst (
+		    .aresetn,
+		    .aclk,
+		    .do_mvau_stream(do_mvau_stream_reg),
+		    .sf_clr(sf_clr),
+		    .in_acc(out_add),
+		    .out_acc_v(out_v),
+		    .out_acc(out));
    
 endmodule // mvu_pe
 

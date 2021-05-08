@@ -17,8 +17,8 @@
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  *  
  * Inputs:
- * clk         - Main clock
- * rst_n       - Synchronous and active low reset
+ * aclk         - Main clock
+ * aresetn       - Synchronous and active low reset
  * [TI-1:0] in - Input activation stream, word length TI=TSrcI*SIMD
  * 
  * Outputs:
@@ -33,14 +33,15 @@
  * */
 
 `timescale 1ns/1ns
-`include "../mvau_defn.sv"
+//`include "../mvau_defn.sv"
 
 module mvau_inp_buffer #(
+			 parameter int TI=4,
 			 parameter int BUF_LEN=16,
 			 parameter int BUF_ADDR=4)
    (    
-	input logic 		   clk,
-	input logic 		   rst_n,
+	input logic 		   aclk,
+	input logic 		   aresetn,
 	input logic [TI-1:0] 	   in, // Input stream
 	input logic 		   wr_en, // Write enable signal to write to buffer
 	input logic 		   rd_en, // Read enable signal to read from buffer
@@ -62,7 +63,7 @@ module mvau_inp_buffer #(
    
    // Always_FF: Write_Input_Buffer in write through mode
    // Sequential 'always' block to write to the input buffer
-   always_ff @(posedge clk) begin
+   always_ff @(posedge aclk) begin
       if (wr_en) begin
 	 inp_buffer[addr] <= in;
 	 out <= in;

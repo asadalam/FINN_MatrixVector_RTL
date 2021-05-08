@@ -20,8 +20,8 @@
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
  * Inputs:
- * rst_n            - Active low synchronous reset
- * clk              - Main clock
+ * aresetn            - Active low synchronous reset
+ * aclk              - Main clock
  * in_v             - Input activation stream valid 
  * 
  * Outputs:
@@ -40,7 +40,7 @@
  * */
 
 `timescale 1ns/1ns
-`include "../mvau_defn.sv"
+//`include "../mvau_defn.sv"
 
 module mvau_stream_control_block #(
 			    parameter int SF=8,
@@ -48,8 +48,8 @@ module mvau_stream_control_block #(
 			    parameter int SF_T=3
 			    )
    (
-    input logic 	    rst_n,
-    input logic 	    clk,
+    input logic 	    aresetn,
+    input logic 	    aclk,
     input logic 	    in_v, // input activation stream valid
     output logic 	    ib_wen, // Input buffer write enable
     output logic 	    ib_ren, // Input buffer read enable
@@ -94,8 +94,8 @@ module mvau_stream_control_block #(
 
 	 // Always_FF: NF_CLR
 	 // A one bit control signal to indicate when nf_cnt == NF	 
-	 always_ff @(posedge clk) begin
-	    if(!rst_n)
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
 	      nf_clr <= 1'b0;
 	    else if(nf_cnt==NF_T'(NF-1)) //assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
 	      nf_clr <= 1'b1;
@@ -117,8 +117,8 @@ module mvau_stream_control_block #(
 	 // input buffer so that it can be reused again
 	 // Similar to the variable nf in mvau.hpp
 	 // Only used when multiple output channels
-	 always_ff @(posedge clk) begin
-	    if(!rst_n)
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
 	      nf_cnt <= 'd0;
 	    else if(nf_clr & sf_clr)
 	      nf_cnt <= 'd0;
@@ -130,8 +130,8 @@ module mvau_stream_control_block #(
 
    // Always_FF: SF_CLR
    // A one bit control signal to indicate when sf_cnt == SF-1   
-   always_ff @(posedge clk) begin
-      if(!rst_n)
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
 	sf_clr <= 1'b0;
       else if(sf_cnt == SF_T'(SF-2)) //assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
 	sf_clr <= 1'b1;
@@ -144,8 +144,8 @@ module mvau_stream_control_block #(
    // which keeps track when the input buffer is full.
    // Only runs when do_mvau_stream is asserted
    // A counter similar to sf in mvau.hpp
-   always_ff @(posedge clk) begin
-      if(!rst_n)
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
 	sf_cnt <= 'd0;
       else if(do_mvau_stream) begin
 	 if(sf_clr)

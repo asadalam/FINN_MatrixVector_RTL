@@ -15,8 +15,8 @@
  * Marie Sklodowska-Curie grant agreement Grant No.754489. 
  * 
  * Inputs:
- * rst_n              - Active low synchronous reset
- * clk                - Main clock
+ * aresetn              - Active low synchronous reset
+ * aclk                - Main clock
  * sf_clr             - Control signal from the control block for resetting the accumulator
  * [TDstI-1:0] in_acc - Input to the accumulator from the adders, word length TDstI
  * 
@@ -26,11 +26,12 @@
  * */
 
 `timescale 1ns/1ns
-`include "../../mvau_defn.sv"
+//`include "../../mvau_defn.sv"
 
-module mvu_pe_acc 
-  ( input logic rst_n,
-    input logic 	     clk,
+module mvu_pe_acc #(
+		    parameter int TDstI=4)
+  ( input logic aresetn,
+    input logic 	     aclk,
     input logic 	     do_mvau_stream,
     input logic 	     sf_clr,
     input logic [TDstI-1:0]  in_acc, // Input from the adders/popcount
@@ -53,8 +54,8 @@ module mvu_pe_acc
    // of accumulation
    assign out_acc_v = sf_clr_dly[2];
 
-   always_ff @(posedge clk) begin
-      if(!rst_n)
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
 	do_mvau_stream_reg <= 1'b0;
       else
 	do_mvau_stream_reg <= do_mvau_stream;
@@ -63,8 +64,8 @@ module mvu_pe_acc
    // Always_FF: SF_CLR_DLY
    // Sequential 'always' block to delay sf_clr for two clock cycles
    // to match the two pipelines one after SIMD's and one after the adders
-   always_ff @(posedge clk) begin
-      if(!rst_n)
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
    	sf_clr_dly <= 'd0;
       else
    	sf_clr_dly <= {sf_clr_dly[1:0],sf_clr};
@@ -73,8 +74,8 @@ module mvu_pe_acc
    // Always_FF: Accumulator
    // Sequential 'always' block to perform accumulation
    // The accumulator is cleared the sf_clr_dly[1] is asserted
-   always_ff @(posedge clk) begin
-      if(!rst_n)
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
 	out_acc <= 'd0;
       else if(do_mvau_stream_reg) begin
 	 if(sf_clr_dly[2])
