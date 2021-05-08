@@ -40,16 +40,16 @@
 package mvau_defn;
    parameter VERSION = "0.1";
    parameter int KDim=4; // Kernel dimensions
-   parameter int IFMCh=32;// Input feature map channels
-   parameter int OFMCh=128;// Output feature map channels or the number of filter banks
-   parameter int IFMDim=32; // Input feature map dimensions
+   parameter int IFMCh=64;// Input feature map channels
+   parameter int OFMCh=32;// Output feature map channels or the number of filter banks
+   parameter int IFMDim=16; // Input feature map dimensions
    parameter int PAD=0;    // Padding around the input feature map
    parameter int STRIDE=1; // Number of pixels to move across when applying the filter
    parameter int OFMDim=(IFMDim-KDim+2*PAD)/STRIDE+1; // Output feature map dimensions
    parameter int MatrixW=KDim*KDim*IFMCh;   // Width of the input matrix
    parameter int MatrixH=OFMCh; // Heigth of the input matrix
-   parameter int SIMD=32; // Number of input columns computed in parallel
-   parameter int PE=32; // Number of output rows computed in parallel
+   parameter int SIMD=8; // Number of input columns computed in parallel
+   parameter int PE=8; // Number of output rows computed in parallel
    parameter int WMEM_DEPTH=(KDim*KDim*IFMCh*OFMCh)/(SIMD*PE); // Depth of each weight memory
    parameter int MMV=1; // Number of output pixels computed in parallel
    parameter int TSrcI=8; // DataType of the input activation (as used in the MAC)

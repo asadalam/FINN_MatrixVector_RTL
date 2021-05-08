@@ -18,8 +18,8 @@
  * WMEM_ADDR_BW - Word length of the address for the weight memories
  * 
  * Inputs:
- * rst_n                       - Active low synchronous reset
- * clk                         - Main clock
+ * aresetn                       - Active low synchronous reset
+ * aclk                         - Main clock
  * in_v                        - Input valid to indicate valid input stream
  * 
  * Outputs:
@@ -28,19 +28,18 @@
 
 
 `timescale 1ns/1ns
-`include "mvau_defn.sv"
-
+//`include "mvau_defn.sv"
 
 module mvau_control_block #(parameter int SF=8,
 			    parameter int NF=8,
+			    parameter int WMEM_DEPTH=4,
 			    parameter int WMEM_ADDR_BW=2			    
 			    )
    (
-    input logic 		    rst_n,
-    input logic 		    clk,
+    input logic 		    aresetn,
+    input logic 		    aclk,
     input logic 		    in_v,
     output logic [WMEM_ADDR_BW-1:0] wmem_addr // Address for the weight memory
-    //output logic [0:SIMD-1][TW-1:0] out_wgt[0:PE-1] // The output weight tile (not used any more)
     );
    
    /* 
@@ -55,11 +54,6 @@ module mvau_control_block #(parameter int SF=8,
     * word length of each element is TW bits. The height
     * of the tile is PE and width is SIMD
     * */
-   // always_comb begin
-   //    for(logic [MatrixH_BW-1:0] tile_row=0; tile_row < PE; tile_row++)
-   // 	for(logic [MatrixW_BW-1:0] tile_col=0; tile_col < SIMD; tile_col++)
-   // 	  out_wgt[tile_row][tile_col] = weights[nf_cnt*PE+tile_row][sf_cnt*SIMD+tile_col];
-   // end
    
    /*
     * Local Parameters
@@ -113,8 +107,8 @@ module mvau_control_block #(parameter int SF=8,
 
 	 // Always_FF: NF_CLR
 	 // A one bit control signal to indicate when nf_cnt == NF	 
-	 always_ff @(posedge clk) begin
-	    if(!rst_n)
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
 	      nf_clr <= 1'b0;
 	    else if(nf_cnt==NF_T'(NF-1)) //assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
 	      nf_clr <= 1'b1;
@@ -126,8 +120,8 @@ module mvau_control_block #(parameter int SF=8,
 	 // input buffer so that it can be reused again
 	 // Similar to the variable nf in mvau.hpp
 	 // Only used when multiple output channels
-	 always_ff @(posedge clk) begin
-	    if(!rst_n)
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
 	      nf_cnt <= 'd0;
 	    else if(nf_clr & sf_clr)
 	      nf_cnt <= 'd0;
@@ -137,8 +131,8 @@ module mvau_control_block #(parameter int SF=8,
 
 	 // ALWAYS_FF: SF_CLR
 	 // A one bit control signal to indicate when sf_cnt == SF-1   
-	 always_ff @(posedge clk) begin
-	    if(!rst_n)
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
 	      sf_clr <= 1'b0;
 	    else if(sf_cnt == SF_T'(SF-2)) //assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
 	      sf_clr <= 1'b1;
@@ -152,8 +146,8 @@ module mvau_control_block #(parameter int SF=8,
 	 // Only runs when do_mvau is asserted
 	 // A counter similar to sf in mvau.hpp
 	 // Only used when multiple output channels
-	 always_ff @(posedge clk) begin
-	    if(!rst_n)
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
 	      sf_cnt <= 'd0;
 	    else if(do_mvau) begin
 	       if(sf_clr)
@@ -168,8 +162,8 @@ module mvau_control_block #(parameter int SF=8,
    // Always_FF: WMEM_ADDR
    // Control Logic for generating address
    // for the weight memory
-   always_ff @(posedge clk) begin
-      if(!rst_n)
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
 	wmem_addr <= 'd0;
       else if(do_mvau) begin
 	 if(wmem_addr==WMEM_ADDR_BW'(WMEM_DEPTH-1))
