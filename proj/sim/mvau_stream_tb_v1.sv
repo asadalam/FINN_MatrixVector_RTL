@@ -25,7 +25,7 @@
 
 `timescale 1ns/1ns
 
-`include "../src/mvau_top/mvau_defn.sv" // compile the package file
+`include "mvau_defn.sv" // compile the package file
 
 module mvau_stream_tb_v1;
 
@@ -448,14 +448,39 @@ module mvau_stream_tb_v1;
    /*
     * DUT Instantiation
     * */
-   mvau_stream mvau_stream_inst(
-				.rst_n,
-				.clk,
-				.in_v,
-				.in_act,
-				.in_wgt,
-				.out_v,
-				.out);
+   mvau_stream #(
+		 .KDim        (KDim        ), 
+		 .IFMCh	   (IFMCh       ), 
+		 .OFMCh	   (OFMCh       ), 
+		 .IFMDim 	   (IFMDim      ), 
+		 .PAD    	   (PAD         ), 
+		 .STRIDE 	   (STRIDE      ), 
+		 .OFMDim	   (OFMDim      ), 
+		 .MatrixW	   (MatrixW     ), 
+		 .MatrixH	   (MatrixH     ), 
+		 .SIMD 	   (SIMD        ), 
+		 .PE 	   (PE          ), 
+		 .WMEM_DEPTH  (WMEM_DEPTH  ), 
+		 .MMV    	   (MMV         ), 
+		 .TSrcI 	   (TSrcI       ), 
+		 .TSrcI_BIN   (TSrcI_BIN   ),  
+		 .TI	   (TI          ), 
+		 .TW 	   (TW          ), 
+		 .TW_BIN  	   (TW_BIN      ), 
+		 .TDstI 	   (TDstI       ), 
+		 .TO	   (TO          ), 
+		 .TA 	   (TA          ), 
+		 .USE_DSP 	   (USE_DSP     ),
+		 .USE_ACT  (USE_ACT))
+		 )
+   mvau_stream_inst(
+		    .rst_n,
+		    .clk,
+		    .in_v,
+		    .in_act,
+		    .in_wgt,
+		    .out_v,
+		    .out);
    
 endmodule // mvau_stream_tb
 

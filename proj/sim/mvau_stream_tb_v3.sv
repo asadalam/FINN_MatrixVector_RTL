@@ -30,7 +30,7 @@
 
 `timescale 1ns/1ns
 
-`include "../src/mvau_top/mvau_defn.sv" // compile the package file
+`include "mvau_defn.sv" // compile the package file
 
 module mvau_stream_tb_v3;
 
@@ -52,58 +52,58 @@ module mvau_stream_tb_v3;
    logic 	 rst_n;
    // Signal: in_v
    // Input valid
-   logic 		     in_v;
+   logic 	 in_v;
    // Signal: weights
    // The weight matrix of dimensions (MatrixW/SIMD)*(MatrixH/PE) x MatrixH of word length TW x SIMD
    logic [PE-1:0][0:SIMD-1][TW-1:0] weights [0:MatrixH/PE-1][0:MatrixW/SIMD-1];
    // Signal: in_wgt
    // Input weight stream to DUT
    // Dimension: PE, word length: TW*SIMD
-   logic [0:SIMD*TW-1] in_wgt[0:PE-1];
+   logic [0:SIMD*TW-1] 		    in_wgt[0:PE-1];
    // Signal: in_wgt_um
    // Input weight stream extracting weights from weight matrix
    // Dimension: PExSIMD, word length: TW
-   logic [0:SIMD-1][TW-1:0] in_wgt_um[0:PE-1];   
+   logic [0:SIMD-1][TW-1:0] 	    in_wgt_um[0:PE-1];   
    // Signal: in_mat
    // Input activation matrix
    // Dimension: ACT_MatrixH x ACT_MatrixW, word length: TSrcI
-   logic [0:SIMD-1][TSrcI-1:0] in_mat [0:ACT_MatrixW-1][0:ACT_MatrixH/SIMD-1];
+   logic [0:SIMD-1][TSrcI-1:0] 	    in_mat [0:ACT_MatrixW-1][0:ACT_MatrixH/SIMD-1];
    // Signal: in_act
    // Input activation stream to DUT
    // Dimension: SIMD, word length: TSrcI
-   logic [0:SIMD-1][TSrcI-1:0] in_act;
+   logic [0:SIMD-1][TSrcI-1:0] 	    in_act;
    // Signal: mvau_beh
    // Output matrix holding output of behavioral simulation
    // Dimension: MatrixH x ACT_MatrixW
-   logic [TDstI-1:0]     mvau_beh [0:ACT_MatrixW-1][0:MatrixH-1];
+   logic [TDstI-1:0] 		    mvau_beh [0:ACT_MatrixW-1][0:MatrixH-1];
    // Signal: out_v
    // Output valid signal
-   logic 		    out_v;
+   logic 			    out_v;
    // Signal: out
    // Output from DUT, word length: TO = PExTDstI
-   logic [TO-1:0] 	    out;
+   logic [TO-1:0] 		    out;
    // Signal: out_packed
    // Output signal from DUT where each element is divided into multiple elements   
    // as DUT produces a packed output of size PE x TDstI.
    // Dimension: PE, word length: TDstI
-   logic [0:PE-1][TDstI-1:0] out_packed;
+   logic [0:PE-1][TDstI-1:0] 	    out_packed;
    // Signal: test_count
    // An integer to count for successful output matching
-   integer 		       test_count;
+   integer 			    test_count;
    // Signal: latency
    // An integer to count the total number of cycles taken to get all outputs
-   integer 		       latency;
+   integer 			    latency;
    // Signal: sim_start
    // A signal which indicates when simulation starts
-   logic 		       sim_start;
+   logic 			    sim_start;
    // Signal: do_comp
    // A signal which indicates the comparison is done, helps in debugging
-   logic 		       do_comp;      
+   logic 			    do_comp;      
    // Events for synchronizing the simulation
-   event 		       gen_inp;    // generate input activation matrix
-   event 		       gen_weights;// generate weight matrix
-   event 		       do_mvau_beh;// perform behavioral mvau
-   event 		       test_event; // to start testing
+   event 			    gen_inp;    // generate input activation matrix
+   event 			    gen_weights;// generate weight matrix
+   event 			    do_mvau_beh;// perform behavioral mvau
+   event 			    test_event; // to start testing
    
    
    //Generating Clock and Reset
@@ -156,7 +156,7 @@ module mvau_stream_tb_v3;
 	   end // for (int j = 0; j < MatrixH/PE; j++)
 	end // for (int i = 0; i < ACT_MatrixW; i++)
 	sim_start = 0;
-		
+	
 	#RAND_DLY;
 	if(test_count == TOTAL_OUTPUTS) begin
 	   integer f;
@@ -168,7 +168,7 @@ module mvau_stream_tb_v3;
 	   $stop;
 	end
 	else begin
-	  $display($time, " << Simulation complete, failed >>");
+	   $display($time, " << Simulation complete, failed >>");
 	   $stop;
 	end
      end // initial begin
@@ -184,7 +184,7 @@ module mvau_stream_tb_v3;
    // a memory file
    always @(gen_weights) begin: WGT_MAT_GEN
       $readmemh("inp_wgt.mem",weights);      
-     end
+   end
    
    // Always: INP_ACT_MAT_GEN
    // Always block for populating the input activation matrix
@@ -251,14 +251,38 @@ module mvau_stream_tb_v3;
    /*
     * DUT Instantiation
     * */
-   mvau_stream mvau_stream_inst(
-   				.rst_n,
-   				.clk,
-				.in_v,
-   				.in_act,
-   				.in_wgt,
-				.out_v,
-   				.out);
+   mvau_stream #(
+		 .KDim        (KDim        ), 
+		 .IFMCh	      (IFMCh       ), 
+		 .OFMCh	      (OFMCh       ), 
+		 .IFMDim      (IFMDim      ), 
+		 .PAD         (PAD         ), 
+		 .STRIDE      (STRIDE      ), 
+		 .OFMDim      (OFMDim      ), 
+		 .MatrixW     (MatrixW     ), 
+		 .MatrixH     (MatrixH     ), 
+		 .SIMD 	      (SIMD        ), 
+		 .PE 	      (PE          ), 
+		 .WMEM_DEPTH  (WMEM_DEPTH  ), 
+		 .MMV         (MMV         ), 
+		 .TSrcI       (TSrcI       ), 
+		 .TSrcI_BIN   (TSrcI_BIN   ),  
+		 .TI	      (TI          ), 
+		 .TW 	      (TW          ), 
+		 .TW_BIN      (TW_BIN      ), 
+		 .TDstI       (TDstI       ), 
+		 .TO	      (TO          ), 
+		 .TA 	      (TA          ), 
+		 .USE_DSP     (USE_DSP     ),
+		 .USE_ACT (USE_ACT))
+   mvau_stream_inst(
+   		    .rst_n,
+   		    .clk,
+		    .in_v,
+   		    .in_act,
+   		    .in_wgt,
+		    .out_v,
+   		    .out);
    
 endmodule // mvau_stream_tb
 

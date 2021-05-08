@@ -30,7 +30,7 @@
 
 `timescale 1ns/1ns
 
-`include "../src/mvau_top/mvau_defn.sv" // compile the package file
+`include "mvau_defn.sv" // compile the package file
 
 module mvau_tb_v3;
 
@@ -44,12 +44,18 @@ module mvau_tb_v3;
    parameter int TOTAL_OUTPUTS = MMV*MatrixH*ACT_MatrixW;
    
    // Signals Declarations
-   // Signal: clk
+   // Signal: aclk
    // Main clock
-   logic 	 clk;
-   // Signal: rst_n
+   logic 	 aclk;
+   // Signal: aresetn
    // Asynchronous active low reset
-   logic 	 rst_n;
+   logic 	 aresetn;
+   // Signal: rready
+   // Input signal to DUT indicating that successor logic is ready to consume data
+   logic 	 rready;
+   // Signal: wready
+   // Output signal from DUT indicating to the predecessor logic should start sending data
+   logic 	 wready;   
    // Signal: out_v
    // Output valid signal
    logic 	  out_v;
@@ -92,7 +98,7 @@ module mvau_tb_v3;
    event 		       gen_inp;    // generate input activation matrix
    event 		       gen_weights;// generate weight matrix
    event 		       do_mvau_beh;// perform behavioral mvau
-   event 		       test_event; // to start testing
+   //event 		       test_event; // to start testing
    
    // Initial: CLK_RST_GEN
    // Initialization of Clock and Reset and performing validation
@@ -100,8 +106,8 @@ module mvau_tb_v3;
    initial
      begin
 	$display($time, " << Starting Simulation >>");	
-	clk 		      = 0;
-	rst_n 		      = 0;
+	aclk 		      = 0;
+	aresetn 		      = 0;
 	sim_start = 0;
 	test_count = 0;
 
@@ -110,10 +116,11 @@ module mvau_tb_v3;
 	#1 		      -> gen_weights; // To generate coefficients
 	#1 		      -> do_mvau_beh; // To perform behavioral matrix vector convolution
 
-	#(INIT_DLY-CLK_PER/2) -> test_event; // Test event to start generating input
-	#(CLK_PER/2);
+	#(INIT_DLY);//-CLK_PER/2) -> test_event; // Test event to start generating input
+	//#(CLK_PER/2);
 	
-	rst_n 		      = 1; // Coming out of reset
+	aresetn 		      = 1; // Coming out of reset
+	rready = 1; // Fixing rready to '1' as this is just test bench
 	sim_start = 1; // Simulation starts
 	do_comp = 0;
 	
@@ -121,13 +128,13 @@ module mvau_tb_v3;
 	$display($time, " << Starting simulation with System Verilog based data >>");
 
 	// Checking DUT output with golden output generated in the test bench
-	#(CLK_PER*5) // Delaying to synchronize the DUT output
+	#(CLK_PER*8) // Delaying to synchronize the DUT output
 	for(int m = 0; m < MMV; m++) begin
 	   for(int i = 0; i < ACT_MatrixW; i++) begin
 	      for(int j = 0; j < MatrixH/PE; j++) begin
 		 #(CLK_PER*MatrixW/SIMD)
 		 do_comp = 1; // Indicating when actual comparison is done, helps in debugging		 
-		 @(posedge clk) begin: DUT_BEH_MATCH
+		 @(posedge aclk) begin: DUT_BEH_MATCH
 		    if(out_v) begin		    
 		       out_packed = out;
 		       for(int k = 0; k < PE; k++) begin
@@ -173,7 +180,7 @@ module mvau_tb_v3;
    // Always: CLK_GEN
    // Generating clock using the CLK_PER as clock period
    always
-     #(CLK_PER/2) clk = ~clk;
+     #(CLK_PER/2) aclk = ~aclk;
    
    // Always: INP_MAT_GEN
    // Always block for populating the input activation matrix
@@ -194,9 +201,9 @@ module mvau_tb_v3;
    // Always_FF: CALC_LATENCY
    // Always block for calculating the total run time
    // of simulation in terms of clock cycles
-   always_ff @(posedge clk)
+   always_ff @(posedge aclk)
      begin
-	if(!rst_n)
+	if(!aresetn)
 	  latency <= 'd0;
 	else if(sim_start == 1'b1)
 	  latency <= latency+1'b1;
@@ -205,34 +212,64 @@ module mvau_tb_v3;
    /*
     * Generating data from DUT
     * */
-   always @(test_event)   
+   always @(posedge aclk)//(test_event)   
      begin
-	for(int m = 0; m < MMV; m++) begin
-	   for(int i = 0; i < ACT_MatrixW; i++) begin
-	      for(int j = 0; j < ACT_MatrixH/SIMD; j++) begin
-		 #(CLK_PER/2);
-		 in_v = 1'b1;
-		 for(int k = 0; k < SIMD; k++) begin
-		    in[k] = in_mat[m][i][j][k];
+	if(wready) begin
+	   #1;	   
+	   for(int m = 0; m < MMV; m++) begin
+	      for(int i = 0; i < ACT_MatrixW; i++) begin
+		 for(int j = 0; j < ACT_MatrixH/SIMD; j++) begin
+		    #(CLK_PER/2);
+		    in_v = wready;//1'b1;
+		    for(int k = 0; k < SIMD; k++) begin
+		       in[k] = in_mat[m][i][j][k];
+		    end
+		    //$display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in);
+		    #(CLK_PER/2);	   
 		 end
-		 //$display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in);
-		 #(CLK_PER/2);	   
-	      end
-	      in_v = 1'b0;
-	      #(CLK_PER*((MatrixW/SIMD)*(MatrixH/PE-1)));
-	   end // for (int i = 0; i < ACT_MatrixW; i++)
-	end
-     end
+		 in_v = 1'b0;
+		 #(CLK_PER*((MatrixW/SIMD)*(MatrixH/PE-1)));
+	      end // for (int i = 0; i < ACT_MatrixW; i++)
+	   end // for (int m = 0; m < MMV; m++)
+	end // if (wready)	
+     end // always @ (posedge aclk)   
 
    /*
     * DUT Instantiation
     * */
-   mvau mvau_inst(
-		  .rst_n,
-		  .clk,
-		  .in_v,				
-		  .in,
-		  .out_v,
-		  .out);
+   mvau_top #(
+	      .KDim        (KDim        ), 
+	      .IFMCh	   (IFMCh       ), 
+	      .OFMCh	   (OFMCh       ), 
+	      .IFMDim 	   (IFMDim      ), 
+	      .PAD    	   (PAD         ), 
+	      .STRIDE 	   (STRIDE      ), 
+	      .OFMDim	   (OFMDim      ), 
+	      .MatrixW	   (MatrixW     ), 
+	      .MatrixH	   (MatrixH     ), 
+	      .SIMD 	   (SIMD        ), 
+	      .PE 	   (PE          ), 
+	      .WMEM_DEPTH  (WMEM_DEPTH  ), 
+	      .MMV    	   (MMV         ), 
+	      .TSrcI 	   (TSrcI       ), 
+	      .TSrcI_BIN   (TSrcI_BIN   ),  
+	      .TI	   (TI          ), 
+	      .TW 	   (TW          ), 
+	      .TW_BIN  	   (TW_BIN      ), 
+	      .TDstI 	   (TDstI       ), 
+	      .TO	   (TO          ), 
+	      .TA 	   (TA          ), 
+	      .USE_DSP 	   (USE_DSP     ), 
+	      .INST_WMEM   (INST_WMEM   ), 
+	      .USE_ACT	   (USE_ACT     ))	      
+	      mvau_inst(
+		      .aresetn,
+		      .aclk,
+		      .rready,
+		      .wready,
+		      .in_v,				
+		      .in,
+		      .out_v,
+		      .out);
    
 endmodule // mvau_tb
