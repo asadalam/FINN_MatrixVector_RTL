@@ -29,7 +29,7 @@
 
 `timescale 1ns/1ns
 
-`include "../src/mvau_top/mvau_defn.sv" // compile the package file
+`include "mvau_defn.sv" // compile the package file
 
 module mvau_tb_v2;
 

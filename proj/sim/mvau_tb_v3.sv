@@ -262,14 +262,15 @@ module mvau_tb_v3;
 	      .USE_DSP 	   (USE_DSP     ), 
 	      .INST_WMEM   (INST_WMEM   ), 
 	      .USE_ACT	   (USE_ACT     ))	      
-	      mvau_inst(
-		      .aresetn,
-		      .aclk,
-		      .rready,
-		      .wready,
-		      .in_v,				
-		      .in,
-		      .out_v,
-		      .out);
+   mvau_inst(
+	     .aresetn(aresetn),
+	     .aclk(aclk),
+	     .s0_axis_tready(rready),
+	     .m0_axis_tready(wready),
+	     .m0_axis_tvalid(in_v),				
+	     .m0_axis_tdata(in),
+	     .s0_axis_tvalid(out_v),
+	     .s0_axis_tdata(out)
+	     );
    
 endmodule // mvau_tb
