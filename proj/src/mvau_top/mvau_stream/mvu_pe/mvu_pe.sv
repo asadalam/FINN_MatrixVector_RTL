@@ -335,15 +335,17 @@ module mvu_pe #(
     * length of the activations and weights
     * 
     * Case 1: 1-bit input activation and 1-bit weight
-    * Case 2: All of case 2 to 3 for implementing SIMDs
+    * Case 2: 1-bit input activation
+    * Case 3: 1-bit weight
+    * Case 4: All of case 2 to 3 for implementing SIMDs
     * *********************************/   
-   if(TSrcI==1) begin: TSrcI_1_Add
-      /** 
-       * Case 1: 1-bit input activation and 1-bit weight
-       * Addition reduced to popcount: Count the number of 1's
-       * in the combined SIMD output
-       * **/
-      if(TW==1) begin: TW_1_Add // Popcount based addition
+   if(TSrcI==1) begin: TSrcI_1_Add0
+      if(TW==1) begin: TW_1_Add0 // Popcount based addition
+	 /** 
+	  * Case 1: 1-bit input activation and 1-bit weight
+	  * Addition reduced to popcount: Count the number of 1's
+	  * in the combined SIMD output
+	  * **/	 
 	 mvu_pe_popcount #(
 			   .SIMD(SIMD),
 			   .TDstI(TDstI))
@@ -352,23 +354,57 @@ module mvu_pe #(
 			       .aresetn,
 			       .in_simd(out_simd),
 			       .out_add(out_add)
-			       );	
-      end // block: TDestI_1_Add
-      else begin: All_Add // Normal addition
+			       );
+	 
+      end // block: TW_1_Add0      
+      else begin: Bin_Add0 // Binary Addition which takes care of adding a carry in
 	 /**
-	  * Case 2: Simple adder tree
+	  * Case 2: Binary input activations
 	  * **/
 	 mvu_pe_adders #(
 			 .SIMD(SIMD),
 			 .TDstI(TDstI))
+	 mvu_pe_adders_ins (
+			       .aclk,
+			       .aresetn,
+			       .in_simd(out_simd),
+			       .out_add(out_add)
+			    );
+      end // block: Bin_Add0      
+   end // block: TSrcI_1_Add0   
+   else if(TW==1) begin: TW_1_Add1
+      if(TSrcI==1) begin: TSrcI_1_Add1
+	 /** 
+	  * Case 1: 1-bit input activation and 1-bit weight
+	  * Addition reduced to popcount: Count the number of 1's
+	  * in the combined SIMD output
+	  * **/	 
+	 mvu_pe_popcount #(
+			   .SIMD(SIMD),
+			   .TDstI(TDstI))
+	 mvu_pe_popcount_inst (
+			       .aclk,
+			       .aresetn,
+			       .in_simd(out_simd),
+			       .out_add(out_add)
+			       );
+      end // block: TSrcI_1_Add1
+      else begin: Bin_Add1
+	 /**
+	  * Case 2: Binary weights
+	  * **/
+	 mvu_pe_adders #(
+			    .SIMD(SIMD),
+			    .TDstI(TDstI))
 	 mvu_pe_adders_ins (
 			    .aclk,
 			    .aresetn,
 			    .in_simd(out_simd),
 			    .out_add(out_add)
 			    );
-      end      
-   end // block: TSrcI_1_Add
+	 
+      end // block: Bin_Add1
+   end // block: TW_1_Add1   
    else begin: All_Add // Normal addition
       /**
        * Case 2: Simple adder tree

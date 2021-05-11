@@ -39,6 +39,9 @@ module mvu_pe_simd_binary #(
     input logic [TW-1:0]     in_wgt, //Input weight
     output logic [TDstI-1:0] out); //Output   
 
+   logic [TW-1:0] 	     in_wgt_int;
+   assign in_wgt_int = ~in_wgt;
+   
    /***************************************
     * SIMD only performs multiplication
     * ************************************/
@@ -48,6 +51,8 @@ module mvu_pe_simd_binary #(
 	 // SIMD when one of the inputs is '1' bit
 	 always_comb
 	   out = in_wgt==1'b1 ? in_act : ~in_act+1'b1;
+	   //out = { {TDstI-TSrcI{in_wgt_int[TW-1]}}, { {TSrcI-1{in_wgt_int[TW-1]}}, in_wgt_int } ^ in_act};
+//{ {TDstI-TSrcI{in_act[TSrcI-1]}}, in_act};//
 	 // end
       end
    endgenerate
@@ -55,8 +60,9 @@ module mvu_pe_simd_binary #(
    
    generate
       if(TSrcI==1) begin: ACT_1 // if activation is 1-bit
-	 always_comb 
-	   out = in_act==1'b1 ? in_wgt : ~in_wgt+1'b1;
+	 always_comb
+	   out = in_act==1'b1 ? in_wgt : ~in_wgt+1'b1;	 
+	   //out = { {TW-1{in_act[TSrcI-1]}}, in_act } ^ in_wgt;//
       end
    endgenerate
    
