@@ -92,15 +92,9 @@ module mvau #(
    // Signal: in_v_reg
    // Input valid synchronized to clock
    logic  			       in_v_reg;
-   // Signal: in_v_reg_dly
-   // Input valid delayed for one more clock cycle
-   logic 			       in_v_reg_dly;
    // Signal: in_reg
    // Input activation stream synchronized to clock
    logic [TI-1:0] 		       in_reg;
-   // Signal: in_reg_dly
-   // Input activation stream delayed by one clock cycle to synchronize with weight stream
-   logic [TI-1:0] 		       in_reg_dly;
    // Signal: wmem_addr
    // This signal holds the address of the weight memory
    logic [WMEM_ADDR_BW-1:0] 	       wmem_addr;
