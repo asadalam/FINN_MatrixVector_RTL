@@ -29,6 +29,7 @@ file mkdir $outputDir
 #
 # STEP#4: setup design sources and constraints
 #
+read_verilog [ glob ../src/mvau_top/mvau_top.v ]
 read_verilog -sv [ glob ../src/mvau_top/*.sv ]
 read_verilog -sv [ glob ../src/mvau_top/mvau_stream/*.sv ]
 read_verilog -sv [ glob ../src/mvau_top/mvau_stream/mvu_pe/*.sv ]
@@ -40,7 +41,7 @@ read_xdc -mode out_of_context ./mvau.xdc
 #
 # STEP#5: Run Synthesis
 #
-synth_design -top mvau -part xczu3eg-sbva484-1-i -mode out_of_context -retiming
+synth_design -top mvau_top -part xczu3eg-sbva484-1-i -mode out_of_context -retiming
 write_checkpoint -force $outputDir/post_synth.dcp
 
 
@@ -72,8 +73,8 @@ close $outfile
 
 # STEP#4: Creating a timing simulation netlist
 open_checkpoint $outputDir/post_opt.dcp
-write_verilog -mode timesim -sdf_anno true -force ../sim/mvau_timesim.sv
+write_verilog -mode timesim -sdf_anno true -force ../sim/mvau_top_timesim.sv
  
 # Generating SDF delay file
-write_sdf -force ../sim/mvau_timesim.sdf
+write_sdf -force ../sim/mvau_top_timesim.sdf
 
