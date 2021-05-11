@@ -35,8 +35,10 @@ def gen_mvau_files(pe):
     mvau_files.write("sv work ../src/mvau_top/mvau_stream/mvu_pe/mvu_pe_simd_binary.sv\n")
     mvau_files.write("sv work ../src/mvau_top/mvau_stream/mvu_pe/mvu_pe_simd_xnor.sv\n")
     mvau_files.write("sv work ../src/mvau_top/mvau_stream/mvu_pe/mvu_pe_adders.sv\n")
+    #mvau_files.write("sv work ../src/mvau_top/mvau_stream/mvu_pe/mvu_pe_binadders.sv\n")    
     mvau_files.write("sv work ../src/mvau_top/mvau_stream/mvu_pe/mvu_pe_popcount.sv\n")
     mvau_files.write("sv work ../src/mvau_top/mvau_stream/mvu_pe/mvu_pe_acc.sv\n")
+    #mvau_files.write("sv work ../src/mvau_top/mvau_stream/mvu_pe/mvu_pe_binacc.sv\n")
 
     mvau_files.close()
 
