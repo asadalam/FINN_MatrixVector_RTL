@@ -223,6 +223,7 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
     config_set = 0
     config_dict = dict()
     rpt_dict = dict()
+    success = 0 ### A non-zero value indicates at least one run is successful
 
     ### Handling Ctrl+C gracefully
     signal(SIGINT, MyHandler(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file))                    
@@ -265,6 +266,8 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                                              cwd = finn_tb)
                         if(sp!=1):
                             print("HLS XNOR Test Failed")
+                            if(success==1):
+                                write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
                             sys.exit(1)
                         ### Calling the RTL test script
                         sp = subprocess.call(['./test_mvau_xnor_rtl.sh',
@@ -274,7 +277,10 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                                              cwd = mvau_tb)                                            
                         if(sp!=1):
                             print("RTL XNOR Test Failed")
+                            if(success==1):
+                                write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
                             sys.exit(1)
+                        success = 1 ### Run successfull
                         ### Extracting results    
                         rpt_dict_key = "Config set: "+str(config_set)+" (XNOR)"
                         rpt_lst = extract_data('mvau_xnor','mvau',
@@ -290,6 +296,8 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                                              cwd = finn_tb)
                         if(sp!=1):
                             print("HLS Binary Weight Test Failed")
+                            if(success==1):
+                                write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
                             sys.exit(1)
                         ### Calling the RTL test script
                         sp = subprocess.call(['./test_mvau_binwgt_rtl.sh',
@@ -299,7 +307,10 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                                              cwd = mvau_tb)
                         if(sp!=1):
                             print("RTL Binary Weight Test Failed")
+                            if(success==1):
+                                write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
                             sys.exit(1)
+                        success = 1 ### Run successfull
                         ### Extracting results
                         rpt_dict_key = "Config set: "+str(config_set)+" (BIN WGT)"
                         rpt_lst = extract_data('mvau_binwgt','mvau',
@@ -308,9 +319,6 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                     else:
                         print(f'### SIMD: Standard')
                         print("#######################################")
-                        ### Preparing a dict to write to a file with config details
-                        config_dict_key = str(config_set)
-                        config_dict[config_dict_key] = [ifm_ch, ifm_dim, ofm_ch, kdim, inp_wl, wgt_wl, out_wl, s, p]
                         ### Calling the HLS test script
                         sp = subprocess.call(['./test_mvau_std.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
@@ -318,6 +326,8 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                                              cwd = finn_tb)
                         if(sp!=1):
                             print("HLS Standard Test Failed")
+                            if(success==1):
+                                write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
                             sys.exit(1)
                         ### Calling the RTL test script
                         sp = subprocess.call(['./test_mvau_std_rtl.sh',
@@ -327,7 +337,10 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                                              cwd = mvau_tb)
                         if(sp!=1):
                             print("RTL Standard Test Failed")
+                            if(success==1):
+                                write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
                             sys.exit(1)
+                        success = 1 ### Run successfull
                         ### Extracting results
                         rpt_dict_key = "Config set: "+str(config_set)+" (STD)"
                         rpt_lst = extract_data('mvau_std','mvau',
@@ -349,14 +362,14 @@ def parser():
 if __name__ == '__main__':
 
     kdim_arr    = np.array([4])#np.arange(4,5))#7))
-    ifm_ch_arr  = np.array([16])#,4,6,10,12,16,18,20])
-    ofm_ch_arr  = np.array([16])#,6,8,10,12,14,16,20])
-    ifm_dim_arr = np.array([8])#,8,12,16,20,24,28,32])
-    inp_wl_arr  = np.array([1,4,8])#1,4,8,12])
-    wgt_wl_arr  = np.array([1,1,8])#,2,4,8])
+    ifm_ch_arr  = np.array([32])#,4,6,10,12,16,18,20])
+    ofm_ch_arr  = np.array([32])#,6,8,10,12,14,16,20])
+    ifm_dim_arr = np.array([16])#,8,12,16,20,24,28,32])
+    inp_wl_arr  = np.array([4])#1,4,8,12])
+    wgt_wl_arr  = np.array([4])#,2,4,8])
 
-    simd = np.array([4])#np.arange(64,65))#10))
-    pe = np.array([4])#np.arange(64,65))#10))
+    simd = np.array([8])#np.arange(64,65))#10))
+    pe = np.array([8])#np.arange(64,65))#10))
     
     args = parser().parse_args()
     out_file = args.out_file    
