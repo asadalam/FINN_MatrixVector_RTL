@@ -20,7 +20,7 @@ file mkdir $outputDir
 #
 # STEP#3: setup design sources and constraints
 #
-read_verilog -sv [ glob ../src/mvau_top/mvau_defn.sv ]
+read_verilog [ glob ../src/mvau_top/mvau_stream/mvau_stream_top.v ]
 read_verilog -sv [ glob ../src/mvau_top/mvau_stream/*.sv ]
 read_verilog -sv [ glob ../src/mvau_top/mvau_stream/mvu_pe/*.sv ]
 
@@ -65,5 +65,5 @@ close $outfile
 # write_verilog -mode timesim -sdf_anno true -force mvau_stream_timesim.sv
   
 # Generating SDF delay file
-# write_sdf -force mvau_stream_timesim.sdf
+write_sdf -force ../sim/mvau_stream_timesim.sdf
 
