@@ -471,7 +471,7 @@ module mvau_stream_tb_v1;
 		 .TO	   (TO          ), 
 		 .TA 	   (TA          ), 
 		 .USE_DSP 	   (USE_DSP     ),
-		 .USE_ACT  (USE_ACT))
+		 .USE_ACT  (USE_ACT)
 		 )
    mvau_stream_inst(
 		    .rst_n,

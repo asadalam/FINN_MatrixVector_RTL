@@ -44,30 +44,42 @@ module mvau_stream_tb_v3;
    parameter int TOTAL_OUTPUTS = MatrixH*ACT_MatrixW;
    
    // Signals Declarations
-   // Signal: clk
+   // Signal: aclk
    // Main clock
-   logic 	 clk;
-   // Signal: rst_n
+   logic 	 aclk;
+   // Signal: aresetn
    // Asynchronous active low reset
-   logic 	 rst_n;
+   logic 	 aresetn;
+   // Signal: rready
+   // Input signal to DUT indicating that successor logic is ready to consume data
+   logic 	 rready;
+   // Signal: wready
+   // Output signal from DUT indicating to the predecessor logic should start sending data
+   logic 	 wready;  
+   // Signal: wmem_wready
+   // Output signal from DUT indicating to the predecessor weight stream logic should start sending weights
+   logic 	 wmem_wready;   
    // Signal: in_v
    // Input valid
    logic 	 in_v;
+   // Signal: in_wgt_v
+   // Weight stream valid signal
+   logic 	 in_wgt_v;   
    // Signal: weights
    // The weight matrix of dimensions (MatrixW/SIMD)*(MatrixH/PE) x MatrixH of word length TW x SIMD
    logic [PE-1:0][0:SIMD-1][TW-1:0] weights [0:MatrixH/PE-1][0:MatrixW/SIMD-1];
-   // Signal: in_wgt
-   // Input weight stream to DUT
-   // Dimension: PE, word length: TW*SIMD
-   logic [0:SIMD*TW-1] 		    in_wgt[0:PE-1];
+   // Signal: in_wgt_packed
+   // Input weight stream packed
+   // Dimension: PE*TW*SIMD
+   logic [0:PE*SIMD*TW-1] 	    in_wgt_packed;   
    // Signal: in_wgt_um
    // Input weight stream extracting weights from weight matrix
-   // Dimension: PExSIMD, word length: TW
+   // Dimension: PE, word length: TW*SIMD
    logic [0:SIMD-1][TW-1:0] 	    in_wgt_um[0:PE-1];   
    // Signal: in_mat
    // Input activation matrix
    // Dimension: ACT_MatrixH x ACT_MatrixW, word length: TSrcI
-   logic [0:SIMD-1][TSrcI-1:0] 	    in_mat [0:ACT_MatrixW-1][0:ACT_MatrixH/SIMD-1];
+   logic [0:SIMD-1][TSrcI-1:0] 	    in_mat [0:MMV-1][0:ACT_MatrixW-1][0:ACT_MatrixH/SIMD-1];
    // Signal: in_act
    // Input activation stream to DUT
    // Dimension: SIMD, word length: TSrcI
@@ -103,15 +115,13 @@ module mvau_stream_tb_v3;
    event 			    gen_inp;    // generate input activation matrix
    event 			    gen_weights;// generate weight matrix
    event 			    do_mvau_beh;// perform behavioral mvau
-   event 			    test_event; // to start testing
-   
-   
+   //    
    //Generating Clock and Reset
    initial
      begin
 	$display($time, " << Starting Simulation >>");	
-	clk 		      = 0;
-	rst_n 		      = 0;
+	aclk 		      = 0;	
+	aresetn 	= 0;
 	sim_start = 0;
 	test_count 	      = 0;
 	
@@ -120,10 +130,11 @@ module mvau_stream_tb_v3;
 	#1 		      -> gen_weights; // To generate coefficients
 	#1 		      -> do_mvau_beh; // To perform behavioral matrix vector convolution
 
-	#(INIT_DLY-CLK_PER/2) -> test_event; // Test event to start generating input
-	#(CLK_PER/2);
+	#(INIT_DLY);//-CLK_PER/2) -> test_event; // Test event to start generating input
+	//#(CLK_PER/2);
 
-	rst_n 		      = 1; // Coming out of reset
+	aresetn 		      = 1; // Coming out of reset
+	//rready = 1; // Fixing rready to '1' as this is just test bench
 	sim_start = 1;
 	do_comp = 0;	
 	$display($time, " << Coming out of reset >>");
@@ -134,8 +145,8 @@ module mvau_stream_tb_v3;
 	for(int i = 0; i < ACT_MatrixW; i++) begin
 	   for(int j = 0; j < MatrixH/PE; j++) begin
 	      #(CLK_PER*MatrixW/SIMD);
-	      do_comp = 0;	      
-	      @(posedge clk) begin: TEST_DATA
+	      do_comp = 1;	      
+	      @(posedge aclk) begin: TEST_DATA
 		 if(out_v) begin		    
 		    out_packed = out;
 		    for(int k = 0; k < PE; k++) begin
@@ -177,7 +188,7 @@ module mvau_stream_tb_v3;
    // Always: CLK_GEN
    // Generating clock using the CLK_PER as clock period
    always
-     #(CLK_PER/2) clk = ~clk;
+     #(CLK_PER/2) aclk = ~aclk;
 
    // Always: WGT_MAT_GEN
    // Always block for populating the weight matrix from
@@ -205,84 +216,199 @@ module mvau_stream_tb_v3;
    // Always_FF: CALC_LATENCY
    // Always block for calculating the total run time
    // of simulation in terms of clock cycles
-   always_ff @(posedge clk)
+   always_ff @(posedge aclk)
      begin
-	if(!rst_n)
+	if(!aresetn)
 	  latency <= 'd0;
 	else if(sim_start == 1'b1)
 	  latency <= latency+1'b1;
      end      
    
+   // Always_Comb: Input Ready
+   always @(out_v)
+     rready = out_v;
+
    /*
-    * Generating data from DUT
+    * Generating data for DUT
     * */
-   always @(test_event)   
-     begin
-	for(int i = 0; i < ACT_MatrixW; i++) begin
-	   for(int j = 0; j < ACT_MatrixH/SIMD; j++) begin
-	      #(CLK_PER/2);
-	      in_v = 1'b1;
-	      for(int k = 0; k < SIMD; k++) begin
-		 in_act[k] = in_mat[i][j][k];//[j*SIMD+k][i];		 
-	      end
-	      //$display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in_act);
-	      #(CLK_PER/2);	   
-	   end
-	   in_v = 1'b0;
-	   #(CLK_PER*((MatrixW/SIMD)*(MatrixH/PE-1)));
-	end
-     end // always @ (test_event)
-   always @(test_event)
-     begin
-	for(int x = 0; x < ACT_MatrixW; x++) begin
-	   for(int i = 0; i < MatrixH/PE; i++) begin
-	      for(int j = 0; j < MatrixW/SIMD; j++) begin
-		 #(CLK_PER/2);
-		 for(int k = PE-1; k >= 0; k--) begin
-		    in_wgt_um[k] = weights[i][j][k];
-		 end		 
-		 #(CLK_PER/2);
-	      end
-	   end // for (int i = 0; i < MatrixH/PE; i++)
-	end // for (int x = 0; x < ACT_MatrixW; x++)
-     end // always @ (test_event)
-   assign in_wgt = in_wgt_um;
+   
+   int m_inp, i_inp, j_inp;
+   
+   always @(posedge aclk) begin
+      if(!aresetn) begin
+	 m_inp <= 0;
+	 i_inp <= 0;
+	 j_inp <= 0;
+	 //in_v_init <= 1'd0;	 
+      end
+      else if(wready) begin
+	 if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1) begin
+	    m_inp <= MMV-1;
+	    i_inp <= ACT_MatrixW-1;
+	    j_inp <= ACT_MatrixH/SIMD-1;
+	    //in_v_init <= 1'd0;	    
+	 end
+	 else if(i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1) begin
+	    i_inp <= 0;
+	    j_inp <= 0;
+	    m_inp <= m_inp+1;
+	 end
+	 else if(j_inp == ACT_MatrixH/SIMD-1) begin
+	    j_inp <= 0;
+	    i_inp <= i_inp+1;
+	 end
+	 else
+	   j_inp <= j_inp +1;	 
+      end // if (wready)
+      // else begin
+      // 	 in_v_init <= 1'd1;
+      // end // else: !if(wready)        
+   end // always @ (posedge clk)
+
+   always @(aresetn, m_inp, i_inp, j_inp) begin
+      for(int k = 0; k < SIMD; k++) begin
+	 in_act[k] = in_mat[m_inp][i_inp][j_inp][k];
+      end
+   end
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
+	in_v <= 1'b0;
+      else if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1)
+	in_v <= 1'b0;
+      else
+	in_v <= 1'b1;
+   end
+
+   // always @(posedge aclk)   
+   //   begin
+   // 	if(wready) begin
+   // 	   #1;
+   // 	   for(int i = 0; i < ACT_MatrixW; i++) begin
+   // 	      for(int j = 0; j < ACT_MatrixH/SIMD; j++) begin
+   // 		 #(CLK_PER/2);
+   // 		 in_v = 1'b1;
+   // 		 for(int k = 0; k < SIMD; k++) begin
+   // 		    in_act[k] = in_mat[i][j][k];//[j*SIMD+k][i];		 
+   // 		 end
+   // 		 //$display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in_act);
+   // 		 #(CLK_PER/2);	   
+   // 	      end
+   // 	      in_v = 1'b0;
+   // 	      #(CLK_PER*((MatrixW/SIMD)*(MatrixH/PE-1)));
+   // 	   end // for (int i = 0; i < ACT_MatrixW; i++)
+   // 	end // if (wready)
+   //   end // always @ (posedge aclk)
+
+   
+   int x_inp, r_inp, s_inp;
+   
+   always @(posedge aclk) begin
+      if(!aresetn) begin
+	 x_inp <= 0;
+	 r_inp <= 0;
+	 s_inp <= 0;
+      end
+      else if(wmem_wready) begin
+	 if(x_inp == ACT_MatrixW-1 & r_inp == MatrixH/PE-1 & s_inp == MatrixW/SIMD-1) begin
+	    x_inp <= ACT_MatrixW-1;
+	    r_inp <= MatrixH/PE-1;
+	    s_inp <= MatrixW/SIMD-1;
+	 end
+	 else if(r_inp == MatrixH/PE-1 & s_inp == MatrixW/SIMD-1) begin
+	    r_inp <= 0;
+	    s_inp <= 0;
+	    x_inp <= x_inp+1;
+	 end
+	 else if(s_inp == MatrixW/SIMD-1) begin
+	    s_inp <= 0;
+	    r_inp <= r_inp+1;
+	 end
+	 else
+	   s_inp <= s_inp +1;	 
+      end // if (wmem_wready)      
+   end // always @ (posedge clk)
+
+   always @(aresetn, x_inp, r_inp, s_inp) begin
+      for(int k = PE-1; k >= 0; k--) begin
+	 in_wgt_um[k] = weights[r_inp][s_inp][k];
+      end
+   end
+				       
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
+	in_wgt_v <= 1'b0;
+      else if(x_inp == ACT_MatrixW-1 & r_inp == MatrixH/PE-1 & s_inp == MatrixW/SIMD-1)
+	in_wgt_v <= 1'b0;
+      else
+	in_wgt_v <= 1'b1;
+   end
+
+
+   // always @(posedge aclk)//test_event)
+   //   begin
+   // 	if(wready) begin
+   // 	   #1;	   
+   // 	   for(int x = 0; x < ACT_MatrixW; x++) begin
+   // 	      for(int i = 0; i < MatrixH/PE; i++) begin
+   // 		 for(int j = 0; j < MatrixW/SIMD; j++) begin
+   // 		    #(CLK_PER/2);
+   // 		    for(int k = PE-1; k >= 0; k--) begin
+   // 		       in_wgt_um[k] = weights[i][j][k];
+   // 		    end		 
+   // 		    #(CLK_PER/2);
+   // 		 end
+   // 	      end // for (int i = 0; i < MatrixH/PE; i++)
+   // 	   end // for (int x = 0; x < ACT_MatrixW; x++)
+   // 	end // if (wready)
+   //   end // always @ (posedge aclk)
+
+   generate
+      for(genvar p = 0; p < PE; p++) begin
+	  assign in_wgt_packed[SIMD*TW*p:SIMD*TW*p+(SIMD*TW-1)] = in_wgt_um[p];
+      end
+   endgenerate
+	  
    
    /*
     * DUT Instantiation
     * */
-   mvau_stream #(
-		 .KDim        (KDim        ), 
-		 .IFMCh	      (IFMCh       ), 
-		 .OFMCh	      (OFMCh       ), 
-		 .IFMDim      (IFMDim      ), 
-		 .PAD         (PAD         ), 
-		 .STRIDE      (STRIDE      ), 
-		 .OFMDim      (OFMDim      ), 
-		 .MatrixW     (MatrixW     ), 
-		 .MatrixH     (MatrixH     ), 
-		 .SIMD 	      (SIMD        ), 
-		 .PE 	      (PE          ), 
-		 .WMEM_DEPTH  (WMEM_DEPTH  ), 
-		 .MMV         (MMV         ), 
-		 .TSrcI       (TSrcI       ), 
-		 .TSrcI_BIN   (TSrcI_BIN   ),  
-		 .TI	      (TI          ), 
-		 .TW 	      (TW          ), 
-		 .TW_BIN      (TW_BIN      ), 
-		 .TDstI       (TDstI       ), 
-		 .TO	      (TO          ), 
-		 .TA 	      (TA          ), 
-		 .USE_DSP     (USE_DSP     ),
-		 .USE_ACT (USE_ACT))
+   mvau_stream_top #(
+		     .KDim        (KDim        ), 
+		     .IFMCh	  (IFMCh       ), 
+		     .OFMCh	  (OFMCh       ), 
+		     .IFMDim      (IFMDim      ), 
+		     .PAD         (PAD         ), 
+		     .STRIDE      (STRIDE      ), 
+		     .OFMDim      (OFMDim      ), 
+		     .MatrixW     (MatrixW     ), 
+		     .MatrixH     (MatrixH     ), 
+		     .SIMD 	  (SIMD        ), 
+		     .PE 	  (PE          ), 
+		     .WMEM_DEPTH  (WMEM_DEPTH  ), 
+		     .MMV         (MMV         ), 
+		     .TSrcI       (TSrcI       ), 
+		     .TSrcI_BIN   (TSrcI_BIN   ),  
+		     .TI	  (TI          ), 
+		     .TW 	  (TW          ), 
+		     .TW_BIN      (TW_BIN      ), 
+		     .TDstI       (TDstI       ), 
+		     .TO	  (TO          ), 
+		     .TA 	  (TA          ), 
+		     .USE_DSP     (USE_DSP     ),
+		     .USE_ACT     (USE_ACT     ))
    mvau_stream_inst(
-   		    .rst_n,
-   		    .clk,
-		    .in_v,
-   		    .in_act,
-   		    .in_wgt,
-		    .out_v,
-   		    .out);
+   		    .aresetn        (aresetn),
+   		    .aclk           (aclk),		    
+		    .s0_axis_tready (wready),
+		    .s0_axis_tvalid (in_v),
+   		    .s0_axis_tdata  (in_act),
+   		    .s1_axis_tdata  (in_wgt_packed),
+		    .s1_axis_tvalid (in_wgt_v),
+		    .s1_axis_tready (wmem_wready),
+		    .m0_axis_tready (rready),
+		    .m0_axis_tvalid (out_v),
+   		    .m0_axis_tdata  (out)
+		    );
    
 endmodule // mvau_stream_tb
 
