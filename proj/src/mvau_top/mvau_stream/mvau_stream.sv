@@ -56,15 +56,20 @@ module mvau_stream #(
 		     parameter int TO=16, // PE times the word length of output stream   
 		     parameter int TA=16, // PE times the word length of the activation class (e.g thresholds)
 		     parameter int USE_DSP=0, // Use DSP blocks or LUTs for MAC
+		     parameter int MVAU_STREAM=1, // Top module is not MVAU Stream
 		     parameter int USE_ACT=0)     // Use activation after matrix-vector activation	      
    (
-    input logic 	      aresetn,
-    input logic 	      aclk,
-    input logic 	      in_v,
-    input logic [TI-1:0]      in_act ,
-    input logic [0:SIMD*TW-1] in_wgt [0:PE-1], // Streaming weight tile
-    output logic 	      out_v, // Ouptut valid
-    output logic [TO-1:0]     out);
+    input logic 		 aresetn,
+    input logic 		 aclk,
+    input logic 		 rready,
+    output logic 		 wready,
+    output logic 		 wmem_wready,
+    input logic 		 in_v,
+    input logic [TI-1:0] 	 in_act ,
+    input logic 		 in_wgt_v, // Input valid from the weight stream
+    input logic [0:PE*SIMD*TW-1] in_wgt, // Streaming weight tile
+    output logic 		 out_v, // Ouptut valid
+    output logic [TO-1:0] 	 out);
 
    /*
     * Local parameters
@@ -119,35 +124,57 @@ module mvau_stream #(
    // Case 1: NF=1 => do_mvau_stream = in_v (input buffer not reused)
    // Case 2: NF>1 => do_mvau_stream = in_v | (~(nf_clr&sf_clr)) (input buffer reused)
    logic 		      do_mvau_stream;
-   
-   // Always_FF: INP_REG
-   // Register the input valid and activation
-   always_ff @(posedge aclk) begin
-      if(!aresetn) begin
-	 in_v_reg <= 1'b0;
-	 in_act_reg   <= 'd0;
-      end
-      else if(in_v) begin
-	 in_v_reg   <= 1'b1;
-	 in_act_reg <= in_act;
-      end
-      else
-	in_v_reg <= 1'b0;
-   end // always_ff @ (posedge aclk)
+   // Signal: in_wgt2d
+   // Copy of input weight stream with packed and  unpacked dimension
+   logic [0:SIMD*TW-1] 	      in_wgt2d [0:PE-1];
+   // Signal: in_wgt_v_reg
+   logic 		      in_wgt_v_reg;
 
-   // Always_FF: WGT_REG
-   // Register the input weight stream
+   // Always_FF: DO_MVAU_STREAM
+   // Registered signal indicating when to perform the
+   // Matrix vector multiplication
+   // Dependent on valids and readys
    always_ff @(posedge aclk) begin
-      if(!aresetn) begin
-	 for(int i = 0; i < PE; i++)
-	   in_wgt_reg[i] <= 'd0;
-      end
-      else begin
-	 for(int i = 0; i < PE; i++)
-	   in_wgt_reg[i] <= in_wgt[i];
-      end
+      if(!aresetn) 
+	do_mvau_stream <= 1'b0;
+      else
+	do_mvau_stream <= in_v & wready | in_wgt_v & wmem_wready;
    end
    
+   // Copying the packed input weight array
+   // to packed/unpacked array
+   generate
+      for(genvar p = 0; p < PE; p++) begin
+	 assign in_wgt2d[p] = in_wgt[SIMD*TW*p:SIMD*TW*p+(SIMD*TW-1)];	 
+      end
+   endgenerate
+
+   // Only registering weights
+   // when the stream unit is the top level unit
+   generate
+      if(MVAU_STREAM==1) begin: MVAU_STREAM_TOP
+   	 // Always_FF: WGT_REG
+   	 // Register the input weight stream
+   	 always_ff @(posedge aclk) begin
+   	    if(!aresetn) begin
+   	       for(int i = 0; i < PE; i++)
+   		 in_wgt_reg[i] <= 'd0;
+   	    end
+   	    else begin
+   	       for(int i = 0; i < PE; i++)
+   		 in_wgt_reg[i] <= in_wgt2d[i];
+   	    end
+   	 end
+      end // block: MVAU_STREAM_TOP      
+      else begin: MVAU_BATCH_TOP
+	 always_comb begin
+	    for(int i = 0; i < PE; i++)
+	      in_wgt_reg[i] = in_wgt2d[i];
+	 end	 
+      end      
+   endgenerate
+   assign in_act_reg = in_act;
+      
    /*
     * Control logic for reading and writing to input buffer
     * and for generating the correct weight tile for the
@@ -160,10 +187,12 @@ module mvau_stream #(
 			)
    mvau_stream_cb_inst (.aresetn,
 			.aclk,
-			.in_v(in_v_reg),
+			.in_v(in_v),
 			.ib_wen,
 			.ib_ren,
-			.do_mvau_stream,
+			.wready,
+			.wmem_wready,
+			//.do_mvau_stream,
 			.sf_clr,
 			.sf_cnt);
 
@@ -180,6 +209,7 @@ module mvau_stream #(
 		  .rd_en(ib_ren),
 		  .addr(sf_cnt),
 		  .out(out_act));
+     
    
    /**
     * Generating instantiations of all processing elements
@@ -208,34 +238,46 @@ module mvau_stream #(
 			.do_mvau_stream,
 			.in_act(out_act),
 			.in_wgt(in_wgt_reg[pe_ind]),
-			.out_v(out_pe_v[pe_ind]),
-			.out(out_pe[pe_ind]) // Each PE contribution TDstI bits in the output
+			.out_v(out_pe_v[PE-pe_ind-1]),
+			.out(out_pe[PE-pe_ind-1]) // Each PE contribution TDstI bits in the output
 			);
 	end
    endgenerate
 
    // A place holder for the activation unit to be implemented later
-   generate
-      if(USE_ACT==1) begin: ACT
-      end
-      else begin: NO_ACT
+   if(USE_ACT==1) begin: ACT
+   end
+   else begin: NO_ACT
+
+      if(MVAU_STREAM==1) begin: MVAU_STREAM_OUT
+      
 	 // Always_FF: OUT_PE_REG
 	 // Registering the output activation stream
 	 always_ff @(posedge aclk) begin
 	    if(!aresetn)
 	      out <= 'd0;
+	    else if(rready)
+	      out <= out_pe;	    
+	    else if(out_v)
+	      out <= out;	    
 	    else
-	      out <= out_pe;
+	      out <= out_pe;	    
 	 end
 	 // Always_FF: OUT_V_REG
 	 // Registering the output activation stream valid signal
 	 always_ff @(posedge aclk) begin
-	   if(!aresetn)
-	     out_v <= 1'b0;
-	    else
-	      out_v = |out_pe_v;
+	    if(!aresetn) 
+	      out_v <= 1'b0;	    	    
+	    else if(|out_pe_v)
+	      out_v <= 1'b1;
+	    else if(rready)
+	      out_v <= 1'b0;	    
 	 end
-      end      
-   endgenerate
-
+      end // block: MVAU_STREAM_OUT
+      else begin: MVAU_BATCH_OUT
+	 assign out_v = (|out_pe_v);
+	 assign out = out_pe;
+      end
+   end // block: NO_ACT
+   
 endmodule // mvau_stream

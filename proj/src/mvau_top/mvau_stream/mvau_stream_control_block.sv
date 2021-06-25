@@ -51,9 +51,12 @@ module mvau_stream_control_block #(
     input logic 	    aresetn,
     input logic 	    aclk,
     input logic 	    in_v, // input activation stream valid
+    //input logic 	    wait_rready, // Signal that indicates whether rready has been asserted after valid
     output logic 	    ib_wen, // Input buffer write enable
     output logic 	    ib_ren, // Input buffer read enable
-    output logic 	    do_mvau_stream, // Signal to control all operations
+    output logic 	    wready, // Output ready signal
+    output logic 	    wmem_wready, // Output weight stream ready signal
+    //output logic 	    do_mvau_stream, // Signal to control all operations
     output logic 	    sf_clr, // To reset the sf_cnt
     output logic [SF_T-1:0] sf_cnt // Address for the input buffer
     );
@@ -68,6 +71,16 @@ module mvau_stream_control_block #(
    /*
     * Internal Signals
     * */
+   // Signal: inp_active
+   // Internal signal to indicate when input data is active
+   // Asserted when input valid and output ready asserted
+   logic 		    inp_active;
+   logic 		    do_mvau_stream;
+   logic 		    sf_full;
+   logic 		    ap_start;
+   //logic 		    halt_mvau_stream;
+   
+   
    
    /*
     * Controlling for when MatrixH is '1' and PE is also '1'
@@ -78,20 +91,165 @@ module mvau_stream_control_block #(
       if(NF==1) begin: ONE_FILTER_BANK
 	 // This block is implemented when NF=1
 	 // meaning input buffer will not be re-used
-	 assign ib_wen = 1'b1;
+
+	 // Wready
+	 // Remains one when the input buffer is being filled
+	 // Resets to Zero the input buffer is filled and ready
+	 // to be reused
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      wready <= 1'b0;
+	    else
+	      wready <= 1'b1;	    
+	 end
+	 // Always_FF: SF_CNT
+	 // A sequential 'always' block for a counter
+	 // which keeps track when the input buffer is full.
+	 // Only runs when do_mvau_stream is asserted
+	 // A counter similar to sf in mvau.hpp
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      sf_cnt <= 'd0;
+	    else if(sf_full)//sf_cnt == SF_T'(SF-1))
+	      sf_cnt <= 'd0;
+	    else if(do_mvau_stream)
+	      sf_cnt <= sf_cnt + 1;
+	 end
+   
+	 // Write enable only when input active
+	 assign ib_wen = inp_active;
+
+	 // Read enable is always zero
 	 assign ib_ren = 1'b0;
-	 assign do_mvau_stream = in_v;
+	 
+	 assign do_mvau_stream = inp_active;
       end
       else begin: N_FILTER_BANKS
+
+	 
+	 enum logic [1:0] {IDLE, WRITE, READ} pres_state, next_state;
 	 // Signal: nf_clr
 	 // Signal to reset the nf_cnt counter
 	 // Only used when multiple output channel
 	 logic 		    nf_clr; // To reset the nf_cnt
+	 
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      pres_state <= IDLE;
+	    else
+	      pres_state <= next_state;
+	 end
+
+	 always_comb begin
+	    case(pres_state)
+	      IDLE: begin
+		 case({inp_active,sf_full})
+		   2'b00:next_state=IDLE;
+		   2'b01:next_state=IDLE;
+		   2'b10:next_state=WRITE;
+		   2'b11:next_state=READ;
+		 endcase
+	      end
+	      WRITE: begin
+		 case({inp_active,sf_full})
+		   2'b00: next_state = IDLE;
+		   2'b01: next_state = IDLE;
+		   2'b10: next_state = WRITE;
+		   2'b11: next_state = READ;
+		 endcase	 
+	      end
+	      READ: begin
+		 case({inp_active, nf_clr&sf_clr})
+		   2'b00: next_state = READ;
+		   2'b01: next_state = IDLE;
+		   2'b10: next_state = WRITE;
+		   2'b11: next_state = WRITE;
+		 endcase // case ({inp_active, nf_clr&sf_clr})
+		 if(inp_active)
+		   next_state = WRITE;
+		 else
+		   next_state = READ;		 
+	      end
+	      default: next_state = IDLE;	      
+	    endcase
+	 end		
+
+	 always_comb begin
+	    ib_ren = 1'b0;
+	    ib_wen = 1'b0;
+	    do_mvau_stream = 1'b0;	    
+	    case(pres_state)
+	      IDLE: begin
+		 if(inp_active) begin
+		    ib_ren = 1'b0;
+		    ib_wen = 1'b1;
+		    do_mvau_stream = 1'b1;
+		 end
+		 else begin
+		    ib_ren = 1'b0;
+		    ib_wen = 1'b0;
+		    do_mvau_stream = 1'b0;
+		 end
+	      end		 
+	      WRITE: begin
+		 case({inp_active})//,sf_full})
+		   1'b0: begin
+		      ib_ren = 1'b0;
+		      ib_wen = 1'b0;
+		      do_mvau_stream = 1'b0;		      
+		   end
+		   1'b1: begin
+		      ib_ren = 1'b0;		      
+		      ib_wen = 1'b1;
+		      do_mvau_stream = 1'b1;
+		   end
+		   // 2'b10: begin
+		   //    ib_ren = 1'b0;
+		   //    ib_wen = 1'b1;
+		   //    do_mvau_stream = 1'b1;
+		   // end
+		   // 2'b11: begin
+		   //    ib_ren = 1'b0;
+		   //    ib_wen = 1'b1;
+		   //    do_mvau_stream = 1'b1;		      
+		   // end		   
+		 endcase // case ({inp_active})
+	      end
+	      READ: begin
+		 ib_ren = 1'b0;
+		 ib_wen = 1'b0;
+		 do_mvau_stream = 1'b0;		 
+		 case({inp_active})//, nf_clr&sf_clr})
+		   1'b0: begin
+		      ib_ren = ~(nf_clr&sf_clr);//1'b1;
+		      do_mvau_stream = ~(nf_clr&sf_clr);//1'b1;
+		   end
+		   //2'b01: ib_ren = 1'b0;
+		   1'b1: begin
+		      ib_wen = 1'b1;
+		      do_mvau_stream = 1'b1;
+		   end
+		   // 2'b11: begin
+		   //    ib_wen = 1'b1;
+		   //    do_mvau_stream = 1'b1;
+		   // end
+		 endcase // case ({inp_active, nf_clr&sf_clr})
+	      end
+	      default: begin
+		 ib_ren = 1'b0;
+		 ib_wen = 1'b0;
+		 do_mvau_stream = 1'b0;
+	      end
+	    endcase // case (pres_state)
+	 end // always_comb
+	 	 
 	 // Signal: nf_cnt
 	 // A counter to keep track how many weight channels have been processed
 	 // Only used when multiple output channels
 	 logic [NF_T-1:0]   nf_cnt; // NF counter, keeping track of the NF
-
+	 logic nf_full;   
+	 assign nf_full = (nf_cnt == NF_T'(NF-1) & sf_cnt == SF_T'(SF-1));
+	 
 	 // Always_FF: NF_CLR
 	 // A one bit control signal to indicate when nf_cnt == NF	 
 	 always_ff @(posedge aclk) begin
@@ -102,16 +260,22 @@ module mvau_stream_control_block #(
 	    else
 	      nf_clr <= 1'b0;
 	 end
-	 // Case 2, input buffer to be re-used so computation should continue
-	 assign do_mvau_stream = in_v|ib_ren;
 	 	 
-	 // Write enable for the input buffer
+	 // Wready
 	 // Remains one when the input buffer is being filled
 	 // Resets to Zero the input buffer is filled and ready
 	 // to be reused
-	 assign ib_wen = (nf_cnt=='d0) ? 1'b1 : 1'b0;
-	 // Read enable is just the inverse of write enable
-	 assign ib_ren = ~ib_wen;
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      wready <= 1'b0;
+	    else if(ap_start)
+	      wready <= 1'b1;	    
+	    else if(nf_full)//(nf_cnt == NF_T'(NF-1) & sf_cnt == SF_T'(SF-1))//(nf_cnt == 'd0)
+	      wready <= 1'b1;	    
+	    else if(sf_full)// (sf_cnt == SF_T'(SF-1))
+	      wready <= 1'b0;	
+	 end
+	  
 	 // Always_FF: NF_CNT
 	 // A counter to keep track when we are done writing to the
 	 // input buffer so that it can be reused again
@@ -119,42 +283,61 @@ module mvau_stream_control_block #(
 	 // Only used when multiple output channels
 	 always_ff @(posedge aclk) begin
 	    if(!aresetn)
-	      nf_cnt <= 'd0;
+	      nf_cnt <= 'd0;//NF_T'(NF-1);
 	    else if(nf_clr & sf_clr)
 	      nf_cnt <= 'd0;
-	    else if(sf_clr)
+	    else if(sf_clr)//sf_full)//(sf_cnt==SF_T'(SF-1))//(sf_clr)
 	      nf_cnt <= nf_cnt + 1;
 	 end
+
+	 // Always_FF: SF_CNT
+	 // A sequential 'always' block for a counter
+	 // which keeps track when the input buffer is full.
+	 // Only runs when do_mvau_stream is asserted
+	 // A counter similar to sf in mvau.hpp
+	 always_ff @(posedge aclk) begin
+ 	    if(!aresetn)
+	      sf_cnt <= 'd0;//SF_T'(SF-1);
+	    else if(sf_full)//(sf_cnt == SF_T'(SF-1))
+	      sf_cnt <= 'd0;
+	    else if(nf_full)//(nf_cnt == NF_T'(NF-1) & sf_cnt == SF_T'(SF-1))
+	      sf_cnt <= 'd0;      
+	    else if (do_mvau_stream)
+	      sf_cnt <= sf_cnt + 1;
+	    //end
+	 end
+   
       end // block: N_FILTER_BANKS
    endgenerate
 
+   //assign halt_mvau_stream = ((sf_cnt == SF_T'(SF-2)) & wait_rready);
+   
+   assign sf_full = ((sf_cnt == SF_T'(SF-1)) & do_mvau_stream);
+   
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
+	ap_start <= 1'b1;
+      else
+	ap_start <= 1'b0;
+   end
    // Always_FF: SF_CLR
    // A one bit control signal to indicate when sf_cnt == SF-1   
    always_ff @(posedge aclk) begin
       if(!aresetn)
 	sf_clr <= 1'b0;
-      else if(sf_cnt == SF_T'(SF-2)) //assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
+      else if(sf_full)// & do_mvau_stream)//(sf_cnt == SF_T'(SF-1)) //assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
 	sf_clr <= 1'b1;
       else
 	sf_clr <= 1'b0;
    end
-   
-   // Always_FF: SF_CNT
-   // A sequential 'always' block for a counter
-   // which keeps track when the input buffer is full.
-   // Only runs when do_mvau_stream is asserted
-   // A counter similar to sf in mvau.hpp
-   always_ff @(posedge aclk) begin
-      if(!aresetn)
-	sf_cnt <= 'd0;
-      else if(do_mvau_stream) begin
-	 if(sf_clr)
-	   sf_cnt <= 'd0;
-	 else
-	   sf_cnt <= sf_cnt + 1;
-      end
-   end
 
 
-endmodule
+   // The following signal shows that input valid and ready are both asserted, so data is active
+   assign inp_active = wready & in_v;
+
+   // Output ready for weight stream same as do_mvau_stream
+   assign wmem_wready = do_mvau_stream;
+         
+endmodule // mvau_stream_control_block
+
 

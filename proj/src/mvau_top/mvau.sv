@@ -56,6 +56,7 @@ module mvau #(
 	      parameter int TA=16, // PE times the word length of the activation class (e.g thresholds)
 	      parameter int USE_DSP=0, // Use DSP blocks or LUTs for MAC
 	      parameter int INST_WMEM=1, // Instantiate weight memory, if needed
+	      parameter int MVAU_STREAM=0, // Top module is not MVAU Stream
 	      parameter int USE_ACT=0)     // Use activation after matrix-vector activation	      
    (    
 	input logic 	      aresetn, // active low synchronous reset
@@ -100,27 +101,37 @@ module mvau #(
    logic [WMEM_ADDR_BW-1:0] 	       wmem_addr;
    // Signal: wmem_out
    // This holds the streaming weight tile
-   logic [0:SIMD*TW-1] 		       wmem_out [0:PE-1];   
-   
+   logic [0:SIMD*TW-1] 		       wmem_out [0:PE-1];
+   logic [0:PE*SIMD*TW-1] 	       wmem_out_packed;   
    // Signal: out_stream
    // This signal is connected to the output of streaming module (mvau_stream)
    logic [TO-1:0] 		       out_stream;
    // Signal: out_stream_valid
    // Signal showing when output from the MVAU Stream block is valid
    logic 			       out_stream_valid;
+   // Signal: wmem_wready
+   // Output ready signal for the weight stream
+   logic 			       wmem_wready;
+   // Signal: wmem_valid
+   // Valid signal of weight stream
+   logic 			       wmem_valid;
+  
    
    // Always_FF: INP_REG
    // Register the input valid and activation
-   always_ff @(posedge aclk) begin
-      if(!aresetn) begin
-	 in_v_reg <= 1'b0;
-	 in_reg   <= 'd0;
-      end
-      else begin
-	 in_v_reg <= in_v;
-	 in_reg   <= in;
-      end
-   end
+   // always_ff @(posedge aclk) begin
+   //    if(!aresetn) begin
+   // 	 in_v_reg <= 1'b0;
+   // 	 in_reg   <= 'd0;
+   //    end
+   //    else begin
+   // 	 in_v_reg <= in_v;// & wready;
+   // 	 in_reg   <= in;//in_v & wready ? in: 'd0;
+   //    end
+   // end
+   assign in_v_reg = in_v;
+   assign in_reg = in;
+   
    
    /*
     * Control logic for reading and writing to input buffer
@@ -137,7 +148,9 @@ module mvau #(
 			)
    mvau_cb_inst (.aresetn,
 		 .aclk,
-		 .in_v(in_v_reg),
+		 .wmem_wready,
+		 .wmem_valid,
+		 //.in_v(in_v_reg),
 		 .wmem_addr);
    
    // Submodule: mvau_stream
@@ -165,13 +178,18 @@ module mvau #(
 		 .TO	     (TO        ), 
 		 .TA	     (TA        ), 
 		 .USE_DSP    (USE_DSP   ),
+		 .MVAU_STREAM(MVAU_STREAM),
 		 .USE_ACT    (USE_ACT   ))
      mvau_stream_inst(
 		      .aresetn,
 		      .aclk,
+		      .rready,
+		      .wready,
+		      .wmem_wready,
 		      .in_v(in_v_reg), // Input activation valid
 		      .in_act(in_reg), // Input activation
-		      .in_wgt(wmem_out), // A tile of weights
+		      .in_wgt_v(wmem_valid), // Weight stream valid
+		      .in_wgt(wmem_out_packed), // A tile of weights
 		      .out_v(out_stream_valid),
 		      .out(out_stream)
 		      );
@@ -191,27 +209,55 @@ module mvau #(
       			  .wmem_out(wmem_out)
       			  );
    end // block: WGT_MEM
-      
+  
+   generate
+      for(genvar p = 0; p<PE; p++) begin
+	 assign wmem_out_packed[SIMD*TW*p:SIMD*TW*p+(SIMD*TW-1)] = wmem_out[p];
+      end
+   endgenerate
+   
    // A place holder for the activation unit to be implemented later
    generate
       if(USE_ACT==1) begin: ACT
       end
       else begin: NO_ACT
 	 logic out_v_int;
-	 assign out_v_int = out_stream_valid & rready;
-	 
+	 assign out_v_int = out_stream_valid;// & rready;
+
+	 // Always_FF: OUT_REG
+	 // Registering the output activation stream
 	 always_ff @(posedge aclk) begin
-	    if(!aresetn) begin
-	       out_v <= 1'b0;
-	       out <= 'd0;
-	       wready <= 1'b0;
-	    end	       
-	    else begin
-	       out_v <= out_v_int;
-	       out   <= out_stream;
-	       wready <= rready;	       
-	    end
-	 end // always_ff @ (posedge aclk)	 
+	    if(!aresetn)
+	      out <= 'd0;
+	    else if(rready)
+	      out <= out_stream;	    
+	    else if(out_v)
+	      out <= out;	    
+	    else
+	      out <= out_stream;	    
+	 end
+	 // Always_FF: OUT_V_REG
+	 // Registering the output activation stream valid signal
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn) 
+	      out_v <= 1'b0;	    	    
+	    else if(out_v_int)
+	      out_v <= 1'b1;
+	    else if(rready)
+	      out_v <= 1'b0;	    
+	 end
+	 // always_ff @(posedge aclk) begin
+	 //    if(!aresetn) begin
+	 //       out_v <= 1'b0;
+	 //       out <= 'd0;
+	 //       //wready <= 1'b0;
+	 //    end	       
+	 //    else begin
+	 //       out_v <= out_v_int;
+	 //       out   <= out_stream;
+	 //       //wready <= rready;	       
+	 //    end
+	 // end // always_ff @ (posedge aclk)	 
       end
    endgenerate
    

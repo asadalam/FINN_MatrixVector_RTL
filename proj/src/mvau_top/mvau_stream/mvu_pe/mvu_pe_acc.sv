@@ -44,7 +44,7 @@ module mvu_pe_acc #(
     * */
    // Signal: sf_clr_dly
    // A two bit signal to delay the sf_clr input by two clock cycles
-   logic [2:0] 		      sf_clr_dly;
+   logic [1:0] 		      sf_clr_dly;
    // Signal: do_mvau_stream_reg
    // One bit signal to delay a control input by one clock cycle
    logic 		      do_mvau_stream_reg;
@@ -52,7 +52,12 @@ module mvu_pe_acc #(
    // out_acc_v is a copy of the sf_clr_dly[1]
    // because that is the time we reach the last cycle
    // of accumulation
-   assign out_acc_v = sf_clr_dly[2];
+   always_ff @(posedge aclk) begin
+      if(!aresetn)
+	out_acc_v <= 1'b0;
+      else
+	out_acc_v <= do_mvau_stream_reg ? sf_clr_dly[0] : 1'b0;
+   end
 
    always_ff @(posedge aclk) begin
       if(!aresetn)
@@ -68,7 +73,7 @@ module mvu_pe_acc #(
       if(!aresetn)
    	sf_clr_dly <= 'd0;
       else
-   	sf_clr_dly <= {sf_clr_dly[1:0],sf_clr};
+   	sf_clr_dly <= {sf_clr_dly,sf_clr};
    end
       
    // Always_FF: Accumulator
@@ -78,7 +83,7 @@ module mvu_pe_acc #(
       if(!aresetn)
 	out_acc <= 'd0;
       else if(do_mvau_stream_reg) begin
-	 if(sf_clr_dly[2])
+	 if(sf_clr_dly[1])
 	   out_acc <= in_acc; // resetting the accumulator
 	 else
 	   out_acc <= out_acc + in_acc;

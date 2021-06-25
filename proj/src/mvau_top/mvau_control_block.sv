@@ -38,7 +38,9 @@ module mvau_control_block #(parameter int SF=8,
    (
     input logic 		    aresetn,
     input logic 		    aclk,
-    input logic 		    in_v,
+    //input logic 		    in_v,
+    input logic 		    wmem_wready,
+    output logic 		    wmem_valid,
     output logic [WMEM_ADDR_BW-1:0] wmem_addr // Address for the weight memory
     );
    
@@ -60,105 +62,21 @@ module mvau_control_block #(parameter int SF=8,
     * */
    // Parameter: NF_T
    // Word length of the NF counter to control reading and writing from the input buffer
-   localparam int 		    NF_T=$clog2(NF); // For nf_cnt
+   // localparam int 		    NF_T=$clog2(NF); // For nf_cnt
    // Parameter: SF_T
    // Address word length of the buffer
-   localparam int 		    SF_T=$clog2(SF); // Address word length for the input buffer
+   // localparam int 		    SF_T=$clog2(SF); // Address word length for the input buffer
    
    // Signal: do_mvau
    // To allow reading of weight memory when computation taking place
    logic 			    do_mvau;   
-   // Signal: wmem_en
-   // To enable reading of weight memory when the input buffer is being re-used
-   logic 			    wmem_en;
    
-   generate
-      if(NF==1) begin: ONE_FILTER_BANK
-	 assign wmem_en = 1'b0; // Memory operation only controlled by in_v
-	 assign do_mvau = in_v;	 
-      end
-      else begin: N_FILTER_BANKS
-	 /*
-	  * The following control logic is replicated in 
-	  * mvau_stream_control_block.sv in order to maintain
-	  * modularity so that mvau_stream can be used as a 
-	  * top level module
-	  * */
-	 // Signal: sf_clr
-	 // Control signal for resetting the accumulator and a one bit control signal to indicate when sf_cnt == SF-1
-	 logic 	    sf_clr;
-	 // Signal: sf_cnt
-	 // Counter to check when a whole weight matrix row has been processed
-	 logic [SF_T-1:0] sf_cnt;
-	 
-	 // Signal: nf_clr
-	 // Signal to reset the nf_cnt counter
-	 // Only used when multiple output channel
-	 logic 		    nf_clr; // To reset the nf_cnt
-	 // Signal: nf_cnt
-	 // A counter to keep track how many weight channels have been processed
-	 // Only used when multiple output channels
-	 logic [NF_T-1:0]   nf_cnt; // NF counter, keeping track of the NF
-	 
-	 // After input stream inactive, allows for reading from weight memory
-	 // as the input buffer is being re-used	 
-	 assign wmem_en = (nf_cnt=='d0) ? 1'b0 : 1'b1;
-	 assign do_mvau = in_v|wmem_en;
 
-	 // Always_FF: NF_CLR
-	 // A one bit control signal to indicate when nf_cnt == NF	 
-	 always_ff @(posedge aclk) begin
-	    if(!aresetn)
-	      nf_clr <= 1'b0;
-	    else if(nf_cnt==NF_T'(NF-1)) //assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
-	      nf_clr <= 1'b1;
-	    else
-	      nf_clr <= 1'b0;
-	 end
-	 // Always_FF: NF_CNT
-	 // A counter to keep track when we are done writing to the
-	 // input buffer so that it can be reused again
-	 // Similar to the variable nf in mvau.hpp
-	 // Only used when multiple output channels
-	 always_ff @(posedge aclk) begin
-	    if(!aresetn)
-	      nf_cnt <= 'd0;
-	    else if(nf_clr & sf_clr)
-	      nf_cnt <= 'd0;
-	    else if(sf_clr)
-	      nf_cnt <= nf_cnt + 1;
-	 end
+   // After input stream inactive, allows for reading from weight memory
+   // as the input buffer is being re-used	 
+   // assign wmem_en = (nf_cnt=='d0) ? 1'b0 : 1'b1;
+   assign do_mvau = wmem_wready;//(in_v & wmem_wready) |wmem_en;
 
-	 // ALWAYS_FF: SF_CLR
-	 // A one bit control signal to indicate when sf_cnt == SF-1   
-	 always_ff @(posedge aclk) begin
-	    if(!aresetn)
-	      sf_clr <= 1'b0;
-	    else if(sf_cnt == SF_T'(SF-2)) //assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
-	      sf_clr <= 1'b1;
-	    else
-	      sf_clr <= 1'b0;
-	 end
-	 
-	 // Always_FF: SF_CNT
-	 // A sequential 'always' block for a counter
-	 // which keeps track when one row of weight matrix is accessed
-	 // Only runs when do_mvau is asserted
-	 // A counter similar to sf in mvau.hpp
-	 // Only used when multiple output channels
-	 always_ff @(posedge aclk) begin
-	    if(!aresetn)
-	      sf_cnt <= 'd0;
-	    else if(do_mvau) begin
-	       if(sf_clr)
-		 sf_cnt <= 'd0;
-	       else
-		 sf_cnt <= sf_cnt + 1;
-	    end
-	 end
-      end
-   endgenerate
-   
    // Always_FF: WMEM_ADDR
    // Control Logic for generating address
    // for the weight memory
@@ -167,10 +85,154 @@ module mvau_control_block #(parameter int SF=8,
 	wmem_addr <= 'd0;
       else if(do_mvau) begin
 	 if(wmem_addr==WMEM_ADDR_BW'(WMEM_DEPTH-1))
-	   wmem_addr <= 'd0;
-	 else
+	   wmem_addr <= 'd0;	 
+	 else//if(do_mvau)
 	   wmem_addr <= wmem_addr + 1;
       end
-   end   
-endmodule
+   end
+
+   assign wmem_valid = do_mvau;
+
+endmodule // mvau_control_block
+
+// Signal: wmem_en
+   // To enable reading of weight memory when the input buffer is being re-used
+   // logic 			    wmem_en;
+
+//    // generate
+   //    if(NF==1) begin: ONE_FILTER_BANK
+   // 	 assign wmem_en = 1'b0; // Memory operation only controlled by in_v
+   // 	 assign do_mvau = wmem_wready;//in_v & wmem_wready;
+   //    end
+   //    else begin: N_FILTER_BANKS
+	 /*
+	  * The following control logic is replicated in 
+	  * mvau_stream_control_block.sv in order to maintain
+	  * modularity so that mvau_stream can be used as a 
+	  * top level module
+	  * */
+	 // Signal: sf_clr
+	 // Control signal for resetting the accumulator and a one bit control signal to indicate when sf_cnt == SF-1
+	 // logic 	    sf_clr;
+	 // // Signal: sf_cnt
+	 // // Counter to check when a whole weight matrix row has been processed
+	 // logic [SF_T-1:0] sf_cnt;
+	 
+	 // // Signal: nf_clr
+	 // // Signal to reset the nf_cnt counter
+	 // // Only used when multiple output channel
+	 // logic 		    nf_clr; // To reset the nf_cnt
+	 // // Signal: nf_cnt
+	 // // A counter to keep track how many weight channels have been processed
+	 // // Only used when multiple output channels
+	 // logic [NF_T-1:0]   nf_cnt; // NF counter, keeping track of the NF
+	 
+	 
+	 // Always_FF: NF_CLR
+	 // A one bit control signal to indicate when nf_cnt == NF	 
+	 // always_ff @(posedge aclk) begin
+	 //    if(!aresetn)
+	 //      nf_clr <= 1'b0;
+	 //    else if(nf_cnt==NF_T'(NF-1)) //assign nf_clr = nf_cnt==NF_T'(NF-1) ? 1'b1 : 1'b0;
+	 //      nf_clr <= 1'b1;
+	 //    else
+	 //      nf_clr <= 1'b0;
+	 // end
+	 // // Always_FF: NF_CNT
+	 // // A counter to keep track when we are done writing to the
+	 // // input buffer so that it can be reused again
+	 // // Similar to the variable nf in mvau.hpp
+	 // // Only used when multiple output channels
+	 // always_ff @(posedge aclk) begin
+	 //    if(!aresetn)
+	 //      nf_cnt <= 'd0;
+	 //    else if(nf_clr & sf_clr)
+	 //      nf_cnt <= 'd0;
+	 //    else if(sf_clr)
+	 //      nf_cnt <= nf_cnt + 1;
+	 // end
+
+	 // // ALWAYS_FF: SF_CLR
+	 // // A one bit control signal to indicate when sf_cnt == SF-1   
+	 // always_ff @(posedge aclk) begin
+	 //    if(!aresetn)
+	 //      sf_clr <= 1'b0;
+	 //    else if(sf_cnt == SF_T'(SF-2)) //assign sf_clr = sf_cnt==SF_T'(SF-1) ? 1'b1 : 1'b0;
+	 //      sf_clr <= 1'b1;
+	 //    else
+	 //      sf_clr <= 1'b0;
+	 // end
+	 
+	 // // Always_FF: SF_CNT
+	 // // A sequential 'always' block for a counter
+	 // // which keeps track when one row of weight matrix is accessed
+	 // // Only runs when do_mvau is asserted
+	 // // A counter similar to sf in mvau.hpp
+	 // // Only used when multiple output channels
+	 // always_ff @(posedge aclk) begin
+	 //    if(!aresetn)
+	 //      sf_cnt <= 'd0;
+	 //    else if(do_mvau) begin
+	 //       if(sf_clr)
+	 // 	 sf_cnt <= 'd0;
+	 //       else
+	 // 	 sf_cnt <= sf_cnt + 1;
+	 //    end
+	 // end
+   //    end // block: N_FILTER_BANKS      
+   // endgenerate
+   
+
+   // enum logic [1:0] {IDLE, READ} pres_state, next_state;
+   
+   // always_ff @(posedge aclk) begin
+   //    if(!aresetn)
+   // 	pres_state <= IDLE;
+   //    else
+   // 	pres_state <= next_state;
+   // end
+
+   // always_comb begin
+   //    case(pres_state)
+   // 	IDLE: begin
+   // 	   if(do_mvau)
+   // 	     next_state = READ;		 
+   // 	   else
+   // 	     next_state = IDLE;		 
+   // 	end
+   // 	READ: begin
+   // 	   if(do_mvau)
+   // 	     next_state = READ;
+   // 	   else
+   // 	     next_state = IDLE;		 
+   // 	end
+   // 	default: next_state = IDLE;	      
+   //    endcase
+   // end		
+
+   
+   
+   // always_comb begin
+   //    wmem_valid = 1'b1;	    
+   //    case(pres_state)
+   // 	IDLE: begin
+   // 	   if(do_mvau)
+   // 	     wmem_valid = 1'b1;
+   // 	   else
+   // 	     wmem_valid = 1'b0;		 
+   // 	end		 
+   // 	READ: begin
+   // 	   if(do_mvau)
+   // 	     wmem_valid = 1'b1;
+   // 	   else
+   // 	     wmem_valid = 1'b0;		 
+   // 	end
+   // 	default: begin
+   // 	   wmem_valid = 1'b0;		 
+   // 	end
+   //    endcase // case (pres_state)
+   // end // always_comb
+   
+
+
 

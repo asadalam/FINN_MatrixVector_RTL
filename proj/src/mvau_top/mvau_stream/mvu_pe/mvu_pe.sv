@@ -87,12 +87,13 @@ module mvu_pe #(
 
    // Always_FF: MVAU_STREAM_REG
    // Registering the do_mvau_stream signal
-   always_ff @(posedge aclk) begin
-      if(!aresetn)
-   	do_mvau_stream_reg <= 1'b0;
-      else
-   	do_mvau_stream_reg <= do_mvau_stream;
-   end
+   // always_ff @(posedge aclk) begin
+   //    if(!aresetn)
+   // 	do_mvau_stream_reg <= 1'b0;
+   //    else
+   // 	do_mvau_stream_reg <= do_mvau_stream;
+   // end
+   assign do_mvau_stream_reg = do_mvau_stream;   
       
    /*****************************
     * Component Instantiation
