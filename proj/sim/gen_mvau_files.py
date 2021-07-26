@@ -19,9 +19,9 @@ def gen_mvau_files(pe):
     mvau_files = open(fname,"wt")
 
     mvau_files.write("sv work mvau_tb_v1.sv\n")
-    mvau_files.write("sv work mvau_tb_v2.sv\n")
     mvau_files.write("sv work mvau_tb_v3.sv\n")
     mvau_files.write("sv work mvau_tb_v4.sv\n")
+    mvau_files.write("sv work mvau_tb_v5.sv\n")
     mvau_files.write("verilog work ../src/mvau_top/mvau_top.v\n")
     mvau_files.write("sv work ../src/mvau_top/mvau.sv\n")
     mvau_files.write("sv work ../src/mvau_top/mvau_control_block.sv\n")

@@ -14,11 +14,11 @@ import numpy as np
 import sys
 import argparse
 
-def gen_mvau_defn(kdim,iwl,iwb,ifmc,ofmc,ifmd,wwl,wwb,owl,simd,pe,stride=1,mmv=1):
+def gen_mvau_defn(kdim,iwl,iwb,ifmc,ofmc,ifmd,wwl,wwb,owl,simd,pe,mmv,stride=1):
     mvau_defn = open("mvau_defn.sv","wt")
-    stride=1
+    #stride=1
     pad=0
-    mmv=1    
+    #mmv=1    
     mvau_defn.write("/*\n")
     mvau_defn.write(" * Package: mvau_defn.sv\n")
     mvau_defn.write(" * \n")
@@ -116,6 +116,8 @@ def parser():
 			help="SIMD")
     parser.add_argument('-p', '--pe', default=2,type=int,
 			help="PE")
+    parser.add_argument('-m', '--mmv', default=1,type=int,
+			help="MMV")
     return parser
 
 
@@ -129,6 +131,6 @@ if __name__ == "__main__":
     gen_mvau_defn(args.kdim,args.inp_wl,args.inp_bin,
                   args.ifm_ch,args.ofm_ch,args.ifm_dim,
                   args.wgt_wl,args.wgt_bin,args.out_wl,
-                  args.simd,args.pe)
+                  args.simd,args.pe,args.mmv)
                             
     sys.exit(0)
