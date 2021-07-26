@@ -110,6 +110,7 @@ module mvau_tb_v3;
 	aresetn 		      = 0;
 	sim_start = 0;
 	test_count = 0;
+	rready = 0;	
 
 	// Generating events to generate input vector and coefficients for test	
 	#1 		      -> gen_inp; // To populate the input data vector
@@ -155,7 +156,7 @@ module mvau_tb_v3;
 		    end // if (out_v)
 		 end // block: DUT_BEH_MATCH
 		 do_comp = 0;
-		 wait(out_v==1'b0);		 
+		 wait(out_v==1'b0 || rrready==1'b1);		 
 	      end // for (int j = 0; j < MatrixH/PE; j++)
 	   end // for (int i = 0; i < ACT_MatrixW; i++)
 	end // for (int m = 0; m < MMV; m++)
@@ -212,27 +213,31 @@ module mvau_tb_v3;
      end
 
    // Always_Comb: Input Ready
-   always @(out_v)
-     rready = out_v;
+   always @(out_v) begin
+      //rready = 1'b0;      
+      //#(CLK_PER*100+1)
+      //rready = out_v;
+      rready = 1'b1;
+      
+   end
    
    /*
     * Generating data for DUT
     * */
    int m_inp, i_inp, j_inp;
-   
+   // Always: Counters
+   // Three counters to control the generation of input
    always @(posedge aclk) begin
       if(!aresetn) begin
 	 m_inp <= 0;
 	 i_inp <= 0;
 	 j_inp <= 0;
-	 //in_v_init <= 1'd0;	 
       end
       else if(wready) begin
 	 if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1) begin
 	    m_inp <= MMV-1;
 	    i_inp <= ACT_MatrixW-1;
 	    j_inp <= ACT_MatrixH/SIMD-1;
-	    //in_v_init <= 1'd0;	    
 	 end
 	 else if(i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1) begin
 	    i_inp <= 0;
@@ -245,27 +250,69 @@ module mvau_tb_v3;
 	 end
 	 else
 	   j_inp <= j_inp +1;	 
-      end // if (wready)
-      // else begin
-      // 	 in_v_init <= 1'd1;
-      // end // else: !if(wready)        
+      end      
    end // always @ (posedge clk)
 
+   // Always: INP_GEN
+   // Generating input for the DUT from the input tensor
    always @(aresetn, m_inp, i_inp, j_inp) begin
       for(int k = 0; k < SIMD; k++) begin
 	 in[k] = in_mat[m_inp][i_inp][j_inp][k];
       end
    end
-   always_ff @(posedge aclk) begin
-      if(!aresetn)
-	in_v <= 1'b0;
-      else if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1)
-	in_v <= 1'b0;
-      else
-	in_v <= 1'b1;
-   end
 
-   
+   // always_ff @(posedge aclk) begin
+   //    if(!aresetn)
+   // 	in_v <= 1'b0;
+   //    else
+   // 	in_v <= 1'b1;
+   // end
+   // Always_FF: INP_V_GEN
+   // Generating input valid for a variety of cases
+   if(ACT_MatrixW==1) begin: COL_1
+      if(ACT_MatrixH/SIMD==1) begin: ROW_1
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    // else if(m_inp == MMV-1)
+	    //   in_v <= 1'b0;
+	    else
+	      in_v <= ~in_v;//1'b1;	    
+	 end
+end
+      else begin: ROW_N
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(m_inp == MMV-1 & j_inp == ACT_MatrixH/SIMD-1)
+	      in_v <= 1'b1;
+	    else
+	      in_v <= 1'b0;
+	 end
+end
+   end // block: COL_1   
+   else begin: COL_N
+      if(ACT_MatrixH/SIMD==1) begin: ROW_1
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1)
+	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;
+	 end
+end
+      else begin: ROW_N   
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1)
+	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;
+	 end
+end
+   end // block: COL_N
    
 
    /*

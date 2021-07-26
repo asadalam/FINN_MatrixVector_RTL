@@ -101,7 +101,8 @@ module mvau_tb_v4;
    event 		       gen_inp;    // generate input activation matrix
    event 		       gen_weights;// generate weight matrix
    event 		       do_mvau_beh;// perform behavioral mvau
-   int 			       m_inp, i_inp, j_inp, dly_cnt, rand_dly1, rand_dly2;
+   // Signal: A number of counters to control input generation
+   int 			       m_inp, i_inp, j_inp, dly_cnt, rand_dly1, rand_dly2, rand_range1, rand_range2;
       
    // Initial: CLK_RST_GEN
    // Initialization of Clock and Reset and performing validation
@@ -123,7 +124,6 @@ module mvau_tb_v4;
 	//#(CLK_PER/2);
 	
 	aresetn 		      = 1; // Coming out of reset
-	//rready = 1; // Fixing rready to '1' as this is just test bench
 	sim_start = 1; // Simulation starts
 	do_comp = 0;
 	
@@ -155,8 +155,8 @@ module mvau_tb_v4;
 			       else begin
 				  $fatal(1,"Data MisMatch");
 				  $display($time, " << Delay1: %d, Delay2: %d", rand_dly1, rand_dly2);
-			       end
-			  end
+			       end			     
+			  end // else: !if(out_packed[PE-k-1] == mvau_beh[m][i][j*PE+k])			  
 		       end // for (int k = 0; k < PE; k++)
 		    end // if (out_v)
 		 end // block: DUT_BEH_MATCH
@@ -228,10 +228,17 @@ module mvau_tb_v4;
    
    /*
     * Generating data for DUT
-    * */   
-   assign rand_dly1 = $urandom_range(1,ACT_MatrixH/SIMD-2);   
-   assign rand_dly2 = $urandom_range(1,ACT_MatrixH/SIMD-2);
+    * */
 
+   // Generating some random numbers to control the delay counter
+   assign rand_range1 = $urandom_range(1,ACT_MatrixH/SIMD-2);   
+   assign rand_range2 = $urandom_range(1,ACT_MatrixH/SIMD-2);
+
+   assign rand_dly1 = rand_range1 >= 1 ? rand_range1: 1;   
+   assign rand_dly2 = rand_range2 >= 1 ? rand_range2: 1;
+
+   // Always: DELAY_COUNTER
+   // A counter to delay the response of input ready to output valid
    always @(posedge aclk) begin
       if(!aresetn)
 	dly_cnt <= 0;
@@ -241,20 +248,19 @@ module mvau_tb_v4;
 	dly_cnt <= dly_cnt + 1;
    end
    
-      
+   // Always: Counters
+   // Three counters to control the generation of input
    always @(posedge aclk) begin
       if(!aresetn) begin
 	 m_inp <= 0;
 	 i_inp <= 0;
 	 j_inp <= 0;
-	 //in_v_init <= 1'd0;	 
       end
       else if(wready) begin
 	 if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1) begin
 	    m_inp <= MMV-1;
 	    i_inp <= ACT_MatrixW-1;
 	    j_inp <= ACT_MatrixH/SIMD-1;
-	    //in_v_init <= 1'd0;	    
 	 end
 	 else if(i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1) begin
 	    i_inp <= 0;
@@ -272,32 +278,77 @@ module mvau_tb_v4;
 	 else
 	   j_inp <= j_inp +1;	 
       end // if (wready)
-      // else begin
-      // 	 in_v_init <= 1'd1;
-      // end // else: !if(wready)        
    end // always @ (posedge clk)
 
+   // Always: INP_GEN
+   // Generating input for the DUT from the input tensor
    always @(aresetn, m_inp, i_inp, j_inp) begin
       for(int k = 0; k < SIMD; k++) begin
 	 in[k] = in_mat[m_inp][i_inp][j_inp][k];
       end
    end
-   always_ff @(posedge aclk) begin
-      if(!aresetn)
-	in_v <= 1'b0;
-      else if(dly_cnt == rand_dly2)//ACT_MatrixH/(SIMD*2)-1)
-	in_v <= 1'b1;      
-      else if(j_inp == rand_dly1)//ACT_MatrixH/(SIMD*2)-rand_dly1)
-	in_v <= 1'b0;      
-      else if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1)
-	in_v <= 1'b0;
-      else
-	in_v <= 1'b1;
-   end
 
+   // Always_FF: INP_V_GEN
+   // Generating input valid for a variety of cases
+   if(ACT_MatrixW==1) begin: COL_1
+      if(ACT_MatrixH/SIMD==1) begin: ROW_1
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(dly_cnt == rand_dly2)//ACT_MatrixH/(SIMD*2)-1)
+	      in_v <= 1'b1;      
+	    else if(j_inp == rand_dly1)//ACT_MatrixH/(SIMD*2)-rand_dly1)
+	      in_v <= 1'b0;      	    
+	    else
+	      in_v <= ~in_v;
+	 end
+end
+      else begin: ROW_N
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(dly_cnt == rand_dly2)//ACT_MatrixH/(SIMD*2)-1)
+	      in_v <= 1'b1;      
+	    else if(j_inp == rand_dly1)//ACT_MatrixH/(SIMD*2)-rand_dly1)
+	      in_v <= 1'b0;           
+	    else if(m_inp == MMV-1 & j_inp == ACT_MatrixH/SIMD-1)
+	      in_v <= 1'b1;
+	    else
+	      in_v <= 1'b0;
+	 end
+end
+   end // block: COL_1   
+   else begin: COL_N
+      if(ACT_MatrixH/SIMD==1) begin: ROW_1
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(dly_cnt == rand_dly2)//ACT_MatrixH/(SIMD*2)-1)
+	      in_v <= 1'b1;      
+	    else if(j_inp == rand_dly1)//ACT_MatrixH/(SIMD*2)-rand_dly1)
+	      in_v <= 1'b0;      	    
+	    else if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1)
+	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;
+	 end
+end
+      else begin: ROW_N   
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(dly_cnt == rand_dly2)//ACT_MatrixH/(SIMD*2)-1)
+	      in_v <= 1'b1;      
+	    else if(j_inp == rand_dly1)//ACT_MatrixH/(SIMD*2)-rand_dly1)
+	      in_v <= 1'b0;      
+	    else if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1)
+	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;
+	 end // always_ff @ (posedge aclk)
+end // block: ROW_N      
+   end // block: COL_N
    
-   
-
    /*
     * DUT Instantiation
     * */

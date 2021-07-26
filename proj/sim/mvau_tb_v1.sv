@@ -36,15 +36,15 @@ module mvau_tb_v1;
    parameter int NO_IN_VEC = 100;
    parameter int ACT_MatrixW = OFMDim*OFMDim; // input activation matrix height
    parameter int ACT_MatrixH = (KDim*KDim*IFMCh); // input activation matrix weight
-   parameter int TOTAL_OUTPUTS = MatrixH*ACT_MatrixW;
+   parameter int TOTAL_OUTPUTS = MMV*MatrixH*ACT_MatrixW;
    
    // Signals Declarations
-   // Signal: clk
+   // Signal: aclk
    // Main clock
-   logic 	 clk;
-   // Signal: rst_n
+   logic 	 aclk;
+   // Signal: aresetn
    // Asynchronous active low reset
-   logic 	 rst_n;
+   logic 	 aresetn;
    // Signal: out_v
    // Output valid signal
    logic 	  out_v;
@@ -65,7 +65,7 @@ module mvau_tb_v1;
    // Signal: in_mat
    // Input activation matrix
    // Dimension: ACT_MatrixH x ACT_MatrixW, word length: TSrcI
-   logic [TSrcI-1:0] 	     in_mat [0:ACT_MatrixH-1][0:ACT_MatrixW-1];
+   logic [TSrcI-1:0] 	     in_mat [0:MMV-1][0:ACT_MatrixH-1][0:ACT_MatrixW-1];
    // Signal: in
    // Input activation stream to DUT
    // Dimension: SIMD, word length: TSrcI
@@ -73,19 +73,31 @@ module mvau_tb_v1;
    // Signal: mvau_beh
    // Output matrix holding output of behavioral simulation
    // Dimension: MatrixH x ACT_MatrixW
-   logic [TDstI-1:0] 	       mvau_beh [0:MatrixH-1][0:ACT_MatrixW-1];
+   logic [TDstI-1:0] 	       mvau_beh [0:MMV-1][0:MatrixH-1][0:ACT_MatrixW-1];
    // Signal: test_count
    // An integer to count for successful output matching
    integer 		       test_count;
    // Signal: do_comp
    // A signal which indicates the comparison is done, helps in debugging
    logic 		       do_comp;
+   // Signal: latency
+   // An integer to count the total number of cycles taken to get all outputs
+   integer 		       latency;
+   // Signal: sim_start
+   // A signal which indicates when simulation starts
+   logic 		       sim_start;
+   // Signal: rready
+   // Input ready to the DUT
+   logic 		       rready;
+   // Signal: wready
+   // Output ready from the DUT
+   logic 		       wready;
    
+
    // Events for synchronizing the simulation
    event 		       gen_inp;    // generate input activation matrix
    event 		       gen_weights;// generate weight matrix
    event 		       do_mvau_beh;// perform behavioral mvau
-   event 		       test_event; // to start testing
    
    
    // Initial: CLK_RST_GEN
@@ -94,55 +106,71 @@ module mvau_tb_v1;
    initial
      begin
 	$display($time, " << Starting Simulation >>");	
-	clk 		      = 0;
-	rst_n 		      = 0;
-	test_count 	      = 0;
-	
+	aclk 		      = 0;
+	aresetn 		      = 0;
+	sim_start = 0;
+	test_count = 0;
+	rready = 0;	
+
 	// Generating events to generate input vector and coefficients for test	
 	#1 		      -> gen_inp; // To populate the input data vector
 	#1 		      -> gen_weights; // To generate coefficients
 	#1 		      -> do_mvau_beh; // To perform behavioral matrix vector convolution
 
-	#(INIT_DLY-CLK_PER/2) -> test_event; // Test event to start generating input
-	#(CLK_PER/2);
+	#(INIT_DLY);//-CLK_PER/2) -> test_event; // Test event to start generating input
+	//#(CLK_PER/2);
 	
-	rst_n 		      = 1; // Coming out of reset
-	do_comp = 0;	
+	aresetn 		      = 1; // Coming out of reset
+	//rready = 1; // Fixing rready to '1' as this is just test bench
+	sim_start = 1; // Simulation starts
+	do_comp = 0;
+	
 	$display($time, " << Coming out of reset >>");
 	$display($time, " << Starting simulation with System Verilog based data >>");
 
 	// Checking DUT output with golden output generated in the test bench
-	#(CLK_PER*5); // Delaying to synchronize the DUT output
-	// We need to delay more until the final output comes
-	// To-do for tomorrow
-	for(int i = 0; i < ACT_MatrixW; i++) begin
-	   for(int j = 0; j < MatrixH/PE; j++) begin
-	      #(CLK_PER*MatrixW/SIMD);
-	      do_comp = 1;	      
-	      @(posedge clk) begin: DUT_BEH_MATCH
-		 if(out_v) begin
-		    out_packed = out;
-		    for(int k = 0; k < PE; k++) begin
-		       if(out_packed[k] == mvau_beh[j*PE+k][i]) begin
-			  $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
-			  test_count++;
-		       end
-		       else begin
-			  $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",k,out_packed[k],j*PE+k,i,mvau_beh[j*PE+k][i]);
-			  assert (out_packed[k] == mvau_beh[j*PE+k][i])
-			    else
-			      $fatal(1,"Data MisMatch");
-		       end
-		    end // for (int k = 0; k < PE; k++)
-		 end // if (out_v)
-	      end // block: DUT_BEH_MATCH
-	      do_comp = 0;	      
-	   end // for (int j = 0; j < MatrixH/PE; j++)
-	end // for (int i = 0; i < ACT_MatrixW; i++)
+	//#(CLK_PER*5) // Delaying to synchronize the DUT output
+	for(int m = 0; m < MMV; m++) begin
+	   for(int i = 0; i < ACT_MatrixW; i++) begin
+	      for(int j = 0; j < MatrixH/PE; j++) begin
+		 //#(CLK_PER*MatrixW/SIMD)
+		 do_comp = 1; // Indicating when actual comparison is done, helps in debugging
+		 wait(out_v==1'b1);		 
+		 @(posedge aclk) begin: DUT_BEH_MATCH
+		    if(out_v) begin		    
+		       out_packed = out;
+		       for(int k = 0; k < PE; k++) begin
+			  if(out_packed[PE-k-1] == mvau_beh[m][j*PE+k][i]) begin
+			     $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",
+				      k,out_packed[PE-k-1],i,j*PE+k,mvau_beh[m][j*PE+k][i]);
+			     test_count++;
+			  end
+			  else begin
+			     $display($time, "<< PE%d : 0x%0h >>, << Model_%d_%d: 0x%0h",
+				      k,out_packed[PE-k-1],i,j*PE+k,mvau_beh[m][j*PE+k][i]);
+			     assert (out_packed[PE-k-1] == mvau_beh[m][j*PE+k][i])
+			       else
+				 $fatal(1,"Data MisMatch");
+			  end
+		       end // for (int k = 0; k < PE; k++)
+		    end // if (out_v)
+		 end // block: DUT_BEH_MATCH
+		 do_comp = 0;
+		 wait(out_v==1'b0 || rready==1'b1);		 
+	      end // for (int j = 0; j < MatrixH/PE; j++)
+	   end // for (int i = 0; i < ACT_MatrixW; i++)
+	end // for (int m = 0; m < MMV; m++)
 	
+	sim_start = 0;
+		
 	#RAND_DLY;
 	if(test_count == TOTAL_OUTPUTS) begin
-	  $display($time, " << Simulation Complete. Total successul outputs: %d >>", test_count);
+	   integer f;
+	   $display($time, " << Simulation Complete. Total successul outputs: %d >>", test_count);
+	   $display($time, " << Latency: %d >>", latency/MMV);
+	   f = $fopen("latency.txt","w");
+	   $fwrite(f,"%d",latency);
+	   $fclose(f);	   
 	   $stop;
 	end
 	else begin
@@ -155,7 +183,7 @@ module mvau_tb_v1;
    // Always: CLK_GEN
    // Generating clock using the CLK_PER as clock period
    always
-     #(CLK_PER/2) clk = ~clk;
+     #(CLK_PER/2) aclk = ~aclk;
 
    // Always: WGT_MAT_GEN
    // Generates a weight matrix using memory files
@@ -167,9 +195,10 @@ module mvau_tb_v1;
    // Input matrix generation using random data
    always @(gen_inp)
      begin
-	for(int row = 0; row < ACT_MatrixH; row=row+1)
-	  for(int col = 0; col < ACT_MatrixW; col = col+1)
-	    in_mat[row][col] = TSrcI'($random);
+	for(int m = 0; m < MMV; m=m+1)
+	  for(int row = 0; row < ACT_MatrixH; row=row+1)
+	    for(int col = 0; col < ACT_MatrixW; col = col+1)
+	      in_mat[m][row][col] = TSrcI'($random);
      end
 
    /*
@@ -180,39 +209,46 @@ module mvau_tb_v1;
     * Case 3: Multi-bit weight and 1-bit input activation
     * Case 4: Multi-bit weight and input activation
     * */
+   // Always: OUT_GEN_BEH
+   // Generating the golden output data
    if(TSrcI==1) begin: NONGEN_MVAU1
       if(TW==1) begin: XNOR_MVAU1
 	 // Case 1
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH1
-	      for(int i = 0; i < MatrixH; i++)
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j]   = '0;
-		   for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
-		      for(int l = 0; l < SIMD; l++) begin
-			 mvau_beh[i][j] += weights[i][k][l]^~in_mat[k*SIMD+l][j]; // XNOR
-		      end
-		   end
+	      for(int m = 0; m < MMV; m++) begin
+		for(int i = 0; i < MatrixH; i++) begin
+		  for(int j = 0; j < ACT_MatrixW; j++) begin
+		     mvau_beh[m][i][j]   = '0;
+		     for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
+			for(int l = 0; l < SIMD; l++) begin
+			   mvau_beh[m][i][j] += weights[i][k][l]^~in_mat[m][k*SIMD+l][j]; // XNOR
+			end
+		     end
+		  end
 		end
+	      end // for (int m = 0; m < MMV; m++)
 	   end // block: MVAU_BEH1
 end // block: XNOR_MVAU1      
       else begin: BIN_MVAU1
 	 // Case 2
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH2
-	      for(int i = 0; i < MatrixH; i++) begin
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j] = '0;
-		   for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
-		      for(int l = 0; l < SIMD; l++) begin
-			 if(in_mat[k*SIMD+l][j] == 1'b1) // in = +1
-			   mvau_beh[i][j] += weights[i][k][l];		      
-			 else // in = -1
-			   mvau_beh[i][j] += ~weights[i][k][l]+1'b1;
-		      end
-		   end
-		end // for (int j = 0; j < ACT_MatrixW; j++)
-	      end // for (int i = 0; i < MatrixH; i++)
+	      for(int m = 0; m < MMV; m++) begin
+		 for(int i = 0; i < MatrixH; i++) begin
+		    for(int j = 0; j < ACT_MatrixW; j++) begin
+		       mvau_beh[m][i][j] = '0;
+		       for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
+			  for(int l = 0; l < SIMD; l++) begin
+			     if(in_mat[m][k*SIMD+l][j] == 1'b1) // in = +1
+			       mvau_beh[m][i][j] += weights[i][k][l];		      
+			     else // in = -1
+			       mvau_beh[m][i][j] += ~weights[i][k][l]+1'b1;
+			  end
+		       end
+		    end // for (int j = 0; j < ACT_MatrixW; j++)
+		 end // for (int i = 0; i < MatrixH; i++)
+	      end // for (int m = 0; m < MMV; m++)
 	   end // block: MVAU_BEH2
 end // block: BIN_MVAU1      
    end // block: NONGEN_MVAU1   
@@ -221,35 +257,39 @@ end // block: BIN_MVAU1
 	 // Case 1
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH3
-	      for(int i = 0; i < MatrixH; i++) begin
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j]   = '0;
-		   for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
-		     for(int l = 0; l < SIMD; l++) begin
-			 mvau_beh[i][j] += weights[i][k][l]^~in_mat[k*SIMD+l][j]; // XNOR
-		     end
-		   end
-		end
-	      end
+	      for(int m = 0; m < MMV; m++) begin
+		 for(int i = 0; i < MatrixH; i++) begin
+		    for(int j = 0; j < ACT_MatrixW; j++) begin
+		       mvau_beh[m][i][j]   = '0;
+		       for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
+			  for(int l = 0; l < SIMD; l++) begin
+			     mvau_beh[m][i][j] += weights[i][k][l]^~in_mat[m][k*SIMD+l][j]; // XNOR
+			  end
+		       end
+		    end
+		 end		 
+	      end // for (int m = 0; m < MMV; m++)	      
 	   end // block: MVAU_BEH3
 end // block: XNOR_MVAU2      
       else begin: BIN_MVAU2
 	 // Case 3
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH4
-	      for(int i = 0; i < MatrixH; i++) begin
-		for(int j = 0; j < ACT_MatrixW; j++) begin
-		   mvau_beh[i][j] = '0;
-		   for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
-		      for(int l = 0; l < SIMD; l++) begin
-			 if(weights[i][k][l] == 1'b1) // in_wgt = +1
-			   mvau_beh[i][j] += in_mat[k*SIMD+l][j];
-			 else // in_wgt = -1
-			   mvau_beh[i][j] += ~in_mat[k*SIMD+l][j]+1'b1;
-		      end
-		   end
-		end // for (int j = 0; j < ACT_MatrixW; j++)
-	      end // for (int i = 0; i < MatrixH; i++)
+	      for(int m = 0; m < MMV; m++) begin
+		 for(int i = 0; i < MatrixH; i++) begin
+		    for(int j = 0; j < ACT_MatrixW; j++) begin
+		       mvau_beh[m][i][j] = '0;
+		       for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
+			  for(int l = 0; l < SIMD; l++) begin
+			     if(weights[i][k][l] == 1'b1) // in_wgt = +1
+			       mvau_beh[m][i][j] += in_mat[m][k*SIMD+l][j];
+			     else // in_wgt = -1
+			       mvau_beh[m][i][j] += ~in_mat[m][k*SIMD+l][j]+1'b1;
+			  end
+		       end
+		    end // for (int j = 0; j < ACT_MatrixW; j++)
+		 end // for (int i = 0; i < MatrixH; i++)
+	      end // for (int m = 0; m < MMV; m++)	      
 	   end // block: MVAU_BEH4
 end // block: BIN_MVAU2      
    end // block: NONGEN_MVAU2   
@@ -257,38 +297,132 @@ end // block: BIN_MVAU2
       // Case 4
       always @(do_mvau_beh)
 	begin: MVAU_BEH
-	   for(int i = 0; i < MatrixH; i++) begin
-	     for(int j = 0; j < ACT_MatrixW; j++) begin
-		mvau_beh[i][j] 	 = '0;
-		for(int k = 0; k < ACT_MatrixH/SIMD; k++)
-		  for(int l = 0; l < SIMD; l++) begin
-		     mvau_beh[i][j] += weights[i][k][l]*in_mat[k*SIMD+l][j];
-		  end
-	     end
-	   end
+	   for(int m = 0; m < MMV; m++) begin
+	      for(int i = 0; i < MatrixH; i++) begin
+		 for(int j = 0; j < ACT_MatrixW; j++) begin
+		    mvau_beh[m][i][j] 	 = '0;
+		    for(int k = 0; k < ACT_MatrixH/SIMD; k++)
+		      for(int l = 0; l < SIMD; l++) begin
+			 mvau_beh[m][i][j] += weights[i][k][l]*in_mat[m][k*SIMD+l][j];
+		      end
+		 end
+	      end
+	   end // for (int m = 0; m < MMV; m++)	   
 	end // block: MVAU_BEH
 end // block: GEN_MVAU   
-   
-   /*
-    * Generating data from DUT
-    * */
-   always @(test_event)   
+
+   // Always_FF: CALC_LATENCY
+   // Always block for calculating the total run time
+   // of simulation in terms of clock cycles
+   always_ff @(posedge aclk)
      begin
-	for(int i = 0; i < ACT_MatrixW; i++) begin
-	   for(int j = 0; j < ACT_MatrixH/SIMD; j++) begin
-	      #(CLK_PER/2);
-	      in_v = 1'b1;
-	      for(int k = 0; k < SIMD; k++) begin
-		 in[k] = in_mat[j*SIMD+k][i];
-	      end
-	      //$display($time, " << Row: %d, Col%d => Data In: 0x%0h >>", j,i,in);
-	      #(CLK_PER/2);	   
-	   end
-	   in_v = 1'b0;
-	   #(CLK_PER*((MatrixW/SIMD)*(MatrixH/PE-1)));
-	end
+	if(!aresetn)
+	  latency <= 'd0;
+	else if(sim_start == 1'b1)
+	  latency <= latency+1'b1;
      end
 
+   // Always_Comb: Input Ready
+   always @(out_v) begin
+      //rready = 1'b0;      
+      //#(CLK_PER*100+1)
+      //rready = out_v;
+      rready = 1'b1;
+      
+   end
+   
+   /*
+    * Generating data for DUT
+    * */
+   int m_inp, i_inp, j_inp;
+   // Always: Counters
+   // Three counters to control the generation of input
+   always @(posedge aclk) begin
+      if(!aresetn) begin
+	 m_inp <= 0;
+	 i_inp <= 0;
+	 j_inp <= 0;
+      end
+      else if(wready) begin
+	 if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1) begin
+	    m_inp <= MMV-1;
+	    i_inp <= ACT_MatrixW-1;
+	    j_inp <= ACT_MatrixH/SIMD-1;
+	 end
+	 else if(i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1) begin
+	    i_inp <= 0;
+	    j_inp <= 0;
+	    m_inp <= m_inp+1;
+	 end
+	 else if(j_inp == ACT_MatrixH/SIMD-1) begin
+	    j_inp <= 0;
+	    i_inp <= i_inp+1;
+	 end
+	 else
+	   j_inp <= j_inp +1;	 
+      end      
+   end // always @ (posedge aclk)
+
+   // Always: INP_GEN
+   // Generating input for the DUT from the input tensor
+   always @(aresetn, m_inp, i_inp, j_inp) begin
+      for(int k = 0; k < SIMD; k++) begin
+	 in[k] = in_mat[m_inp][j_inp*SIMD+k][i_inp];//in_mat[m_inp][i_inp][j_inp][k];
+      end
+   end
+
+   // always_ff @(posedge aclk) begin
+   //    if(!aresetn)
+   // 	in_v <= 1'b0;
+   //    else
+   // 	in_v <= 1'b1;
+   // end
+   // Always_FF: INP_V_GEN
+   // Generating input valid for a variety of cases
+   if(ACT_MatrixW==1) begin: COL_1
+      if(ACT_MatrixH/SIMD==1) begin: ROW_1
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(m_inp == MMV-1)
+	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;//~in_v;
+	 end
+end
+      else begin: ROW_N
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(m_inp == MMV-1 & j_inp == ACT_MatrixH/SIMD-1)
+	      in_v <= 1'b1;
+	    else
+	      in_v <= 1'b0;
+	 end
+end
+   end // block: COL_1   
+   else begin: COL_N
+      if(ACT_MatrixH/SIMD==1) begin: ROW_1
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1)
+	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;
+	 end
+end
+      else begin: ROW_N   
+	 always_ff @(posedge aclk) begin
+	    if(!aresetn)
+	      in_v <= 1'b0;
+	    else if(m_inp == MMV-1 & i_inp == ACT_MatrixW-1 & j_inp == ACT_MatrixH/SIMD-1)
+	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;
+	 end
+end
+   end // block: COL_N
 
    /*
     * DUT Instantiation
@@ -316,16 +450,17 @@ end // block: GEN_MVAU
 	      .TO	   (TO          ), 
 	      .TA 	   (TA          ), 
 	      .USE_DSP 	   (USE_DSP     ), 
-	      .INST_WMEM   (INST_WMEM   ), 
+	      .INST_WMEM   (INST_WMEM   ),
 	      .USE_ACT	   (USE_ACT     ))	      
-	      mvau_inst(
-		      .aresetn,
-		      .aclk,
-		      .rready,
-		      .wready,
-		      .in_v,				
-		      .in,
-		      .out_v,
-		      .out);
+   mvau_inst(
+	     .aresetn(aresetn),
+	     .aclk(aclk),
+	     .m0_axis_tready(rready),
+	     .s0_axis_tready(wready),
+	     .s0_axis_tvalid(in_v),				
+	     .s0_axis_tdata(in),
+	     .m0_axis_tvalid(out_v),
+	     .m0_axis_tdata(out)
+	     );
    
 endmodule // mvau_tb
