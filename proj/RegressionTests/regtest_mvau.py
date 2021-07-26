@@ -236,10 +236,10 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
             for inp_wl, wgt_wl in zip(inp_wl_arr, wgt_wl_arr):
                 out_wl = min(16,inp_wl+wgt_wl+ceil(log2(kdim*kdim*ifm_ch)))
                 for s,p in zip(simd, pe):
-                    ### Skipping this config set when ifm channel is an integer multiple of SIMD
+                    ### Skipping this config set when ifm channel is not an integer multiple of SIMD
                     if(ifm_ch%s!=0 or s>ifm_ch):
                         continue
-                    ### Skipping this config set when ofm channel is an integer multiple of PE
+                    ### Skipping this config set when ofm channel is not an integer multiple of PE
                     if(ofm_ch%p!=0 or p>ofm_ch):
                         continue                    
                     ### Preparing a dict to write to a file with config details
@@ -361,23 +361,25 @@ def parser():
 
 if __name__ == '__main__':
 
-    kdim_arr    = np.array([4])#np.arange(4,5))#7))
-    ifm_ch_arr  = np.array([32])#,4,6,10,12,16,18,20])
-    ofm_ch_arr  = np.array([32])#,6,8,10,12,14,16,20])
-    ifm_dim_arr = np.array([16])#,8,12,16,20,24,28,32])
-    inp_wl_arr  = np.array([4])#1,4,8,12])
-    wgt_wl_arr  = np.array([4])#,2,4,8])
+    kdim_arr    = np.array([4])
+    ### Keep the length of the following three arrays same
+    ifm_ch_arr  = np.array([64])
+    ofm_ch_arr  = np.array([256])
+    ifm_dim_arr = np.array([32])
 
-    simd = np.array([8])#np.arange(64,65))#10))
-    pe = np.array([8])#np.arange(64,65))#10))
+    ### Keep the length of the following two arrays same
+    inp_wl_arr  = np.array([4])
+    wgt_wl_arr  = np.array([4])
+
+    ### Keep the length of the following two arrays same
+    simd = np.array([64])
+    pe = np.array([64])
     
     args = parser().parse_args()
     out_file = args.out_file    
     
-    ##os.environ['MVAU_RTL_ROOT'] = '~/workspace/TCD_workspace/Xilinx_mvau/'
     mvau_env = os.environ.get('MVAU_RTL_ROOT')
     mvau_tb = mvau_env+'/proj/RegressionTests'
-    ##os.environ['FINN_HLS_ROOT'] = mvau_env+'proj/finn-hlslib/'
     finn_env = os.environ.get('FINN_HLS_ROOT')
     finn_tb = finn_env+'/tb/'
 
