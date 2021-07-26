@@ -85,7 +85,6 @@ else
     echo "RTL simulation successful"
 fi
 
-
 echo "Running behavorial simulation of RTL with different input timing"
 bash mvau_test_v4.sh
 if [ $? -eq 0 ]; then
