@@ -363,15 +363,15 @@ def parser():
 
 if __name__ == '__main__':
 
-    kdim_arr    = np.array([4])#7))
-    ifm_ch_arr  = np.array([64])#,4,6,10,12,16,18,20])
-    ofm_ch_arr  = np.array([128])#,6,8,10,12,14,16,20])
-    ifm_dim_arr = np.array([32])#,8,12,16,20,24,28,32])
-    inp_wl_arr  = np.array([1])#1,4,8,12])
-    wgt_wl_arr  = np.array([1])#,2,4,8])
+    kdim_arr    = np.array([2])#7))
+    ifm_ch_arr  = np.array([16])#,4,6,10,12,16,18,20])
+    ofm_ch_arr  = np.array([16])#,6,8,10,12,14,16,20])
+    ifm_dim_arr = np.array([8])#,8,12,16,20,24,28,32])
+    inp_wl_arr  = np.array([4])#1,4,8,12])
+    wgt_wl_arr  = np.array([4])#,2,4,8])
 
-    simd = np.array([64])#np.arange(4,5))#10))
-    pe = np.array([64])#np.arange(4,5))#10))
+    simd = np.array([4])#np.arange(4,5))#10))
+    pe = np.array([4])#np.arange(4,5))#10))
     
     args = parser().parse_args()
     out_file = args.out_file    
