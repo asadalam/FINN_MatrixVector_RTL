@@ -11,54 +11,82 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="41fs"></ZoomStartTime>
-      <ZoomEndTime time="292fs"></ZoomEndTime>
-      <Cursor1Time time="124fs"></Cursor1Time>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="451fs"></ZoomEndTime>
+      <Cursor1Time time="70fs"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="233"></NameColumnWidth>
-      <ValueColumnWidth column_width="88"></ValueColumnWidth>
+      <ValueColumnWidth column_width="68"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="32" />
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/clk">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
+   <WVObjectSize size="62" />
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/aclk">
+      <obj_property name="ElementShortName">aclk</obj_property>
+      <obj_property name="ObjectShortName">aclk</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/rst_n">
-      <obj_property name="ElementShortName">rst_n</obj_property>
-      <obj_property name="ObjectShortName">rst_n</obj_property>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/aresetn">
+      <obj_property name="ElementShortName">aresetn</obj_property>
+      <obj_property name="ObjectShortName">aresetn</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/rready">
+      <obj_property name="ElementShortName">rready</obj_property>
+      <obj_property name="ObjectShortName">rready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/wready">
+      <obj_property name="ElementShortName">wready</obj_property>
+      <obj_property name="ObjectShortName">wready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/wmem_wready">
+      <obj_property name="ElementShortName">wmem_wready</obj_property>
+      <obj_property name="ObjectShortName">wmem_wready</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/mvau_stream_tb_v3/in_v">
       <obj_property name="ElementShortName">in_v</obj_property>
       <obj_property name="ObjectShortName">in_v</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/weights">
-      <obj_property name="ElementShortName">weights[0:0][0:3][2:0][0:3][0:0]</obj_property>
-      <obj_property name="ObjectShortName">weights[0:0][0:3][2:0][0:3][0:0]</obj_property>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/in_wgt_v">
+      <obj_property name="ElementShortName">in_wgt_v</obj_property>
+      <obj_property name="ObjectShortName">in_wgt_v</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/in_wgt">
-      <obj_property name="ElementShortName">in_wgt[0:2][0:3][0:0]</obj_property>
-      <obj_property name="ObjectShortName">in_wgt[0:2][0:3][0:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/in_act">
-      <obj_property name="ElementShortName">in_act[0:3][0:0]</obj_property>
-      <obj_property name="ObjectShortName">in_act[0:3][0:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_beh">
-      <obj_property name="ElementShortName">mvau_beh[0:8][0:2][3:0]</obj_property>
-      <obj_property name="ObjectShortName">mvau_beh[0:8][0:2][3:0]</obj_property>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/do_comp">
+      <obj_property name="ElementShortName">do_comp</obj_property>
+      <obj_property name="ObjectShortName">do_comp</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/mvau_stream_tb_v3/out_v">
       <obj_property name="ElementShortName">out_v</obj_property>
       <obj_property name="ObjectShortName">out_v</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/mvau_stream_tb_v3/out">
-      <obj_property name="ElementShortName">out[11:0]</obj_property>
-      <obj_property name="ObjectShortName">out[11:0]</obj_property>
+      <obj_property name="ElementShortName">out[55:0]</obj_property>
+      <obj_property name="ObjectShortName">out[55:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/mvau_stream_tb_v3/out_packed">
-      <obj_property name="ElementShortName">out_packed[0:2][3:0]</obj_property>
-      <obj_property name="ObjectShortName">out_packed[0:2][3:0]</obj_property>
+      <obj_property name="ElementShortName">out_packed[0:3][13:0]</obj_property>
+      <obj_property name="ObjectShortName">out_packed[0:3][13:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/weights">
+      <obj_property name="ElementShortName">weights[0:3][0:15][3:0][0:3][3:0]</obj_property>
+      <obj_property name="ObjectShortName">weights[0:3][0:15][3:0][0:3][3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/in_wgt_packed">
+      <obj_property name="ElementShortName">in_wgt_packed[0:63]</obj_property>
+      <obj_property name="ObjectShortName">in_wgt_packed[0:63]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/in_wgt_um">
+      <obj_property name="ElementShortName">in_wgt_um[0:3][0:3][3:0]</obj_property>
+      <obj_property name="ObjectShortName">in_wgt_um[0:3][0:3][3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/in_mat">
+      <obj_property name="ElementShortName">in_mat[0:0][0:48][0:15][0:3][3:0]</obj_property>
+      <obj_property name="ObjectShortName">in_mat[0:0][0:48][0:15][0:3][3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/in_act">
+      <obj_property name="ElementShortName">in_act[0:3][3:0]</obj_property>
+      <obj_property name="ObjectShortName">in_act[0:3][3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_beh">
+      <obj_property name="ElementShortName">mvau_beh[0:48][0:15][13:0]</obj_property>
+      <obj_property name="ObjectShortName">mvau_beh[0:48][0:15][13:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/mvau_stream_tb_v3/test_count">
       <obj_property name="ElementShortName">test_count[31:0]</obj_property>
@@ -68,84 +96,178 @@
       <obj_property name="ElementShortName">latency[31:0]</obj_property>
       <obj_property name="ObjectShortName">latency[31:0]</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/sim_start">
+      <obj_property name="ElementShortName">sim_start</obj_property>
+      <obj_property name="ObjectShortName">sim_start</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/m_inp">
+      <obj_property name="ElementShortName">m_inp[31:0]</obj_property>
+      <obj_property name="ObjectShortName">m_inp[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/i_inp">
+      <obj_property name="ElementShortName">i_inp[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i_inp[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/j_inp">
+      <obj_property name="ElementShortName">j_inp[31:0]</obj_property>
+      <obj_property name="ObjectShortName">j_inp[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/x_inp">
+      <obj_property name="ElementShortName">x_inp[31:0]</obj_property>
+      <obj_property name="ObjectShortName">x_inp[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/r_inp">
+      <obj_property name="ElementShortName">r_inp[31:0]</obj_property>
+      <obj_property name="ObjectShortName">r_inp[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/s_inp">
+      <obj_property name="ElementShortName">s_inp[31:0]</obj_property>
+      <obj_property name="ObjectShortName">s_inp[31:0]</obj_property>
+   </wvobject>
    <wvobject fp_name="divider37" type="divider">
       <obj_property name="label">DUT</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/rst_n">
-      <obj_property name="ElementShortName">rst_n</obj_property>
-      <obj_property name="ObjectShortName">rst_n</obj_property>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/aresetn">
+      <obj_property name="ElementShortName">aresetn</obj_property>
+      <obj_property name="ObjectShortName">aresetn</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/clk">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/aclk">
+      <obj_property name="ElementShortName">aclk</obj_property>
+      <obj_property name="ObjectShortName">aclk</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/in_v">
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/rready">
+      <obj_property name="ElementShortName">rready</obj_property>
+      <obj_property name="ObjectShortName">rready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/wready">
+      <obj_property name="ElementShortName">wready</obj_property>
+      <obj_property name="ObjectShortName">wready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/wmem_wready">
+      <obj_property name="ElementShortName">wmem_wready</obj_property>
+      <obj_property name="ObjectShortName">wmem_wready</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/in_v">
       <obj_property name="ElementShortName">in_v</obj_property>
       <obj_property name="ObjectShortName">in_v</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/in_act">
-      <obj_property name="ElementShortName">in_act[3:0]</obj_property>
-      <obj_property name="ObjectShortName">in_act[3:0]</obj_property>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/in_act">
+      <obj_property name="ElementShortName">in_act[15:0]</obj_property>
+      <obj_property name="ObjectShortName">in_act[15:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/in_wgt">
-      <obj_property name="ElementShortName">in_wgt[0:2][0:3][0:0]</obj_property>
-      <obj_property name="ObjectShortName">in_wgt[0:2][0:3][0:0]</obj_property>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/in_wgt_v">
+      <obj_property name="ElementShortName">in_wgt_v</obj_property>
+      <obj_property name="ObjectShortName">in_wgt_v</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/out_v">
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/in_wgt">
+      <obj_property name="ElementShortName">in_wgt[0:63]</obj_property>
+      <obj_property name="ObjectShortName">in_wgt[0:63]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/out_v">
       <obj_property name="ElementShortName">out_v</obj_property>
       <obj_property name="ObjectShortName">out_v</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/out">
-      <obj_property name="ElementShortName">out[11:0]</obj_property>
-      <obj_property name="ObjectShortName">out[11:0]</obj_property>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/out">
+      <obj_property name="ElementShortName">out[55:0]</obj_property>
+      <obj_property name="ObjectShortName">out[55:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/in_v_reg">
-      <obj_property name="ElementShortName">in_v_reg</obj_property>
-      <obj_property name="ObjectShortName">in_v_reg</obj_property>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/in_act_reg">
+      <obj_property name="ElementShortName">in_act_reg[15:0]</obj_property>
+      <obj_property name="ObjectShortName">in_act_reg[15:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/in_act_reg">
-      <obj_property name="ElementShortName">in_act_reg[3:0]</obj_property>
-      <obj_property name="ObjectShortName">in_act_reg[3:0]</obj_property>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/in_wgt_reg">
+      <obj_property name="ElementShortName">in_wgt_reg[0:3][0:3][3:0]</obj_property>
+      <obj_property name="ObjectShortName">in_wgt_reg[0:3][0:3][3:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/in_wgt_reg">
-      <obj_property name="ElementShortName">in_wgt_reg[0:2][0:3][0:0]</obj_property>
-      <obj_property name="ObjectShortName">in_wgt_reg[0:2][0:3][0:0]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/ib_wen">
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/ib_wen">
       <obj_property name="ElementShortName">ib_wen</obj_property>
       <obj_property name="ObjectShortName">ib_wen</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/ib_ren">
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/ib_ren">
       <obj_property name="ElementShortName">ib_ren</obj_property>
       <obj_property name="ObjectShortName">ib_ren</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/sf_clr">
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/sf_clr">
       <obj_property name="ElementShortName">sf_clr</obj_property>
       <obj_property name="ObjectShortName">sf_clr</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/sf_cnt">
-      <obj_property name="ElementShortName">sf_cnt[1:0]</obj_property>
-      <obj_property name="ObjectShortName">sf_cnt[1:0]</obj_property>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/out_act">
+      <obj_property name="ElementShortName">out_act[15:0]</obj_property>
+      <obj_property name="ObjectShortName">out_act[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/out_act">
-      <obj_property name="ElementShortName">out_act[3:0]</obj_property>
-      <obj_property name="ObjectShortName">out_act[3:0]</obj_property>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/out_pe">
+      <obj_property name="ElementShortName">out_pe[0:3][13:0]</obj_property>
+      <obj_property name="ObjectShortName">out_pe[0:3][13:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/out_pe">
-      <obj_property name="ElementShortName">out_pe[0:2][3:0]</obj_property>
-      <obj_property name="ObjectShortName">out_pe[0:2][3:0]</obj_property>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/out_pe_v">
+      <obj_property name="ElementShortName">out_pe_v[0:3]</obj_property>
+      <obj_property name="ObjectShortName">out_pe_v[0:3]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/out_pe_v">
-      <obj_property name="ElementShortName">out_pe_v[0:2]</obj_property>
-      <obj_property name="ObjectShortName">out_pe_v[0:2]</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/do_mvau_stream">
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/do_mvau_stream">
       <obj_property name="ElementShortName">do_mvau_stream</obj_property>
       <obj_property name="ObjectShortName">do_mvau_stream</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/sim_start">
-      <obj_property name="ElementShortName">sim_start</obj_property>
-      <obj_property name="ObjectShortName">sim_start</obj_property>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/in_wgt2d">
+      <obj_property name="ElementShortName">in_wgt2d[0:3][0:15]</obj_property>
+      <obj_property name="ObjectShortName">in_wgt2d[0:3][0:15]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider65" type="divider">
+      <obj_property name="label">PE0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /aresetn">
+      <obj_property name="ElementShortName">aresetn</obj_property>
+      <obj_property name="ObjectShortName">aresetn</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /aclk">
+      <obj_property name="ElementShortName">aclk</obj_property>
+      <obj_property name="ObjectShortName">aclk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /sf_clr">
+      <obj_property name="ElementShortName">sf_clr</obj_property>
+      <obj_property name="ObjectShortName">sf_clr</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /do_mvau_stream">
+      <obj_property name="ElementShortName">do_mvau_stream</obj_property>
+      <obj_property name="ObjectShortName">do_mvau_stream</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /in_act">
+      <obj_property name="ElementShortName">in_act[15:0]</obj_property>
+      <obj_property name="ObjectShortName">in_act[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /in_wgt">
+      <obj_property name="ElementShortName">in_wgt[0:3][3:0]</obj_property>
+      <obj_property name="ObjectShortName">in_wgt[0:3][3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /out_v">
+      <obj_property name="ElementShortName">out_v</obj_property>
+      <obj_property name="ObjectShortName">out_v</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /out">
+      <obj_property name="ElementShortName">out[13:0]</obj_property>
+      <obj_property name="ObjectShortName">out[13:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /out_simd">
+      <obj_property name="ElementShortName">out_simd[0:3][13:0]</obj_property>
+      <obj_property name="ObjectShortName">out_simd[0:3][13:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /out_add">
+      <obj_property name="ElementShortName">out_add[13:0]</obj_property>
+      <obj_property name="ObjectShortName">out_add[13:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /in_act_rev">
+      <obj_property name="ElementShortName">in_act_rev[0:15]</obj_property>
+      <obj_property name="ObjectShortName">in_act_rev[0:15]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /in_act_packed">
+      <obj_property name="ElementShortName">in_act_packed[0:3][3:0]</obj_property>
+      <obj_property name="ObjectShortName">in_act_packed[0:3][3:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/mvau_stream_tb_v3/mvau_stream_inst/mvau_stream_inst/\PE_GEN[0].mvu_pe_inst /do_mvau_stream_reg">
+      <obj_property name="ElementShortName">do_mvau_stream_reg</obj_property>
+      <obj_property name="ObjectShortName">do_mvau_stream_reg</obj_property>
    </wvobject>
 </wave_config>
