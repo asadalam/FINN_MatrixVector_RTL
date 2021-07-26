@@ -43,8 +43,6 @@ def gen_mvau_weight_mem_merged(pe):
     mvau_wmem.write(" * */\n")
     mvau_wmem.write(" \n")
     mvau_wmem.write("`timescale 1ns/1ns\n")
-    mvau_wmem.write("// Package file for parameters\n")
-    #mvau_wmem.write("`include \"mvau_defn.sv\"\n")
     mvau_wmem.write(" \n")
     mvau_wmem.write("module mvau_weight_mem_merged #(\n")
     mvau_wmem.write("    parameter int SIMD=2,\n")
