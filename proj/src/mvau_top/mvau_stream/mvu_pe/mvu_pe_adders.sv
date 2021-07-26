@@ -23,7 +23,6 @@
  * */
 
 `timescale 1ns/1ns
-//`include "../../mvau_defn.sv"
 
 module mvu_pe_adders #(
 		       parameter int SIMD=2,

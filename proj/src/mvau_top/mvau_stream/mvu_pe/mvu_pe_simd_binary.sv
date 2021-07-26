@@ -25,10 +25,14 @@
  * 
  * Outputs:
  * [TDstI-1:0] out   - Output stream, word length TDstI
+ * 
+ * Parameters:
+ * TSrcI - Input word lenght
+ * TW - Weight word length
+ * TDstI - Output word length
  * */
 
 `timescale 1ns/1ns
-//`include "../../mvau_defn.sv"
 
 module mvu_pe_simd_binary #(
 			    parameter int TSrcI=4,

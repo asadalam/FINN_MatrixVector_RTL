@@ -23,10 +23,12 @@
  * Outputs:
  * out_acc_v           - Output valid
  * [TDstI-1:0] out_acc - Output of the accumulator, word length TDstI
+ * 
+ * Parameters:
+ * TDstI - Output word length
  * */
 
 `timescale 1ns/1ns
-//`include "../../mvau_defn.sv"
 
 module mvu_pe_acc #(
 		    parameter int TDstI=4)
@@ -48,7 +50,8 @@ module mvu_pe_acc #(
    // Signal: do_mvau_stream_reg
    // One bit signal to delay a control input by one clock cycle
    logic 		      do_mvau_stream_reg;
-      
+
+   // Always_FF: OUT_VALID
    // out_acc_v is a copy of the sf_clr_dly[1]
    // because that is the time we reach the last cycle
    // of accumulation
@@ -56,9 +59,11 @@ module mvu_pe_acc #(
       if(!aresetn)
 	out_acc_v <= 1'b0;
       else
-	out_acc_v <= do_mvau_stream_reg ? sf_clr_dly[0] : 1'b0;
+	out_acc_v <= sf_clr_dly[0];//do_mvau_stream_reg ? sf_clr_dly[0] : 1'b0;
    end
 
+   // Always_FF: REG_DO_MVAU_STREAM
+   // Registering the do_mvau_stream_reg signal
    always_ff @(posedge aclk) begin
       if(!aresetn)
 	do_mvau_stream_reg <= 1'b0;
@@ -87,7 +92,9 @@ module mvu_pe_acc #(
 	   out_acc <= in_acc; // resetting the accumulator
 	 else
 	   out_acc <= out_acc + in_acc;
-      end      
+      end  
+      else if(sf_clr_dly[1])
+	out_acc <= 'd0; // Clearing the accumulutator      
    end
 
 endmodule // mvu_simd

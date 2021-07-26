@@ -21,10 +21,13 @@
  * 
  * Outputs:
  * [TDstI-1:0] out_add            - Output from adder, word length TDstI
+ * 
+ * Parameters:
+ * SIMD - SIMD factor
+ * TDstI - Output word length
  * */
 
 `timescale 1ns/1ns
-//`include "../../mvau_defn.sv"
 
 module mvu_pe_popcount #(
 			 parameter int SIMD=2,

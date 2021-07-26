@@ -25,11 +25,21 @@
  * Outputs:
  * out_v                     - Output valid
  * [TDstI-1:0] out           - Output stream, word length TDstI
+ * 
+ * Parameters:
+ * SIMD - SIMD factor
+ * PE - PE factor
+ * TSrcI - Input word length
+ * TSrcI_BIN - Indicates whether input is binary or not
+ * TI - Input word length times SIMD
+ * TW - Weight word length
+ * TW_BIN - Indicates whether the weights are binary or not
+ * TDstI - Output word length 
+ * TO - Output word length times PE
+ * 
  * */
-
  
 `timescale 1ns/1ns
-//`include "../../mvau_defn.sv"
 
 module mvu_pe #(
 		parameter int SIMD=2,
@@ -85,14 +95,6 @@ module mvu_pe #(
 	end
    endgenerate
 
-   // Always_FF: MVAU_STREAM_REG
-   // Registering the do_mvau_stream signal
-   // always_ff @(posedge aclk) begin
-   //    if(!aresetn)
-   // 	do_mvau_stream_reg <= 1'b0;
-   //    else
-   // 	do_mvau_stream_reg <= do_mvau_stream;
-   // end
    assign do_mvau_stream_reg = do_mvau_stream;   
       
    /*****************************
