@@ -156,7 +156,7 @@ module mvau_tb_v3;
 		    end // if (out_v)
 		 end // block: DUT_BEH_MATCH
 		 do_comp = 0;
-		 wait(out_v==1'b0 || rready==1'b1);		 
+		 wait(out_v==1'b0);		 
 	      end // for (int j = 0; j < MatrixH/PE; j++)
 	   end // for (int i = 0; i < ACT_MatrixW; i++)
 	end // for (int m = 0; m < MMV; m++)
