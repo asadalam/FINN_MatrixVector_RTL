@@ -41,5 +41,17 @@ In order to rebuild the hardware designs and compare outputs of RTL and HLS desi
 2. Populate the FINN HLS library folder (as it is a submodule): `git submodule update --init'
 3. Set the environment variables: FINN_HLS_ROOT and MVAU_RTL_ROOT
 4. Move to `MVAU_RTL_ROOT/proj/RegresssionTests`
-5. For testing the MVAU batch unit, open the file `regtest_mvau.py`
-6. Define the following parameters in 
+5. For testing the MVAU batch unit, open the file `regtest_mvau.py` or for testing the MVAU Stream Unit, open the file `regtest_mvau_stream.py`
+6. Define the following parameters in the python script
+   1. Kernel dimension (`kdim_arr`)
+   2. Number of input feature map channels (`ifm_ch_arr`)
+   3. Number of output feature map channels (`ofm_ch_arr`)
+   4. Input feature map dimension (`ifm_dim_arr`)
+   5. Input activation (`inp_wl_arr`) and weights precision (`wgt_wl_arr`)
+   6. Number of PEs (`pe`) and number of SIMD elements per PEs (`simd`)
+ 7. All parameters are defined as arrays to test for multiple organizations
+ 8. Arrays definining input feature map channels, output feature map channels and input feature dimensions should preferably have the same length
+ 9. Arrays defining input and output word length should preferably have the same length
+ 10. Arrays defining SIMD and PE should preferably have the same length
+ 11. Run the python script as: `python regtest_mvau.py -o <result_filename>.xlsx`
+ 12. The excel spreadsheet will list down all configurations run and synthesis results for HLS and RTL for each configuration
