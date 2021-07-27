@@ -8,40 +8,40 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Module"></a><a name="Topic298"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Module"></a><a name="Topic306"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Module</div>
 </div>
 
-<a name="MVU_Processing_Element"></a><a name="Topic299"></a><div class="CTopic TModule LSystemVerilog">
+<a name="MVU_Processing_Element"></a><a name="Topic307"></a><div class="CTopic TModule LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">MVU Processing Element (mvu_pe.</span>&#8203;sv)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of the processing element unit.&nbsp; It instantiates a number of SIMD units and an adder unit which takes in the SIMD outputs. It is part of the Matrix-Vector-Multiplication Unit</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">aresetn</td><td class="CDLDefinition"><p>Active low, synchronous reset</p></td></tr><tr><td class="CDLEntry">aclk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">sf_clr</td><td class="CDLDefinition"><p>Control signal to reset the accumulator</p></td></tr><tr><td class="CDLEntry">do_mvau_stream</td><td class="CDLDefinition"><p>Controls how long the MVAU operation continues Case 1: NF=1 =&gt; do_mvau_stream = in_v (input buffer not reused) Case 2: NF&gt;1 =&gt; do_mvau_stream = in_v | (~(nf_clr&amp;sf_clr)) (input buffer reused)</p></td></tr><tr><td class="CDLEntry">[TI-1:0] in_act</td><td class="CDLDefinition"><p>Input activation stream, word length TI=TSrcI*SIMD</p></td></tr><tr><td class="CDLEntry">[0:SIMD-1][TW-1:0] in_wgt</td><td class="CDLDefinition"><p>Input weight stream for each PE</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">out_v</td><td class="CDLDefinition"><p>Output valid</p></td></tr><tr><td class="CDLEntry">[TDstI-1:0] out</td><td class="CDLDefinition"><p>Output stream, word length TDstI</p></td></tr></table><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">SIMD</td><td class="CDLDefinition"><p>SIMD factor</p></td></tr><tr><td class="CDLEntry">PE</td><td class="CDLDefinition"><p>PE factor</p></td></tr><tr><td class="CDLEntry">TSrcI</td><td class="CDLDefinition"><p>Input word length</p></td></tr><tr><td class="CDLEntry">TSrcI_BIN</td><td class="CDLDefinition"><p>Indicates whether input is binary or not</p></td></tr><tr><td class="CDLEntry">TI</td><td class="CDLDefinition"><p>Input word length times SIMD</p></td></tr><tr><td class="CDLEntry">TW</td><td class="CDLDefinition"><p>Weight word length</p></td></tr><tr><td class="CDLEntry">TW_BIN</td><td class="CDLDefinition"><p>Indicates whether the weights are binary or not</p></td></tr><tr><td class="CDLEntry">TDstI</td><td class="CDLDefinition"><p>Output word length</p></td></tr><tr><td class="CDLEntry">TO</td><td class="CDLDefinition"><p>Output word length times PE</p></td></tr></table></div>
 </div>
 
-<a name="Signals"></a><a name="Topic300"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Signals"></a><a name="Topic308"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Signals</div>
 </div>
 
-<a name="out_simd"></a><a name="Topic301"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out_simd"></a><a name="Topic309"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out_simd</div>
  <div class="CBody"><p>SIMD Output</p></div>
 </div>
 
-<a name="out_add"></a><a name="Topic302"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out_add"></a><a name="Topic310"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out_add</div>
  <div class="CBody"><p>Unregistered output from the adders</p></div>
 </div>
 
-<a name="in_act_rev"></a><a name="Topic303"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_act_rev"></a><a name="Topic311"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_act_rev</div>
  <div class="CBody"><p>Copy of input in_act for easy partitioning of input activation</p></div>
 </div>
 
-<a name="in_act_packed"></a><a name="Topic304"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_act_packed"></a><a name="Topic312"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_act_packed</div>
  <div class="CBody"><p>Packed input activation array, makes for easy access</p></div>
 </div>
 
-<a name="do_mvau_stream_reg"></a><a name="Topic305"></a><div class="CTopic TSignal LSystemVerilog last">
+<a name="do_mvau_stream_reg"></a><a name="Topic313"></a><div class="CTopic TSignal LSystemVerilog last">
  <div class="CTitle">do_mvau_stream_reg</div>
  <div class="CBody"><p>Registered version of do_mvau_stream</p></div>
 </div>
