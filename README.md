@@ -35,6 +35,19 @@ git submodule update --init
 ```
 to populate Xilinx_mvau/proj/finn-hlslib directory
 
+### Updating Sub-Module after edits
+If any change is made in the FINN HLS library, the changes are reflected in the main fork and the local repository but the submodule itself is not updated. To update the submodule so that changes are visible to others say (assuming one is in the FINN HLS directory):
+```
+cd ../
+git submodule update
+cd finn-hlslib
+git checkout master
+cd ../
+git commit -am 'submodule updated'
+git push
+```
+This will update the submodule and changes visible to others
+
 ## Hardware Design Rebuit
 In order to rebuild the hardware designs and compare outputs of RTL and HLS designs, the repo should be cloned to a machine with Vivado Design Suite installed (tested with 2020.1). Follow the following steps:
 1. Clone the repository: `git clone https://github.com/asadalam/Xilinx_mvau.git`
