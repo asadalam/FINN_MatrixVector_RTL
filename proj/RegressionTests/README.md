@@ -14,7 +14,7 @@ exit. The script also gracefully handles Ctrl+C and dumps performanc data extrac
 
 To run, say the following on the terminal:
 
-- python regtest_mvau.py -o <Output Excel File>
+- `python regtest_mvau.py -o <Output Excel File>`
 
 Values of various parameters can be modified from within the script.
 
@@ -28,7 +28,7 @@ exit. The script also gracefully handles Ctrl+C and dumps performanc data extrac
 
 To run, say the following on the terminal:
 
-- python regtest_mvau.py -o <Output Excel File>
+- `python regtest_mvau.py -o <Output Excel File>`
 
 Values of various parameters can be modified from within the script.
 
