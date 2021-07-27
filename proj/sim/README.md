@@ -24,51 +24,6 @@ where
 * `pe`: PE factor
 The file generated is named `mvau_defn.sv`.
 
-## MVAU Stream Simulation Files
-
-### MVAU Stream Testbench (v1): mvau_stream_tb_v1.sv
-
-In this version of test bench, all input data are being generated using
-SystemVerilog's $random function. This includes the weight matrix and
-the input activation matrix.
-
-The test bench performs a behavorial implementation of the matrix-matrix
-multiplication using for-loops. The parameters for the tests and design are
-defined in ../src/mvau_defn.sv. The test has been successfull for various values
-of IFMCh, OFMCh, KDim, IFMDim, OFMDim, SIMD, PE, TSrcI, TDstI and TW such that
-all types of SIMDs and adder units are utilized.
-
-The inputs generated are sent to the DUT (mvau_stream.sv). The weight matrix and
-the input activation matrix is sent as tiles and slices. The weight tile
-measures PExSIMD where word length of each element is TW. The input activation
-slice measures SIMD where the word length of each element is TSrcI
-
-Finally, the output of the DUT and behavorial model are compared for error
-checking. The testbench is running successfully.
-
-To run the sumulation, we use a shell script and we say the following on a Linux terminal
-(make sure the shell script is executable):
-
-- ./mvau_stream_test_v1.sh
-
-### MVAU Stream Testbench (v3): mvau_stream_tb_v3.sv
-
-This version of test bech is used together with the HLS flow and uses data
-dumped by HLS as golden data. To run it independently, say the following on a Linux terminal
-(make sure the shell script is executable):
-
-- ./mvau_stream_test_v3.sh
-
-### MVAU Stream Simulation files: mvau_stream_files.prj
-This file contains all files needed for simulation. Can be edited in future
-for adding/removing more files (for e.g., other versions of test benches).
-This file is used by the Xilinx's Vivado's 'xelab' command which creates a
-simulation snapshot for 'xsim' to use
-
-### MVAU Stream Simulation script: mvau_stream_test_v<1/2/3>.sh
-This file performs simulation using two commands. The 'xelab' command creates
-a simulation snapshot while 'xsim' performs the simulation using the Vivado
-graphical simulator. It also performs error checking and exits from the script
 
 ## MVAU Batch Simulation Files
 
@@ -160,3 +115,49 @@ Currently only has one command which directs xsim to run simulation till end and
 ### XSIM Gui script: mvau_xsim_gui.tcl
 Essentially the same script as `mvau_xsim.tcl`. The only difference is that it does not have any
 exit command at the end. This script is called during graphical simulation for debugging
+
+## MVAU Stream Simulation Files
+
+### MVAU Stream Testbench (v1): mvau_stream_tb_v1.sv
+
+In this version of test bench, all input data are being generated using
+SystemVerilog's $random function. This includes the weight matrix and
+the input activation matrix.
+
+The test bench performs a behavorial implementation of the matrix-matrix
+multiplication using for-loops. The parameters for the tests and design are
+defined in ../src/mvau_defn.sv. The test has been successfull for various values
+of IFMCh, OFMCh, KDim, IFMDim, OFMDim, SIMD, PE, TSrcI, TDstI and TW such that
+all types of SIMDs and adder units are utilized.
+
+The inputs generated are sent to the DUT (mvau_stream.sv). The weight matrix and
+the input activation matrix is sent as tiles and slices. The weight tile
+measures PExSIMD where word length of each element is TW. The input activation
+slice measures SIMD where the word length of each element is TSrcI
+
+Finally, the output of the DUT and behavorial model are compared for error
+checking. The testbench is running successfully.
+
+To run the sumulation, we use a shell script and we say the following on a Linux terminal
+(make sure the shell script is executable):
+
+- ./mvau_stream_test_v1.sh
+
+### MVAU Stream Testbench (v3): mvau_stream_tb_v3.sv
+
+This version of test bech is used together with the HLS flow and uses data
+dumped by HLS as golden data. To run it independently, say the following on a Linux terminal
+(make sure the shell script is executable):
+
+- ./mvau_stream_test_v3.sh
+
+### MVAU Stream Simulation files: mvau_stream_files.prj
+This file contains all files needed for simulation. Can be edited in future
+for adding/removing more files (for e.g., other versions of test benches).
+This file is used by the Xilinx's Vivado's 'xelab' command which creates a
+simulation snapshot for 'xsim' to use
+
+### MVAU Stream Simulation script: mvau_stream_test_v<1/2/3>.sh
+This file performs simulation using two commands. The 'xelab' command creates
+a simulation snapshot while 'xsim' performs the simulation using the Vivado
+graphical simulator. It also performs error checking and exits from the script
