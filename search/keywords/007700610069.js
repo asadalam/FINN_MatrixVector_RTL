@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("wai",["AlwaysFF","Signal"],[["WAIT_READY",,[[,,,,0,"File:mvau_stream/mvau_stream.sv:WAIT_READY"]]],["wait_rready",,[[,,,,1,"File:mvau_stream/mvau_stream.sv:wait_rready"]]]]);

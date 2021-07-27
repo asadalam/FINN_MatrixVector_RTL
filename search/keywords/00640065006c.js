@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("del",["Always"],[["DELAY_COUNTER",,[[,,,,0,"File3:mvau_tb_v4.sv:DELAY_COUNTER"]]]]);
