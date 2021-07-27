@@ -51,7 +51,7 @@ This will update the submodule and changes visible to others
 ## Hardware Design Rebuit
 In order to rebuild the hardware designs and compare outputs of RTL and HLS designs, the repo should be cloned to a machine with Vivado Design Suite installed (tested with 2020.1). Follow the following steps:
 1. Clone the repository: `git clone https://github.com/asadalam/Xilinx_mvau.git`
-2. Populate the FINN HLS library folder (as it is a submodule): `git submodule update --init'
+2. Populate the FINN HLS library folder (as it is a submodule): `git submodule update --init`
 3. Set the environment variables: FINN_HLS_ROOT and MVAU_RTL_ROOT
 4. Preferably work in a virtual environment and install python dependencies by saying: `pip install -r requirements.txt` (Verified on Python 3.9.5)
 5. Move to `MVAU_RTL_ROOT/proj/RegresssionTests`
