@@ -83,20 +83,20 @@ else
     echo "RTL simulation successful"
 fi
 
-echo "Running behavorial simulation of RTL with different input timing"
-bash mvau_test_v4.sh
-if [ $? -eq 0 ]; then
-    echo "RTL simulation failed"
-    exit 0
-elif grep -q "Data MisMatch" xsim.log; then
-    echo "RTL simulation failed"
-    exit 0
-elif grep -q "failed" xsim.log; then
-    echo "RTL simulation failed"
-    exit 0
-else
-    echo "RTL simulation successful"
-fi
+# echo "Running behavorial simulation of RTL with different input timing"
+# bash mvau_test_v4.sh
+# if [ $? -eq 0 ]; then
+#     echo "RTL simulation failed"
+#     exit 0
+# elif grep -q "Data MisMatch" xsim.log; then
+#     echo "RTL simulation failed"
+#     exit 0
+# elif grep -q "failed" xsim.log; then
+#     echo "RTL simulation failed"
+#     exit 0
+# else
+#     echo "RTL simulation successful"
+# fi
 
 echo "Synthesizing MVAU Batch RTL"
 cd $MVAU_RTL_ROOT/proj/syn
