@@ -48,7 +48,7 @@ git push
 ```
 This will update the submodule and changes visible to others
 
-## Hardware Design Rebuit
+## Building RTL and HLS Hardware Design and Analysis
 In order to rebuild the hardware designs and compare outputs of RTL and HLS designs, the repo should be cloned to a machine with Vivado Design Suite installed (tested with 2020.1). Follow the following steps:
 1. Clone the repository: `git clone https://github.com/asadalam/Xilinx_mvau.git`
 2. Populate the FINN HLS library folder (as it is a submodule): `git submodule update --init`
