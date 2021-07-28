@@ -216,13 +216,15 @@ module mvau_tb_v1;
 	 // Case 1
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH1
+	      logic simd_xnor;	      
 	      for(int m = 0; m < MMV; m++) begin
 		for(int i = 0; i < MatrixH; i++) begin
 		  for(int j = 0; j < ACT_MatrixW; j++) begin
 		     mvau_beh[m][i][j]   = '0;
 		     for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
 			for(int l = 0; l < SIMD; l++) begin
-			   mvau_beh[m][i][j] += weights[i][k][l]^~in_mat[m][k*SIMD+l][j]; // XNOR
+			   simd_xnor = weights[i][k][l]^~in_mat[m][k*SIMD+l][j]; // XNOR
+			   mvau_beh[m][i][j] += simd_xnor;//weights[i][k][l]^~in_mat[m][k*SIMD+l][j]; // XNOR
 			end
 		     end
 		  end
@@ -257,13 +259,15 @@ end // block: BIN_MVAU1
 	 // Case 1
 	 always @(do_mvau_beh)
 	   begin: MVAU_BEH3
+	      logic simd_xnor;
 	      for(int m = 0; m < MMV; m++) begin
 		 for(int i = 0; i < MatrixH; i++) begin
 		    for(int j = 0; j < ACT_MatrixW; j++) begin
 		       mvau_beh[m][i][j]   = '0;
 		       for(int k = 0; k < ACT_MatrixH/SIMD; k++) begin
 			  for(int l = 0; l < SIMD; l++) begin
-			     mvau_beh[m][i][j] += weights[i][k][l]^~in_mat[m][k*SIMD+l][j]; // XNOR
+			     simd_xnor = weights[i][k][l]^~in_mat[m][k*SIMD+l][j]; // XNOR
+			     mvau_beh[m][i][j] += simd_xnor;//weights[i][k][l]^~in_mat[m][k*SIMD+l][j]; // XNOR
 			  end
 		       end
 		    end
@@ -395,9 +399,9 @@ end
 	    if(!aresetn)
 	      in_v <= 1'b0;
 	    else if(m_inp == MMV-1 & j_inp == ACT_MatrixH/SIMD-1)
-	      in_v <= 1'b1;
-	    else
 	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;
 	 end
 end
    end // block: COL_1   
