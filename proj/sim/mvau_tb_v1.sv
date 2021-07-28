@@ -135,6 +135,7 @@ module mvau_tb_v1;
 	      for(int j = 0; j < MatrixH/PE; j++) begin
 		 //#(CLK_PER*MatrixW/SIMD)
 		 do_comp = 1; // Indicating when actual comparison is done, helps in debugging
+		 #1;		 
 		 wait(out_v==1'b1);		 
 		 @(posedge aclk) begin: DUT_BEH_MATCH
 		    if(out_v) begin		    
