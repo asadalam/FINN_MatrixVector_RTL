@@ -11,17 +11,17 @@ The repository is organized as follows:
   ```
 ### Project Folder (proj):
 Project folder, contains the following sub-folders
-  - Source Folder (src): All source code
-  - Simulation Folder (sim): Files related to simulation like test benches
-  - Synthesis Folder (syn) - Files related to synthesis
-  - FINN HLS Library Folder (finn-hlslib) - Forked repository of Xilinx HLS Library added as a submodule
-  - IP Repository Folder (ip_repo) - Folder to keep all files related to IP
-  - Regression Test Folder (RegressionTests) - Files to run automated regression test including functional simulation and synthesis of RTL and HLS along with data gathering
+  - Source Folder (`src`): All source code
+  - Simulation Folder (`sim`): Files related to simulation like test benches
+  - Synthesis Folder (`syn`) - Files related to synthesis
+  - FINN HLS Library Folder (`finn-hlslib`) - Forked repository of Xilinx HLS Library added as a submodule
+  - IP Repository Folder (`ip_repo`) - Folder to keep all files related to IP
+  - Regression Test Folder (`RegressionTests`) - Files to run automated regression test including functional simulation and synthesis of RTL and HLS along with data gathering
 
 ## Environmental Variables
 In order to run simulation and synthesis, set the following two environmental variables
-  - FINN_HLS_ROOT: Xilinx_mvau/proj/finn-hlslib
-  - MVAU_RTL_ROOT: Xilinx_mvau
+  - `FINN_HLS_ROOT`: `Xilinx_mvau/proj/finn-hlslib`
+  - `MVAU_RTL_ROOT`: `Xilinx_mvau`
 
 ## Cloning the Repo and Adding FINN HLSLIB as Sub-Module
 To clone the repository, say:
@@ -48,7 +48,7 @@ git push
 ```
 This will update the submodule and changes visible to others
 
-## Hardware Design Rebuit
+## Building RTL and HLS Hardware Design and Analysis
 In order to rebuild the hardware designs and compare outputs of RTL and HLS designs, the repo should be cloned to a machine with Vivado Design Suite installed (tested with 2020.1). Follow the following steps:
 1. Clone the repository: `git clone https://github.com/asadalam/Xilinx_mvau.git`
 2. Populate the FINN HLS library folder (as it is a submodule): `git submodule update --init`
