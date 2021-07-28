@@ -285,9 +285,9 @@ end
 	    if(!aresetn)
 	      in_v <= 1'b0;
 	    else if(m_inp == MMV-1 & j_inp == ACT_MatrixH/SIMD-1)
-	      in_v <= 1'b1;
-	    else
 	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;
 	 end
 end
    end // block: COL_1   

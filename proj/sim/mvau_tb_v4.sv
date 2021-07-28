@@ -312,9 +312,9 @@ end
 	    else if(j_inp == rand_dly1)//ACT_MatrixH/(SIMD*2)-rand_dly1)
 	      in_v <= 1'b0;           
 	    else if(m_inp == MMV-1 & j_inp == ACT_MatrixH/SIMD-1)
-	      in_v <= 1'b1;
-	    else
 	      in_v <= 1'b0;
+	    else
+	      in_v <= 1'b1;
 	 end
 end
    end // block: COL_1   
