@@ -8,30 +8,30 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="MVAU_Top_Wrapper_Generator"></a><a name="Topic447"></a><div class="CTopic TFile LPython first">
+<a name="MVAU_Top_Wrapper_Generator"></a><a name="Topic445"></a><div class="CTopic TFile LPython first">
  <div class="CTitle">MVAU Top Wrapper Generator (gen_mvau_top.py)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file generates the top level Verilog wrapper that instantiates the mvau.sv module. Verilog wrapper is needed for IP generation</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094_P2 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.&nbsp; #</p></div>
 </div>
 
-<a name="Functions"></a><a name="Topic448"></a><div class="CTopic TGroup LPython">
+<a name="Functions"></a><a name="Topic446"></a><div class="CTopic TGroup LPython">
  <div class="CTitle">Functions</div>
 </div>
 
-<a name="gen_mvau_top"></a><a name="Topic449"></a><div class="CTopic TFunction LPython">
+<a name="gen_mvau_top"></a><a name="Topic447"></a><div class="CTopic TFunction LPython">
  <div class="CTitle">gen_mvau_top</div>
- <div id="NDPrototype449" class="NDPrototype WideForm"><div class="PSection PParameterSection CStyle"><table><tr><td class="PBeforeParameters"><span class="SHKeyword">def</span> gen_mvau_top(</td><td class="PParametersParentCell"><table class="PParameters"><tr><td class="PName first">kdim,</td><td></td><td class="last"></td></tr><tr><td class="PName first">iwl,</td><td></td><td class="last"></td></tr><tr><td class="PName first">iwb,</td><td></td><td class="last"></td></tr><tr><td class="PName first">ifmc,</td><td></td><td class="last"></td></tr><tr><td class="PName first">ofmc,</td><td></td><td class="last"></td></tr><tr><td class="PName first">ifmd,</td><td></td><td class="last"></td></tr><tr><td class="PName first">wwl,</td><td></td><td class="last"></td></tr><tr><td class="PName first">wwb,</td><td></td><td class="last"></td></tr><tr><td class="PName first">owl,</td><td></td><td class="last"></td></tr><tr><td class="PName first">simd,</td><td></td><td class="last"></td></tr><tr><td class="PName first">pe,</td><td></td><td class="last"></td></tr><tr><td class="PName first">mmv,</td><td></td><td class="last"></td></tr><tr><td class="PName first">stride</td><td class="PDefaultValueSeparator">&nbsp;=&nbsp;</td><td class="PDefaultValue last"><span class="SHNumber">1</span></td></tr></table></td><td class="PAfterParameters">)</td></tr></table></div></div>
+ <div id="NDPrototype447" class="NDPrototype WideForm"><div class="PSection PParameterSection CStyle"><table><tr><td class="PBeforeParameters"><span class="SHKeyword">def</span> gen_mvau_top(</td><td class="PParametersParentCell"><table class="PParameters"><tr><td class="PName first">kdim,</td><td></td><td class="last"></td></tr><tr><td class="PName first">iwl,</td><td></td><td class="last"></td></tr><tr><td class="PName first">iwb,</td><td></td><td class="last"></td></tr><tr><td class="PName first">ifmc,</td><td></td><td class="last"></td></tr><tr><td class="PName first">ofmc,</td><td></td><td class="last"></td></tr><tr><td class="PName first">ifmd,</td><td></td><td class="last"></td></tr><tr><td class="PName first">wwl,</td><td></td><td class="last"></td></tr><tr><td class="PName first">wwb,</td><td></td><td class="last"></td></tr><tr><td class="PName first">owl,</td><td></td><td class="last"></td></tr><tr><td class="PName first">simd,</td><td></td><td class="last"></td></tr><tr><td class="PName first">pe,</td><td></td><td class="last"></td></tr><tr><td class="PName first">mmv,</td><td></td><td class="last"></td></tr><tr><td class="PName first">stride</td><td class="PDefaultValueSeparator">&nbsp;=&nbsp;</td><td class="PDefaultValue last"><span class="SHNumber">1</span></td></tr></table></td><td class="PAfterParameters">)</td></tr></table></div></div>
  <div class="CBody"><p>This function takes in a number of parameters and generates the top level Verilog wrapper for the mvau.sv module through the use of successive write commands. A python generator is needed so that the parameters can be handled programmatically</p><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">kdim</td><td class="CDLDefinition"><p>Kernel dimension.</p></td></tr><tr><td class="CDLEntry">iwl</td><td class="CDLDefinition"><p>Input activation word length.</p></td></tr><tr><td class="CDLEntry">iwb</td><td class="CDLDefinition"><p>'1' if input word length '1' bit, else '0'.</p></td></tr><tr><td class="CDLEntry">ifmc</td><td class="CDLDefinition"><p>Number of input feature map channels.</p></td></tr><tr><td class="CDLEntry">ofmc</td><td class="CDLDefinition"><p>Number of output feature map channels.</p></td></tr><tr><td class="CDLEntry">wwl</td><td class="CDLDefinition"><p>Weight precision.</p></td></tr><tr><td class="CDLEntry">wwb</td><td class="CDLDefinition"><p>'1' if weights are '1' bit, else '0'</p></td></tr><tr><td class="CDLEntry">owl</td><td class="CDLDefinition"><p>Output activation word length</p></td></tr><tr><td class="CDLEntry">simd</td><td class="CDLDefinition"><p>Number of SIMD elements</p></td></tr><tr><td class="CDLEntry">pe</td><td class="CDLDefinition"><p>Number of processing elements (PE)</p></td></tr><tr><td class="CDLEntry">mmv</td><td class="CDLDefinition"><p>Number of images</p></td></tr><tr><td class="CDLEntry">stride</td><td class="CDLDefinition"><p>Convolution stride</p></td></tr></table><div class="CHeading">Returns</div><p>None</p></div>
 </div>
 
-<a name="parser"></a><a name="Topic450"></a><div class="CTopic TFunction LPython">
+<a name="parser"></a><a name="Topic448"></a><div class="CTopic TFunction LPython">
  <div class="CTitle">parser</div>
- <div id="NDPrototype450" class="NDPrototype"><div class="PSection PPlainSection"><span class="SHKeyword">def</span> parser()</div></div>
+ <div id="NDPrototype448" class="NDPrototype"><div class="PSection PPlainSection"><span class="SHKeyword">def</span> parser()</div></div>
  <div class="CBody"><p>This function defines an ArgumentParser object for command line arguments</p><div class="CHeading">Returns</div><p>Parser object (parser)</p></div>
 </div>
 
-<a name="__main__"></a><a name="Topic451"></a><div class="CTopic TFunction LPython last">
+<a name="__main__"></a><a name="Topic449"></a><div class="CTopic TFunction LPython last">
  <div class="CTitle">__main__</div>
- <div id="NDPrototype451" class="NDPrototype"><div class="PSection PPlainSection"><span class="SHKeyword">if</span> __name__ == <span class="SHString">&quot;__main__&quot;</span></div></div>
+ <div id="NDPrototype449" class="NDPrototype"><div class="PSection PPlainSection"><span class="SHKeyword">if</span> __name__ == <span class="SHString">&quot;__main__&quot;</span></div></div>
  <div class="CBody"><p>Entry point of the file, retrieves the command line arguments and calls the gen_mvau_top function with the required arguments</p></div>
 </div>
 

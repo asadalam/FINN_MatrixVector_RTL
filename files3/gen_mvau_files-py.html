@@ -8,34 +8,30 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Module"></a><a name="Topic260"></a><div class="CTopic TGroup LPython first">
- <div class="CTitle">Module</div>
-</div>
-
-<a name="MVAU_Project_File_Generator"></a><a name="Topic261"></a><div class="CTopic TModule LPython">
- <div class="CTitle"><span class="Qualifier">MVAU Project File Generator (gen_mvau_files.</span>&#8203;py)</div>
+<a name="MVAU_Project_File_Generator"></a><a name="Topic259"></a><div class="CTopic TFile LPython first">
+ <div class="CTitle">MVAU Project File Generator (gen_mvau_files.py)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file generates a .prj file which lists all verilog files to be compiled when running simulation. A .prj file is generated because the number of memories change depending on the number of PEs. The .prj file is used by 'xelab' command which elaborates the design</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094_P2 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p></div>
 </div>
 
-<a name="Functions"></a><a name="Topic262"></a><div class="CTopic TGroup LPython">
+<a name="Functions"></a><a name="Topic260"></a><div class="CTopic TGroup LPython">
  <div class="CTitle">Functions</div>
 </div>
 
-<a name="gen_mvau_files"></a><a name="Topic263"></a><div class="CTopic TFunction LPython">
+<a name="gen_mvau_files"></a><a name="Topic261"></a><div class="CTopic TFunction LPython">
  <div class="CTitle">gen_mvau_files</div>
- <div id="NDPrototype263" class="NDPrototype WideForm"><div class="PSection PParameterSection CStyle"><table><tr><td class="PBeforeParameters"><span class="SHKeyword">def</span> gen_mvau_files(</td><td class="PParametersParentCell"><table class="PParameters"><tr><td class="PName first last">pe</td></tr></table></td><td class="PAfterParameters">)</td></tr></table></div></div>
+ <div id="NDPrototype261" class="NDPrototype WideForm"><div class="PSection PParameterSection CStyle"><table><tr><td class="PBeforeParameters"><span class="SHKeyword">def</span> gen_mvau_files(</td><td class="PParametersParentCell"><table class="PParameters"><tr><td class="PName first last">pe</td></tr></table></td><td class="PAfterParameters">)</td></tr></table></div></div>
  <div class="CBody"><p>This function generates the file by using a series of write commands</p><div class="CHeading">Parameter</div><table class="CDefinitionList"><tr><td class="CDLEntry">pe</td><td class="CDLDefinition"><p>Number of processing elements</p></td></tr></table></div>
 </div>
 
-<a name="parser"></a><a name="Topic264"></a><div class="CTopic TFunction LPython">
+<a name="parser"></a><a name="Topic262"></a><div class="CTopic TFunction LPython">
  <div class="CTitle">parser</div>
- <div id="NDPrototype264" class="NDPrototype"><div class="PSection PPlainSection"><span class="SHKeyword">def</span> parser()</div></div>
+ <div id="NDPrototype262" class="NDPrototype"><div class="PSection PPlainSection"><span class="SHKeyword">def</span> parser()</div></div>
  <div class="CBody"><p>This function defines an ArgumentParser object for command line arguments</p><div class="CHeading">Returns</div><p>Parser object (parser)</p></div>
 </div>
 
-<a name="__main__"></a><a name="Topic265"></a><div class="CTopic TFunction LPython last">
+<a name="__main__"></a><a name="Topic263"></a><div class="CTopic TFunction LPython last">
  <div class="CTitle">__main__</div>
- <div id="NDPrototype265" class="NDPrototype"><div class="PSection PPlainSection"><span class="SHKeyword">if</span> __name__ == <span class="SHString">&quot;__main__&quot;</span></div></div>
+ <div id="NDPrototype263" class="NDPrototype"><div class="PSection PPlainSection"><span class="SHKeyword">if</span> __name__ == <span class="SHString">&quot;__main__&quot;</span></div></div>
  <div class="CBody"><p>Entry point of the file, retrieves the command line arguments and calls the gen_mvau_files function with the required arguments</p></div>
 </div>
 
