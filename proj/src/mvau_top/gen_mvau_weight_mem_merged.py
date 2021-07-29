@@ -1,9 +1,10 @@
  #
- # Module: MVAU Weight Top Generator File (gen_mvau_weight_mem_merged.py)
+ # Python Script: MVAU Weight Top Generator File (gen_mvau_weight_mem_merged.py)
  # 
  # Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  # 
- # This file 
+ # This file generates a top level weight memory file which instantiates all
+ # weight memories. The number of weight memories is equal to the number of PEs
  #
  # This material is based upon work supported, in part, by Science Foundation
  # Ireland, www.sfi.ie under Grant No. 13/RC/2094_P2 and, in part, by the 
@@ -14,6 +15,18 @@ import numpy as np
 import sys
 import argparse
 
+# Function: gen_mvau_weight_mem_merged
+# This function takes does the actual generation using a series
+# of write commands. The use of Python generator was necessary
+# so that the number of memories instantiated can be programmable
+# and based on the number of PEs
+#
+# Parameters:
+#   pe - Number of processing elements as the number of memories equals PE
+#
+# Returns:
+#
+# None
 def gen_mvau_weight_mem_merged(pe):
     fname = "mvau_weight_mem_merged.sv"
     mvau_wmem = open(fname,"wt")
@@ -70,12 +83,20 @@ def gen_mvau_weight_mem_merged(pe):
         
     mvau_wmem.close()
 
+# Function: parser
+# This function defines an ArgumentParser object for command line arguments
+#
+# Returns:
+# Parser object (parser)
 def parser():
     parser = argparse.ArgumentParser(description='Python data script for generating MVAU Weight memory top level SV file')
     parser.add_argument('-p','--pe',default=2,type=int,
 			help="Filter dimension")
     return parser
 
+# Function: __main__
+# Entry point of the file, retrieves the command line arguments and
+# calls the gen_mvau_weight_mem_merged function with the required arguments
 if __name__ == "__main__":
 
     ### REading the argument list

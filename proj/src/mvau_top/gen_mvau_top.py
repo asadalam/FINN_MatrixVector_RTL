@@ -3,7 +3,8 @@
  # 
  # Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  # 
- # This file 
+ # This file generates the top level Verilog wrapper that instantiates
+ # the mvau.sv module. Verilog wrapper is needed for IP generation
  #
  # This material is based upon work supported, in part, by Science Foundation
  # Ireland, www.sfi.ie under Grant No. 13/RC/2094_P2 and, in part, by the 
@@ -14,6 +15,29 @@ import numpy as np
 import sys
 import argparse
 
+# Function: gen_mvau_top
+# This function takes in a number of parameters and generates the top level
+# Verilog wrapper for the mvau.sv module through the use of successive write
+# commands. A python generator is needed so that the parameters can be handled
+# programmatically
+#
+# Parameters:
+#   kdim - Kernel dimension.
+#   iwl - Input activation word length.
+#   iwb - '1' if input word length '1' bit, else '0'.
+#   ifmc - Number of input feature map channels.
+#   ofmc - Number of output feature map channels.
+#   wwl - Weight precision.
+#   wwb - '1' if weights are '1' bit, else '0'
+#   owl - Output activation word length
+#   simd - Number of SIMD elements
+#   pe - Number of processing elements (PE)
+#   mmv - Number of images
+#   stride - Convolution stride
+#
+# Returns:
+#
+# None
 def gen_mvau_top(kdim,iwl,iwb,ifmc,ofmc,ifmd,wwl,wwb,owl,simd,pe,mmv,stride=1):
     mvau_top = open("mvau_top.v","wt")
     #stride=1
@@ -156,6 +180,11 @@ def gen_mvau_top(kdim,iwl,iwb,ifmc,ofmc,ifmd,wwl,wwb,owl,simd,pe,mmv,stride=1):
 
     mvau_top.close()
 
+# Function: parser
+# This function defines an ArgumentParser object for command line arguments
+#
+# Returns:
+# Parser object (parser)
 def parser():
     parser = argparse.ArgumentParser(description='Python data script for generating MVAU Paramter file')
     parser.add_argument('-k','--kdim',default=2,type=int,
@@ -184,8 +213,9 @@ def parser():
                         help="MMV")
     return parser
 
-
-
+# Function: __main__
+# Entry point of the file, retrieves the command line arguments and
+# calls the gen_mvau_top function with the required arguments
 if __name__ == "__main__":
 
     ## Reading the argument list passed to this script

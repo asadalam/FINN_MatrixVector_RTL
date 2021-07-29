@@ -1,19 +1,32 @@
  #
- # Module: MVAU Weight Memory Generator File (gen_mvau_weight_mem.py)
+ # Python Script: MVAU Weight Memory Generator File (gen_mvau_weight_mem.py)
  # 
  # Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  # 
- # This file 
+ # This file generates a single memory for weight storage. The depth of memory
+ # equals (KDim^2 * IFMCh * OFMCh) / (SIMD*PE) and the word length of each data
+ # equals SIMD * Weights Precision.
  #
  # This material is based upon work supported, in part, by Science Foundation
  # Ireland, www.sfi.ie under Grant No. 13/RC/2094_P2 and, in part, by the 
  # European Union's Horizon 2020 research and innovation programme under the 
- # Marie Sklodowska-Curie grant agreement Grant No.754489.  # 
+ # Marie Sklodowska-Curie grant agreement Grant No.754489.
 
 import numpy as np
 import sys
 import argparse
 
+# Function: gen_mvau_weight_mem
+# This function takes does the actual generation using a series
+# of write commands. The use of Python generator was necessary
+# so that file and module names of each memory are unique
+#
+# Parameters:
+#   wmem_id - Unique ID for each memory, passed on from command line when generating memories. All other parameters are part of the SystemVerilog design space
+#
+# Returns:
+#
+# None
 def gen_mvau_weight_mem(wmem_id):
     fname = "mvau_weight_mem"+str(wmem_id)+".sv"
     mvau_wmem = open(fname,"wt")
@@ -84,12 +97,21 @@ def gen_mvau_weight_mem(wmem_id):
 
     mvau_wmem.close()
 
+
+# Function: parser
+# This function defines an ArgumentParser object for command line arguments
+#
+# Returns:
+# Parser object (parser)
 def parser():
     parser = argparse.ArgumentParser(description='Python data script for generating MVAU Weight memory SV file')
     parser.add_argument('-w','--wmem_id',default=0,type=int,
 			help="Filter dimension")
     return parser
 
+# Function: __main__
+# Entry point of the file, retrieves the command line arguments and
+# calls the gen_mvau_weight_mem function with the required arguments
 if __name__ == "__main__":
 
     ### REading the argument list

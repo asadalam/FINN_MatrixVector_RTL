@@ -20,18 +20,19 @@ import argparse
 # file based on them.
 #
 # Parameters:
-#   kdim: Kernel dimension.
-#   iwl: Input activation word length.
-#   iwb: '1' if input word length '1' bit, else '0'.
-#   ifmc: Number of input feature map channels.
-#   ofmc: Number of output feature map channels.
-#   wwl: Weight precision.
-#   wwb: '1' if weights are '1' bit, else '0'
-#   owl: Output activation word length
-#   simd: Number of SIMD elements
-#   pe: Number of processing elements (PE)
-#   mmv: Number of images
-#   stride: Convolution stride
+#   kdim - Kernel dimension.
+#   iwl - Input activation word length.
+#   iwb - '1' if input word length '1' bit, else '0'.
+#   ifmc - Number of input feature map channels.
+#   ofmc - Number of output feature map channels.
+#   wwl - Weight precision.
+#   wwb - '1' if weights are '1' bit, else '0'
+#   owl - Output activation word length
+#   simd - Number of SIMD elements
+#   pe - Number of processing elements (PE)
+#   mmv - Number of images
+#   stride - Convolution stride
+#
 # Returns:
 #
 # None
@@ -113,6 +114,11 @@ def gen_mvau_defn(kdim,iwl,iwb,ifmc,ofmc,ifmd,wwl,wwb,owl,simd,pe,mmv,stride=1):
 
     mvau_defn.close()
 
+# Function: parser
+# This function defines an ArgumentParser object for command line arguments
+#
+# Returns:
+# Parser object (parser)
 def parser():
     parser = argparse.ArgumentParser(description='Python data script for generating MVAU Paramter file')
     parser.add_argument('-k','--kdim',default=2,type=int,
@@ -141,8 +147,9 @@ def parser():
 			help="MMV")
     return parser
 
-
-
+# Function: __main__
+# Entry point of the file, retrieves the command line arguments and
+# calls the gen_mvau_defn function with the required arguments
 if __name__ == "__main__":
 
     ## Reading the argument list passed to this script
