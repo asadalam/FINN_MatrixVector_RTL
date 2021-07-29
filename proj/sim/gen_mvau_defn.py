@@ -1,5 +1,5 @@
  #
- # Module: MVAU Parameter Generation file
+ # Python Script: MVAU Parameter Generation file (gen_mvau_defn.py)
  # 
  # Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  # 

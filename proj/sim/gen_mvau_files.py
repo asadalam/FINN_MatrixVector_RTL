@@ -1,5 +1,5 @@
  #
- # Module: MVAU Project File Generator (gen_mvau_files.py)
+ # Python Script: MVAU Project File Generator (gen_mvau_files.py)
  # 
  # Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  # 
