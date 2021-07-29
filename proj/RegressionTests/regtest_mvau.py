@@ -363,17 +363,17 @@ if __name__ == '__main__':
 
     kdim_arr    = np.array([4])
     ### Keep the length of the following three arrays same
-    ifm_ch_arr  = np.array([32,64])
-    ofm_ch_arr  = np.array([32,64])
-    ifm_dim_arr = np.array([16])
+    ifm_ch_arr  = np.array([64])
+    ofm_ch_arr  = np.array([128])
+    ifm_dim_arr = np.array([32])
 
     ### Keep the length of the following two arrays same
-    inp_wl_arr  = np.array([1,4,4])
-    wgt_wl_arr  = np.array([1,1,4])
+    inp_wl_arr  = np.array([4])
+    wgt_wl_arr  = np.array([4])
 
     ### Keep the length of the following two arrays same
-    simd = np.array([16,32,64])
-    pe = np.array([16,32,64])
+    simd = np.array([64])
+    pe = np.array([64])
     
     args = parser().parse_args()
     out_file = args.out_file    
