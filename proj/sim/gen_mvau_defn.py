@@ -20,18 +20,18 @@ import argparse
 # file based on them.
 #
 # Parameters:
-#   kdim- Kernel dimension.
-#   iwl- Input activation word length.
-#   iwb- '1' if input word length '1' bit, else '0'.
-#   ifmc- Number of input feature map channels.
-#   ofmc- Number of output feature map channels.
-#   wwl- Weight precision.
-#   wwb- '1' if weights are '1' bit, else '0'
-#   owl- Output activation word length
-#   simd- Number of SIMD elements
-#   pe- Number of processing elements (PE)
-#   mmv- Number of images
-#   stride- Convolution stride
+#   kdim - Kernel dimension.
+#   iwl - Input activation word length.
+#   iwb - '1' if input word length '1' bit, else '0'.
+#   ifmc - Number of input feature map channels.
+#   ofmc - Number of output feature map channels.
+#   wwl - Weight precision.
+#   wwb - '1' if weights are '1' bit, else '0'
+#   owl - Output activation word length
+#   simd - Number of SIMD elements
+#   pe - Number of processing elements (PE)
+#   mmv - Number of images
+#   stride - Convolution stride
 #
 # Returns:
 #
@@ -146,7 +146,6 @@ def parser():
     parser.add_argument('-m', '--mmv', default=1,type=int,
 			help="MMV")
     return parser
-
 
 # Function: __main__
 # Entry point of the file, retrieves the command line arguments and

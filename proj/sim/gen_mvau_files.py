@@ -21,7 +21,7 @@ import argparse
 # This function generates the file by using a series of write commands
 #
 # Parameter:
-# pe: Number of processing elements
+# pe - Number of processing elements
 def gen_mvau_files(pe):
     fname = "mvau_files.prj"
     mvau_files = open(fname,"wt")
