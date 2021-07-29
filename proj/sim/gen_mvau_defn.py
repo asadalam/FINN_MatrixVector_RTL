@@ -113,6 +113,11 @@ def gen_mvau_defn(kdim,iwl,iwb,ifmc,ofmc,ifmd,wwl,wwb,owl,simd,pe,mmv,stride=1):
 
     mvau_defn.close()
 
+# Function: parser
+# This function defines an ArgumentParser object for command line arguments
+#
+# Returns:
+# Parser object (parser)
 def parser():
     parser = argparse.ArgumentParser(description='Python data script for generating MVAU Paramter file')
     parser.add_argument('-k','--kdim',default=2,type=int,
@@ -142,7 +147,9 @@ def parser():
     return parser
 
 
-
+# Function: __main__
+# Entry point of the file, retrieves the command line arguments and
+# calls the gen_mvau_defn function with the required arguments
 if __name__ == "__main__":
 
     ## Reading the argument list passed to this script
