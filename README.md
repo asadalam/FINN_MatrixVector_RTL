@@ -56,7 +56,11 @@ In order to rebuild the hardware designs and compare outputs of RTL and HLS desi
 4. Preferably work in a virtual environment and install python dependencies by saying: `pip install -r requirements.txt` (Verified on Python 3.9.5)
 5. Move to `MVAU_RTL_ROOT/proj/RegresssionTests`
 6. For testing the MVAU batch unit, open the file `regtest_mvau.py` or for testing the MVAU Stream Unit, open the file `regtest_mvau_stream.py`
-7. Define the following parameters in the python script
+7. Make sure that the FPGA being used are same for both RTL and HLS, for consistency purposes. For RTL, the FPGA is defined in `MVAU_RTL_ROOT/proj/syn/mvau_synth.tcl` file, where the synthesis command of `synth_design` is executed with the `-part` argument. For HLS, the FPGA is defined, depending on the type of implementation, in the following three files, where files with `std`, `binwgt` and `xnor` suffix indicates design with >1 bit, 1 bit weight and 1 bit input activation and weight resolution, respectively:
+  1. `FINN_HLS_ROOT/tb/test_mvau_std.tcl`
+  2. `FINN_HLS_ROOT/tb/test_mvau_binwgt.tcl`
+  3. `FINN_HLS_ROOT/tb/test_mvau_xnor.tcl`
+9. Define the following parameters in the python script
    1. Kernel dimension (`kdim_arr`)
    2. Number of input feature map channels (`ifm_ch_arr`)
    3. Number of output feature map channels (`ofm_ch_arr`)
