@@ -1,5 +1,5 @@
  #
- # Module: MVAU Parameter Generation file
+ # Python Script: MVAU Top Wrapper Generator (gen_mvau_top.py)
  # 
  # Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  # 

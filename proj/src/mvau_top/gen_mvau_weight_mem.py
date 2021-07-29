@@ -97,7 +97,6 @@ def gen_mvau_weight_mem(wmem_id):
 
     mvau_wmem.close()
 
-
 # Function: parser
 # This function defines an ArgumentParser object for command line arguments
 #
