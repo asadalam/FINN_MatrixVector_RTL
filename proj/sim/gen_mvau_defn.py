@@ -3,7 +3,8 @@
  # 
  # Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
  # 
- # This file 
+ # This file generates a parameter file to be used by the test benches. It
+ # contains a number of write commands to a file
  #
  # This material is based upon work supported, in part, by Science Foundation
  # Ireland, www.sfi.ie under Grant No. 13/RC/2094_P2 and, in part, by the 
@@ -14,6 +15,19 @@ import numpy as np
 import sys
 import argparse
 
+# Function: gen_mvau_defn 
+# Description
+# This function takes in a number of parameters and generates the parameter
+# file based on them.
+#
+# Parameters:
+#   kdim: Kernel dimension
+#   iwl: Input word length
+#   iwb: '1' if input word length '1' bit, else '0'
+#
+# Returns:
+#
+# None
 def gen_mvau_defn(kdim,iwl,iwb,ifmc,ofmc,ifmd,wwl,wwb,owl,simd,pe,mmv,stride=1):
     mvau_defn = open("mvau_defn.sv","wt")
     #stride=1
