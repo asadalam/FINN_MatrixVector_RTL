@@ -81,7 +81,7 @@ def gen_mvau_weight_mem(wmem_id):
     mvau_wmem.write("   \n")
     mvau_wmem.write("   // Signal: weight_mem\n")
     mvau_wmem.write("   // This signal defines the memory itself\n")
-    mvau_wmem.write("   (* ram_style = \"distributed\" *) logic [SIMD*TW-1:0] 		weight_mem [0:WMEM_DEPTH-1];\n")
+    mvau_wmem.write("   (* ram_style = \"auto\" *) logic [SIMD*TW-1:0] 		weight_mem [0:WMEM_DEPTH-1];\n")
     mvau_wmem.write("   initial\n")
     mvau_wmem.write("     $readmemh(\"weight_mem%d.mem\", weight_mem);\n" % wmem_id)
     mvau_wmem.write("   \n")
