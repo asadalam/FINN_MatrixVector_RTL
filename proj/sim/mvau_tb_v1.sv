@@ -60,7 +60,7 @@ module mvau_tb_v1;
    // Input valid
    logic 		     in_v;
    // Signal: weights
-   // The weight matrix of dimensions (MatrixW/SIMD)*(MatrixH/PE) x MatrixH of word length TW x SIMD
+   // The weight matrix of dimensions (MatrixW/SIMD)*(MatrixH) x MatrixH of word length TW x SIMD
    logic [0:SIMD-1][TW-1:0] weights [0:MatrixH-1][0:MatrixW/SIMD-1];
    // Signal: in_mat
    // Input activation matrix
