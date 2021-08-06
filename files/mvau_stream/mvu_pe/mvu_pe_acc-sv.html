@@ -8,49 +8,49 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Module"></a><a name="Topic324"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Module"></a><a name="Topic348"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Module</div>
 </div>
 
-<a name="PE_Accumulator"></a><a name="Topic325"></a><div class="CTopic TModule LSystemVerilog">
+<a name="PE_Accumulator"></a><a name="Topic349"></a><div class="CTopic TModule LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">PE Accumulator (mvu_pe.</span>&#8203;sv)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of the accumulator This accumulator is used to accumulator as a row of weights is multiplied by the input activation vector It is part of a processing element which is part of the Matrix-Vector-Multiplication Unit</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">aresetn</td><td class="CDLDefinition"><p>Active low synchronous reset</p></td></tr><tr><td class="CDLEntry">aclk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">sf_clr</td><td class="CDLDefinition"><p>Control signal from the control block for resetting the accumulator</p></td></tr><tr><td class="CDLEntry">[TDstI-1:0] in_acc</td><td class="CDLDefinition"><p>Input to the accumulator from the adders, word length TDstI</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">out_acc_v</td><td class="CDLDefinition"><p>Output valid</p></td></tr><tr><td class="CDLEntry">[TDstI-1:0] out_acc</td><td class="CDLDefinition"><p>Output of the accumulator, word length TDstI</p></td></tr></table><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">TDstI</td><td class="CDLDefinition"><p>Output word length</p></td></tr></table></div>
 </div>
 
-<a name="Signals"></a><a name="Topic326"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Signals"></a><a name="Topic350"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Signals</div>
 </div>
 
-<a name="sf_clr_dly"></a><a name="Topic327"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="sf_clr_dly"></a><a name="Topic351"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">sf_clr_dly</div>
  <div class="CBody"><p>A two bit signal to delay the sf_clr input by two clock cycles</p></div>
 </div>
 
-<a name="do_mvau_stream_reg"></a><a name="Topic328"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="do_mvau_stream_reg"></a><a name="Topic352"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">do_mvau_stream_reg</div>
  <div class="CBody"><p>One bit signal to delay a control input by one clock cycle</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks"></a><a name="Topic329"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks"></a><a name="Topic353"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="OUT_VALID"></a><a name="Topic330"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="OUT_VALID"></a><a name="Topic354"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">OUT_VALID</div>
  <div class="CBody"><p>out_acc_v is a copy of the sf_clr_dly[1] because that is the time we reach the last cycle of accumulation</p></div>
 </div>
 
-<a name="REG_DO_MVAU_STREAM"></a><a name="Topic331"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="REG_DO_MVAU_STREAM"></a><a name="Topic355"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">REG_DO_MVAU_STREAM</div>
  <div class="CBody"><p>Registering the do_mvau_stream_reg signal</p></div>
 </div>
 
-<a name="SF_CLR_DLY"></a><a name="Topic332"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="SF_CLR_DLY"></a><a name="Topic356"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">SF_CLR_DLY</div>
  <div class="CBody"><p>Sequential 'always' block to delay sf_clr for two clock cycles to match the two pipelines one after SIMD's and one after the adders</p></div>
 </div>
 
-<a name="Accumulator"></a><a name="Topic333"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+<a name="Accumulator"></a><a name="Topic357"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
  <div class="CTitle">Accumulator</div>
  <div class="CBody"><p>Sequential 'always' block to perform accumulation The accumulator is cleared the sf_clr_dly[1] is asserted</p></div>
 </div>

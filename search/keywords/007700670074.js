@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("wgt",["Always","AlwaysFF"],[["WGT_GEN_DUT",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:WGT_GEN_DUT"]]],["WGT_MAT_GEN",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:WGT_MAT_GEN"]]],["WGT_REG",,[[,,,,1,"File:mvau_stream/mvau_stream.sv:WGT_REG"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("wgt",["Always","AlwaysFF"],[["WGT_GEN",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:WGT_GEN"]]],["WGT_MAT_GEN",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:WGT_MAT_GEN"]]],["WGT_REG",,[[,,,,1,"File:mvau_stream/mvau_stream.sv:WGT_REG"]]],["WGT_V_GEN",,[[,,,,1,"File3:mvau_stream_tb_v1.sv:WGT_V_GEN"]]]]);
