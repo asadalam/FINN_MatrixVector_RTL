@@ -59,7 +59,7 @@ fi
 echo "Synthesizing MVAU Stream RTL"
 cd $MVAU_RTL_ROOT/proj/syn
 vivado -mode batch -source mvau_stream_synth.tcl
-if [$? -eq 0]; then
+if [ $? -eq 0 ]; then
     echo "RTL synthesis successfull"
 else
     echo "RTL synthesis failed"

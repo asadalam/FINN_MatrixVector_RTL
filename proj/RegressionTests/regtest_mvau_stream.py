@@ -325,10 +325,10 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                                               str(inp_wl), str(wgt_wl), str(out_wl), str(s), str(p)],
                                              cwd = finn_tb)
                         if(sp!=1):
-                            print("HLS Standard Test Failed")
-                            sys.exit(1)
+                            print("HLS Standard Test Failed")                            
                             if(success==1):
                                 write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
+                            sys.exit(1)
                         ### Calling the RTL test script
                         sp = subprocess.call(['./test_mvau_stream_std_rtl.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
@@ -336,10 +336,10 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                                               str(s), str(p)],
                                              cwd = mvau_tb)
                         if(sp!=1):
-                            print("RTL Standard Test Failed")
-                            sys.exit(1)
-                            if(success==1):
+                            print("RTL Standard Test Failed")                            
+                            if(success==1):                                
                                 write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
+                            sys.exit(1)
                         success = 1 ### Run successfull
                         ### Extracting results
                         rpt_dict_key = "Config set: "+str(config_set)+" (STD)"
@@ -363,15 +363,19 @@ def parser():
 
 if __name__ == '__main__':
 
-    kdim_arr    = np.array([2])#7))
-    ifm_ch_arr  = np.array([16])#,4,6,10,12,16,18,20])
-    ofm_ch_arr  = np.array([16])#,6,8,10,12,14,16,20])
-    ifm_dim_arr = np.array([8])#,8,12,16,20,24,28,32])
-    inp_wl_arr  = np.array([4])#1,4,8,12])
-    wgt_wl_arr  = np.array([4])#,2,4,8])
+    kdim_arr    = np.array([2,4])
+    ### Keep the length of the following three arrays same
+    ifm_ch_arr  = np.array([8,16,32])
+    ofm_ch_arr  = np.array([16,64,128])
+    ifm_dim_arr = np.array([8,16,32])
 
-    simd = np.array([4])#np.arange(4,5))#10))
-    pe = np.array([4])#np.arange(4,5))#10))
+    ### Keep the length of the following two arrays same
+    inp_wl_arr  = np.array([1])
+    wgt_wl_arr  = np.array([1])
+
+    ### Keep the length of the following two arrays same
+    simd = np.array([4,8,16,32])
+    pe = np.array([4,8,16,32])
     
     args = parser().parse_args()
     out_file = args.out_file    
