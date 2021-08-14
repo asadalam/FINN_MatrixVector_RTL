@@ -374,7 +374,7 @@ end // block: ROW_N
 	      .TDstI 	   (TDstI       ), 
 	      .TO	   (TO          ), 
 	      .TA 	   (TA          ), 
-	      .USE_DSP 	   (USE_DSP     ), 
+	      .DSP_TRUE	   (DSP_TRUE    ), 
 	      .INST_WMEM   (INST_WMEM   ),
 	      .USE_ACT	   (USE_ACT     ))	      
    mvau_inst(
