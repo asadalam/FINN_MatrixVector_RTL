@@ -29,17 +29,36 @@
 
 module mvu_pe_simd_std #(
 			 parameter int TSrcI=4,
-			 parameter int TW=1,
-			 parameter int TDstI=4)
+			 parameter int TW=4,
+			 parameter int TDstI=16,
+			 parameter int OP_SGN=0)
    ( 
      input logic [TSrcI-1:0]  in_act, //Input activation
-     input logic [TW-1:0]     in_wgt, //Input weight
-     output logic [TDstI-1:0] out); //Output   
+     input logic  [TW-1:0]     in_wgt, //Input weight
+     output logic  [TDstI-1:0] out); //Output   
 
-   // Always_COMB: SIMD_MUL
-   // SIMD only performs multiplication
-   always_comb
-   	out = in_act*in_wgt;      
-
+  if(OP_SGN == 0) begin: UNSIGNED // Both operators unsigned
+     // Always_COMB: SIMD_MUL
+     // SIMD only performs multiplication
+     always_comb begin
+	out = in_act*in_wgt;
+     end
+end   
+  else if(OP_SGN == 1) begin: ACT_SGN
+     always_comb begin
+	out = $signed(in_act)*$signed({1'b0,in_wgt});
+     end
+end
+  else if(OP_SGN == 2) begin: WGT_SGN
+     always_comb begin
+	out = $signed({1'b0,in_act})*$signed(in_wgt);
+     end
+end
+  else if(OP_SGN == 3) begin: ALL_SGN
+     always_comb begin
+	out = $signed(in_act) * $signed(in_wgt);
+     end
+end
+      
 endmodule // mvu_simd
 

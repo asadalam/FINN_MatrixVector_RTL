@@ -36,7 +36,7 @@
  * TW_BIN - Indicates whether the weights are binary or not
  * TDstI - Output word length 
  * TO - Output word length times PE
- * 
+ * OP_SGN       - Enumerated values showing signedness/unsignedness of input activation/weights
  * */
  
 `timescale 1ns/1ns
@@ -50,7 +50,8 @@ module mvu_pe #(
 		parameter int TW=1,
 		parameter int TW_BIN=1,
 		parameter int TDstI=4,
-		parameter int TO=8)
+		parameter int TO=8,
+		parameter int OP_SGN=0)
    
    (input logic aresetn,
     input logic 		   aclk,
@@ -235,7 +236,8 @@ module mvu_pe #(
 		    mvu_pe_simd_std #(
 				      .TSrcI(TSrcI),
 				      .TW(TW),
-				      .TDstI(TDstI))
+				      .TDstI(TDstI),
+				      .OP_SGN(OP_SGN))
 		    mvu_pe_simd_inst(
 				     .in_act(in_act_packed[simd_ind]),
 				     .in_wgt(in_wgt[simd_ind]),
@@ -255,7 +257,8 @@ module mvu_pe #(
 		 mvu_pe_simd_std #(
 				   .TSrcI(TSrcI),
 				   .TW(TW),
-				   .TDstI(TDstI))
+				   .TDstI(TDstI),
+				   .OP_SGN(OP_SGN))
 		 mvu_pe_simd_inst(
 				  .in_act(in_act_packed[simd_ind]),
 				  .in_wgt(in_wgt[simd_ind]),
@@ -301,7 +304,8 @@ module mvu_pe #(
 	      mvu_pe_simd_std #(
 				.TSrcI(TSrcI),
 				.TW(TW),
-				.TDstI(TDstI))
+				.TDstI(TDstI),
+				.OP_SGN(OP_SGN))
 	      mvu_pe_simd_inst(
 			       .in_act(in_act_packed[simd_ind]),
 			       .in_wgt(in_wgt[simd_ind]),
@@ -321,7 +325,8 @@ module mvu_pe #(
 	   mvu_pe_simd_std #(
 			     .TSrcI(TSrcI),
 			     .TW(TW),
-			     .TDstI(TDstI))
+			     .TDstI(TDstI),
+			     .OP_SGN(OP_SGN))
 	   mvu_pe_simd_inst(
 			    .in_act(in_act_packed[simd_ind]),
 			    .in_wgt(in_wgt[simd_ind]),
