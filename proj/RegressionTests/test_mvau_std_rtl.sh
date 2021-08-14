@@ -14,12 +14,13 @@ inp_wl=${5:-8}
 inp_bin=${6:-0}
 wgt_wl=${7:-1}
 wgt_bin=${8:-1}
-out_wl=${9:-16}
-simd=${10:-2}
-pe=${11:-2}
+op_sgn=${9:-0}
+out_wl=${10:-16}
+simd=${11:-2}
+pe=${12:-2}
 
 echo "Generating Verilog Top-Level Wrapper"
-python gen_mvau_top.py --ifm_ch ${ifm_ch} --ifm_dim ${ifm_dim} --ofm_ch ${ofm_ch} --kdim ${kdim} --inp_wl ${inp_wl} --inp_bin ${inp_bin} --wgt_wl ${wgt_wl} --wgt_bin ${wgt_bin} --out_wl ${out_wl} --simd ${simd} --pe ${pe}
+python gen_mvau_top.py --ifm_ch ${ifm_ch} --ifm_dim ${ifm_dim} --ofm_ch ${ofm_ch} --kdim ${kdim} --inp_wl ${inp_wl} --inp_bin ${inp_bin} --wgt_wl ${wgt_wl} --wgt_bin ${wgt_bin} --op_sgn ${op_sgn} --out_wl ${out_wl} --simd ${simd} --pe ${pe}
 if [ $? -eq 0 ]; then
     echo "Verilog top level wrapper file generation successfull"
 else
@@ -48,12 +49,17 @@ do
     fi
 done
 
+### temporary creating new set of weight memories for IP generation
+./create_mem.sh weight_mem_batch0.mem
+
 cd $MVAU_RTL_ROOT/proj/sim
 cut -c3- inp_act.mem > temp
 cp temp inp_act.mem
+### temporary creating new set of weight memories for IP generation
+./create_mem.sh weight_mem_batch0.mem
 
 echo "Generating parameter file"
-python gen_mvau_defn.py --ifm_ch ${ifm_ch} --ifm_dim ${ifm_dim} --ofm_ch ${ofm_ch} --kdim ${kdim} --inp_wl ${inp_wl} --inp_bin ${inp_bin} --wgt_wl ${wgt_wl} --wgt_bin ${wgt_bin} --out_wl ${out_wl} --simd ${simd} --pe ${pe}
+python gen_mvau_defn.py --ifm_ch ${ifm_ch} --ifm_dim ${ifm_dim} --ofm_ch ${ofm_ch} --kdim ${kdim} --inp_wl ${inp_wl} --inp_bin ${inp_bin} --wgt_wl ${wgt_wl} --wgt_bin ${wgt_bin} --op_sgn ${op_sgn} --out_wl ${out_wl} --simd ${simd} --pe ${pe}
 if [ $? -eq 0 ]; then
     echo "Parameter file generation successfull"
 else

@@ -215,8 +215,8 @@ def extract_data(hls_run, rtl_run, clk_per, finn_tb, mvau_env):
     return pd_lst
 
 def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
-         inp_wl_arr, wgt_wl_arr, simd, pe,
-         finn_tb, mvau_env, mvau_tb, out_file):
+         inp_wl_arr, inp_wl_sgn, wgt_wl_arr, wgt_wl_sgn,
+         simd, pe, finn_tb, mvau_env, mvau_tb, out_file):
     config_col_names = ["IFM_Ch","IFM_Dim", "OFM_Ch", "KDim","Inp_Act","Wgt_Prec","Out_Act","SIMD","PE"]
     rpt_col_names = ["HLS LUT", "HLS FF", "HLS DSPs", "HLS BRAM", "HLS Time", "HLS Latency", "HLS Exec. Time",
                      "RTL LUT", "RTL FF", "RTL DSPs", "RTL BRAM", "RTL Time", "RTL Latency", "RTL Exec. Time"]
@@ -224,6 +224,7 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
     config_dict = dict()
     rpt_dict = dict()
     success = 0 ### A non-zero value indicates at least one run is successful
+    op_sgn = 0 ### Default value, both input activation and weights are unsigned
 
     ### Handling Ctrl+C gracefully
     signal(SIGINT, MyHandler(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file))                    
@@ -233,8 +234,18 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
             ### Skipping if kdim>ifm_dim
             if(kdim > ifm_dim):
                 continue
-            for inp_wl, wgt_wl in zip(inp_wl_arr, wgt_wl_arr):
-                out_wl = min(16,inp_wl+wgt_wl+ceil(log2(kdim*kdim*ifm_ch)))
+            for inp_wl, inp_sgn, wgt_wl, wgt_sgn in zip(inp_wl_arr, inp_wl_sgn, wgt_wl_arr, wgt_wl_sgn):
+                out_wl = 11#min(16,inp_wl+wgt_wl+ceil(log2(kdim*kdim*ifm_ch)))
+                ### Setting up parameter of operator signs
+                if(inp_sgn==1 and wgt_sgn==1):
+                    op_sgn = 3
+                elif(inp_sgn == 1 and wgt_sgn == 0):
+                    op_sgn = 1
+                elif(inp_sgn == 0 and wgt_sgn == 1):
+                    op_sgn = 2
+                else:
+                    op_sgn = 0
+                
                 for s,p in zip(simd, pe):
                     ### Skipping this config set when ifm channel is not an integer multiple of SIMD
                     if(ifm_ch%s!=0 or s>ifm_ch):
@@ -322,7 +333,8 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                         ### Calling the HLS test script
                         sp = subprocess.call(['./test_mvau_std.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
-                                              str(inp_wl), str(wgt_wl), str(out_wl), str(s), str(p)],
+                                              str(inp_wl), str(inp_sgn), str(wgt_wl), str(wgt_sgn),
+                                              str(out_wl), str(s), str(p)],
                                              cwd = finn_tb)
                         if(sp!=1):
                             print("HLS Standard Test Failed")
@@ -332,8 +344,8 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                         ### Calling the RTL test script
                         sp = subprocess.call(['./test_mvau_std_rtl.sh',
                                               str(ifm_ch), str(ifm_dim), str(ofm_ch), str(kdim),
-                                              str(inp_wl), str(0), str(wgt_wl), str(0), str(out_wl),
-                                              str(s), str(p)],
+                                              str(inp_wl), str(0), str(wgt_wl), str(0), str(op_sgn),
+                                              str(out_wl), str(s), str(p)],
                                              cwd = mvau_tb)
                         if(sp!=1):
                             print("RTL Standard Test Failed")
@@ -343,7 +355,7 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                         success = 1 ### Run successfull
                         ### Extracting results
                         rpt_dict_key = "Config set: "+str(config_set)+" (STD)"
-                        rpt_lst = extract_data('mvau_std','mvau',
+                        rpt_lst = extract_data('mvau_batch0_std','mvau',
                                                5.0, finn_tb, mvau_env)
                         rpt_dict[rpt_dict_key] = rpt_lst
                         
@@ -361,19 +373,21 @@ def parser():
 
 if __name__ == '__main__':
 
-    kdim_arr    = np.array([4])
+    kdim_arr    = np.array([1])
     ### Keep the length of the following three arrays same
-    ifm_ch_arr  = np.array([4])
-    ofm_ch_arr  = np.array([4])
-    ifm_dim_arr = np.array([4])
+    ifm_ch_arr  = np.array([600])
+    ofm_ch_arr  = np.array([64])
+    ifm_dim_arr = np.array([1])
     
     ### Keep the length of the following two arrays same
-    inp_wl_arr  = np.array([4])
-    wgt_wl_arr  = np.array([4])
+    inp_wl_arr  = np.array([2])
+    inp_wl_sgn  = np.array([0]) ## 0 for unsigned and 1 for signed
+    wgt_wl_arr  = np.array([2])
+    wgt_wl_sgn  = np.array([1]) ## 0 for unsigned and 1 for signed
 
     ### Keep the length of the following two arrays same
-    simd = np.array([4])
-    pe = np.array([4])
+    simd = np.array([600])
+    pe = np.array([64])
     
     args = parser().parse_args()
     out_file = args.out_file    
@@ -383,7 +397,7 @@ if __name__ == '__main__':
     finn_env = os.environ.get('FINN_HLS_ROOT')
     finn_tb = finn_env+'/tb/'
 
-    main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr, inp_wl_arr,
-         wgt_wl_arr, simd, pe, finn_tb, mvau_env, mvau_tb, out_file)
+    main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr, inp_wl_arr, inp_wl_sgn,
+         wgt_wl_arr, wgt_wl_sgn, simd, pe, finn_tb, mvau_env, mvau_tb, out_file)
 
     sys.exit(0)
