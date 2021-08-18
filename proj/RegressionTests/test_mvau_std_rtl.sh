@@ -49,14 +49,9 @@ do
     fi
 done
 
-### temporary creating new set of weight memories for IP generation
-./create_mem.sh weight_mem_batch0.mem
-
 cd $MVAU_RTL_ROOT/proj/sim
 cut -c3- inp_act.mem > temp
 cp temp inp_act.mem
-### temporary creating new set of weight memories for IP generation
-./create_mem.sh weight_mem_batch0.mem
 
 echo "Generating parameter file"
 python gen_mvau_defn.py --ifm_ch ${ifm_ch} --ifm_dim ${ifm_dim} --ofm_ch ${ofm_ch} --kdim ${kdim} --inp_wl ${inp_wl} --inp_bin ${inp_bin} --wgt_wl ${wgt_wl} --wgt_bin ${wgt_bin} --op_sgn ${op_sgn} --out_wl ${out_wl} --simd ${simd} --pe ${pe}

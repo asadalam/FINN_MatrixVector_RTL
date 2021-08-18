@@ -355,7 +355,7 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
                         success = 1 ### Run successfull
                         ### Extracting results
                         rpt_dict_key = "Config set: "+str(config_set)+" (STD)"
-                        rpt_lst = extract_data('mvau_batch0_std','mvau',
+                        rpt_lst = extract_data('mvau_std','mvau',
                                                5.0, finn_tb, mvau_env)
                         rpt_dict[rpt_dict_key] = rpt_lst
                         
@@ -375,19 +375,19 @@ if __name__ == '__main__':
 
     kdim_arr    = np.array([1])
     ### Keep the length of the following three arrays same
-    ifm_ch_arr  = np.array([600])
-    ofm_ch_arr  = np.array([64])
+    ifm_ch_arr  = np.array([32,64,64,128])
+    ofm_ch_arr  = np.array([32,64,128,256])
     ifm_dim_arr = np.array([1])
     
     ### Keep the length of the following two arrays same
     inp_wl_arr  = np.array([2])
     inp_wl_sgn  = np.array([0]) ## 0 for unsigned and 1 for signed
     wgt_wl_arr  = np.array([2])
-    wgt_wl_sgn  = np.array([1]) ## 0 for unsigned and 1 for signed
+    wgt_wl_sgn  = np.array([0]) ## 0 for unsigned and 1 for signed
 
     ### Keep the length of the following two arrays same
-    simd = np.array([600])
-    pe = np.array([64])
+    simd = np.array([32,64])
+    pe = np.array([32,64])
     
     args = parser().parse_args()
     out_file = args.out_file    
