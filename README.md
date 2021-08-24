@@ -9,6 +9,10 @@ The repository is organized as follows:
   ```
   git clone https://github.com/asadalam/Xilinx_mvau.git -b gh-pages
   ```
+  - The web page containing documentation is available at
+  ```
+  https://asadalam.github.io/FINN_MatrixVector_RTL/
+  ```
 ### Project Folder (proj):
 Project folder, contains the following sub-folders
   - Source Folder (`src`): All source code
