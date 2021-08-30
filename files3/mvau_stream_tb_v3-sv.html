@@ -8,197 +8,197 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Module"></a><a name="Topic4"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Module"></a><a name="Topic14"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Module</div>
 </div>
 
-<a name="mvau_stream_tb_v2.sv"></a><a name="Topic5"></a><div class="CTopic TModule LSystemVerilog">
+<a name="mvau_stream_tb_v2.sv"></a><a name="Topic15"></a><div class="CTopic TModule LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">mvau_stream_tb_v2.</span>&#8203;sv (testbench)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>v3.0: Reads input data from a file and reads weights from a file Compares output of DUT with outputs from a file.This file lists a test bench for the matrix-vector activation streaming unit. This test bench is part of the regression test for MVAU stream unit.</p><p>It is part of the Xilinx FINN open source framework for implementing quantized neural networks on FPGAs</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">CLK_PER</td><td class="CDLDefinition"><p>Clock cycle period</p></td></tr><tr><td class="CDLEntry">INIT_DLY=(CLK_PER*2)+1</td><td class="CDLDefinition"><p>Initial delay</p></td></tr><tr><td class="CDLEntry">RAND_DLY=21</td><td class="CDLDefinition"><p>Random delay to be used when needed</p></td></tr><tr><td class="CDLEntry">NO_IN_VEC = 100</td><td class="CDLDefinition"><p>Number of input vectors</p></td></tr><tr><td class="CDLEntry">ACT_MatrixW = OFMDim*OFMDim;</td><td class="CDLDefinition"><p>Input activation matrix height</p></td></tr><tr><td class="CDLEntry">ACT_MatrixH = (KDim*KDim*IFMCh)</td><td class="CDLDefinition"><p>Input activation matrix weight</p></td></tr><tr><td class="CDLEntry">TOTAL_OUTPUTS = MatrixH*ACT_MatrixW</td><td class="CDLDefinition"><p>Total number of elements in the output matrix</p></td></tr></table></div>
 </div>
 
-<a name="Signals"></a><a name="Topic6"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Signals"></a><a name="Topic16"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Signals</div>
 </div>
 
-<a name="aresetn"></a><a name="Topic7"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="aresetn"></a><a name="Topic17"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">aresetn</div>
  <div class="CBody"><p>Asynchronous active low reset</p></div>
 </div>
 
-<a name="rready"></a><a name="Topic8"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="rready"></a><a name="Topic18"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">rready</div>
  <div class="CBody"><p>Input signal to DUT indicating that successor logic is ready to consume data</p></div>
 </div>
 
-<a name="wready"></a><a name="Topic9"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="wready"></a><a name="Topic19"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">wready</div>
  <div class="CBody"><p>Output signal from DUT indicating to the predecessor logic should start sending data</p></div>
 </div>
 
-<a name="wmem_wready"></a><a name="Topic10"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="wmem_wready"></a><a name="Topic20"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">wmem_wready</div>
  <div class="CBody"><p>Output signal from DUT indicating to the predecessor weight stream logic should start sending weights</p></div>
 </div>
 
-<a name="in_v"></a><a name="Topic11"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_v"></a><a name="Topic21"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_v</div>
  <div class="CBody"><p>Input valid</p></div>
 </div>
 
-<a name="in_wgt_v"></a><a name="Topic12"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_wgt_v"></a><a name="Topic22"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_wgt_v</div>
  <div class="CBody"><p>Weight stream valid signal</p></div>
 </div>
 
-<a name="weights"></a><a name="Topic13"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="weights"></a><a name="Topic23"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">weights</div>
  <div class="CBody"><p>The weight matrix of dimensions (MatrixW/SIMD)*(MatrixH/PE) x MatrixH of word length TW x SIMD</p></div>
 </div>
 
-<a name="in_wgt_packed"></a><a name="Topic14"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_wgt_packed"></a><a name="Topic24"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_wgt_packed</div>
  <div class="CBody"><p>Input weight stream packed Dimension: PE*TW*SIMD</p></div>
 </div>
 
-<a name="in_wgt_um"></a><a name="Topic15"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_wgt_um"></a><a name="Topic25"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_wgt_um</div>
  <div class="CBody"><p>Input weight stream extracting weights from weight matrix Dimension: PE, word length: TW*SIMD</p></div>
 </div>
 
-<a name="in_mat"></a><a name="Topic16"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_mat"></a><a name="Topic26"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_mat</div>
  <div class="CBody"><p>Input activation matrix Dimension: ACT_MatrixH x ACT_MatrixW, word length: TSrcI</p></div>
 </div>
 
-<a name="in_act"></a><a name="Topic17"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="in_act"></a><a name="Topic27"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">in_act</div>
  <div class="CBody"><p>Input activation stream to DUT Dimension: SIMD, word length: TSrcI</p></div>
 </div>
 
-<a name="mvau_beh"></a><a name="Topic18"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="mvau_beh"></a><a name="Topic28"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">mvau_beh</div>
  <div class="CBody"><p>Output matrix holding output of behavioral simulation Dimension: MatrixH x ACT_MatrixW</p></div>
 </div>
 
-<a name="out_v"></a><a name="Topic19"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out_v"></a><a name="Topic29"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out_v</div>
  <div class="CBody"><p>Output valid signal</p></div>
 </div>
 
-<a name="out"></a><a name="Topic20"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out"></a><a name="Topic30"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out</div>
  <div class="CBody"><p>Output from DUT, word length: TO = PExTDstI</p></div>
 </div>
 
-<a name="out_packed"></a><a name="Topic21"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="out_packed"></a><a name="Topic31"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">out_packed</div>
  <div class="CBody"><p>Output signal from DUT where each element is divided into multiple elements as DUT produces a packed output of size PE x TDstI.&nbsp; Dimension: PE, word length: TDstI</p></div>
 </div>
 
-<a name="test_count"></a><a name="Topic22"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="test_count"></a><a name="Topic32"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">test_count</div>
  <div class="CBody"><p>An integer to count for successful output matching</p></div>
 </div>
 
-<a name="latency"></a><a name="Topic23"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="latency"></a><a name="Topic33"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">latency</div>
  <div class="CBody"><p>An integer to count the total number of cycles taken to get all outputs</p></div>
 </div>
 
-<a name="sim_start"></a><a name="Topic24"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="sim_start"></a><a name="Topic34"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">sim_start</div>
  <div class="CBody"><p>A signal which indicates when simulation starts</p></div>
 </div>
 
-<a name="do_comp"></a><a name="Topic25"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="do_comp"></a><a name="Topic35"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">do_comp</div>
  <div class="CBody"><p>A signal which indicates the comparison is done, helps in debugging</p></div>
 </div>
 
-<a name="Combinatorial_Always_Blocks"></a><a name="Topic26"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Combinatorial_Always_Blocks"></a><a name="Topic36"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Combinatorial Always Blocks</div>
 </div>
 
-<a name="CLK_GEN"></a><a name="Topic27"></a><div class="CTopic TAlways LSystemVerilog">
+<a name="CLK_GEN"></a><a name="Topic37"></a><div class="CTopic TAlways LSystemVerilog">
  <div class="CTitle">CLK_GEN</div>
  <div class="CBody"><p>Generating clock using the CLK_PER as clock period</p></div>
 </div>
 
-<a name="WGT_MAT_GEN"></a><a name="Topic28"></a><div class="CTopic TAlways LSystemVerilog">
+<a name="WGT_MAT_GEN"></a><a name="Topic38"></a><div class="CTopic TAlways LSystemVerilog">
  <div class="CTitle">WGT_MAT_GEN</div>
  <div class="CBody"><p>Always block for populating the weight matrix from a memory file</p></div>
 </div>
 
-<a name="INP_ACT_MAT_GEN"></a><a name="Topic29"></a><div class="CTopic TAlways LSystemVerilog">
+<a name="INP_ACT_MAT_GEN"></a><a name="Topic39"></a><div class="CTopic TAlways LSystemVerilog">
  <div class="CTitle">INP_ACT_MAT_GEN</div>
  <div class="CBody"><p>Always block for populating the input activation matrix from a memory file</p></div>
 </div>
 
-<a name="OUT_ACT_MAT_GEN"></a><a name="Topic30"></a><div class="CTopic TAlways LSystemVerilog">
+<a name="OUT_ACT_MAT_GEN"></a><a name="Topic40"></a><div class="CTopic TAlways LSystemVerilog">
  <div class="CTitle">OUT_ACT_MAT_GEN</div>
  <div class="CBody"><p>Always block for populating the output activation matrix from a memory file</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks"></a><a name="Topic31"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks"></a><a name="Topic41"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="CALC_LATENCY"></a><a name="Topic32"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="CALC_LATENCY"></a><a name="Topic42"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">CALC_LATENCY</div>
  <div class="CBody"><p>Always block for calculating the total run time of simulation in terms of clock cycles</p></div>
 </div>
 
-<a name="Combinatorial_Always_Blocks(2)"></a><a name="Topic33"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Combinatorial_Always_Blocks(2)"></a><a name="Topic43"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Combinatorial Always Blocks</div>
 </div>
 
-<a name="Input_Ready"></a><a name="Topic34"></a><div class="CTopic TAlwaysCOMB LSystemVerilog">
+<a name="Input_Ready"></a><a name="Topic44"></a><div class="CTopic TAlwaysCOMB LSystemVerilog">
  <div class="CTitle">Input Ready</div>
 </div>
 
-<a name="Combinatorial_Always_Blocks(3)"></a><a name="Topic35"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Combinatorial_Always_Blocks(3)"></a><a name="Topic45"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Combinatorial Always Blocks</div>
 </div>
 
-<a name="Counters"></a><a name="Topic36"></a><div class="CTopic TAlways LSystemVerilog">
+<a name="Counters"></a><a name="Topic46"></a><div class="CTopic TAlways LSystemVerilog">
  <div class="CTitle">Counters</div>
  <div class="CBody"><p>Three counters to control the generation of input</p></div>
 </div>
 
-<a name="INP_GEN"></a><a name="Topic37"></a><div class="CTopic TAlways LSystemVerilog">
+<a name="INP_GEN"></a><a name="Topic47"></a><div class="CTopic TAlways LSystemVerilog">
  <div class="CTitle">INP_GEN</div>
  <div class="CBody"><p>Generating input for the DUT from the input tensor</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks(2)"></a><a name="Topic38"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks(2)"></a><a name="Topic48"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="INP_V_GEN"></a><a name="Topic39"></a><div class="CTopic TAlwaysFF LSystemVerilog">
+<a name="INP_V_GEN"></a><a name="Topic49"></a><div class="CTopic TAlwaysFF LSystemVerilog">
  <div class="CTitle">INP_V_GEN</div>
  <div class="CBody"><p>Generating input valid for a variety of cases</p></div>
 </div>
 
-<a name="Combinatorial_Always_Blocks(4)"></a><a name="Topic40"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Combinatorial_Always_Blocks(4)"></a><a name="Topic50"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Combinatorial Always Blocks</div>
 </div>
 
-<a name="Counters(2)"></a><a name="Topic41"></a><div class="CTopic TAlways LSystemVerilog">
+<a name="Counters(2)"></a><a name="Topic51"></a><div class="CTopic TAlways LSystemVerilog">
  <div class="CTitle">Counters</div>
  <div class="CBody"><p>Three counters to control the generation of input weights</p></div>
 </div>
 
-<a name="WGT_GEN"></a><a name="Topic42"></a><div class="CTopic TAlways LSystemVerilog">
+<a name="WGT_GEN"></a><a name="Topic52"></a><div class="CTopic TAlways LSystemVerilog">
  <div class="CTitle">WGT_GEN</div>
  <div class="CBody"><p>Generating weight stream for the DUT from the weight tensor</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks(3)"></a><a name="Topic43"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks(3)"></a><a name="Topic53"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="WGT_V_GEN"></a><a name="Topic44"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+<a name="WGT_V_GEN"></a><a name="Topic54"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
  <div class="CTitle">WGT_V_GEN</div>
  <div class="CBody"><p>Generating weight input valid for a variety of cases</p></div>
 </div>

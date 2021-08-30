@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("cal",["AlwaysFF"],[["CALC_LATENCY",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:CALC_LATENCY"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("cal",["AlwaysFF","Function"],[["CALC_LATENCY",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:CALC_LATENCY"]]],["calc_savings",,[[,,,,1,"File4:regtest_mvau.py:calc_savings"]]]]);
