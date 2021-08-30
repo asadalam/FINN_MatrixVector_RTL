@@ -1,3 +1,18 @@
+#
+# Python Script: Regression Test Script for MVAU Batch (regtest_mvau.py)
+# 
+# Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
+# 
+# This python script runs a regression test for the MVAU batch based on a
+# given set of parameters. It generates and runs HLS and RTL flows and compares
+# performance of both in terms of FPGA resource utilization, timing and run time
+# All performance numbers are written to an output excel file
+#
+# This material is based upon work supported, in part, by Science Foundation
+# Ireland, www.sfi.ie under Grant No. 13/RC/2094_P2 and, in part, by the 
+# European Union's Horizon 2020 research and innovation programme under the 
+# Marie Sklodowska-Curie grant agreement Grant No.754489.  # 
+
 import numpy as np
 import argparse
 import os
@@ -23,7 +38,17 @@ class MyHandler:
         write_rpt_file(self.rpt_dict, self.rpt_col_names, self.config_dict,
                        self.config_col_names, self.out_file)
         exit(0)
-        
+
+# Function: write_rpt_file
+# This function takes in the performance numbers as dictionary along with configurations
+# as a dictionariy and writes to an excel file
+#
+# Parameters:
+#   rpt_dict - Dictionary of performance numbers in terms of LUT, DSP etc.
+#   rpt_col_names - Column Names for the excel file when writing the output performance numbers
+#   config_dict - Dictionary containing the configurations for which the Regression test was run
+#   config_col_names - Column Names for the excel file when writing the configurations
+#   out_file - Output excel file name
 def write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file):
     try:
         print("Writing the results to an Excel file")
