@@ -49,6 +49,10 @@ class MyHandler:
 #   config_dict - Dictionary containing the configurations for which the Regression test was run
 #   config_col_names - Column Names for the excel file when writing the configurations
 #   out_file - Output excel file name
+#
+# Returns:
+#
+#   None
 def write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file):
     try:
         print("Writing the results to an Excel file")
@@ -80,7 +84,17 @@ def write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_f
         raise
     return 0
 
-
+# Function: extract_hls_data
+# This function extracts performance data from HLS simulation and synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about HLS performance measures
+#   param - The parameters against which performance numbers are to be extracted
+#
+# Returns:
+#
+#   block - A list of performance measures
+#   tp - Clock period achieved by HLS
 def extract_hls_data(log_file,param):
     block = []
     tp = 0
@@ -102,6 +116,16 @@ def extract_hls_data(log_file,param):
         raise
         exit(1)
 
+# Function: extract_rtl_block_data
+# This function extracts performance data from RTL simulation and synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about RTL performance measures
+#   param - The parameters against which performance numbers are to be extracted
+#
+# Returns:
+#
+#   block - A list of performance measures for RTL
 def extract_rtl_block_data(log_file,param):
     block = []
     try:
@@ -122,6 +146,16 @@ def extract_rtl_block_data(log_file,param):
         raise
         exit(1)
 
+# Function: extract_rtl_timing_data
+# This function extracts timing information for RTL synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about RTL timing 
+#   clk_per - The clock period constraint for synthesis
+#
+# Returns:
+#
+#   tim_data - Timing achieved by RTL synthesis
 def extract_rtl_timing_data(log_file, clk_per):
     tp = 0
     try:
@@ -135,6 +169,16 @@ def extract_rtl_timing_data(log_file, clk_per):
         print("Cannot read the RTL timing report")
         raise
     
+
+# Function: extract_hls_latency
+# This function extracts the latency of an HLS simulation
+#
+# Parameters:
+#   log_file - The log file which contains information about HLS latency
+#
+# Returns:
+#
+#   hls_lat - HLS latency
 def extract_hls_latency(log_file):
     lat = 0
     try:
@@ -148,6 +192,16 @@ def extract_hls_latency(log_file):
         print("Cannot read the HLS latency report file")
         raise
 
+
+# Function: extract_rtl_latency
+# This function extracts the latency of an RTL simulation
+#
+# Parameters:
+#   log_file - The log file which contains information about RTL latency
+#
+# Returns:
+#
+#   rtl_lat - RTL latency
 def extract_rtl_latency(log_file):
     lat = 0
     try:
@@ -160,6 +214,15 @@ def extract_rtl_latency(log_file):
         print("Cannot read the RTL latency report file")
         raise
 
+# Function: extract_rtl_exec
+# This function extracts the total execution time of HLS simulation and synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about HLS execution time
+#
+# Returns:
+#
+#   hls_exec - HLS execution time
 def extract_rtl_exec(log_file):
     exec_time = 0
     try:
@@ -172,6 +235,16 @@ def extract_rtl_exec(log_file):
         print("Cannot read the RTL synthesis execution time file")
         raise
 
+
+# Function: extract_rtl_exec
+# This function extracts the total execution time of RTL simulation and synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about RTL execution time
+#
+# Returns:
+#
+#   rtl_exec - RTL execution time
 def extract_hls_exec(log_file):
     exec_time = 0
     try:
@@ -184,6 +257,15 @@ def extract_hls_exec(log_file):
         print("Cannot read the HLS synthesis execution time file")
         raise
 
+# Function: calc_savings
+# This function calculates the difference between RTL and HLS performance measures
+#
+# Parameters:
+#   log_file - The log file which contains information about HLS execution time
+#
+# Returns:
+#
+#   sv_list - A list of difference expressed as a percentage
 def calc_savings(hls_lst, rtl_lst):
     sv_lst = []
     for sv in zip(hls_lst,rtl_lst):
@@ -193,6 +275,21 @@ def calc_savings(hls_lst, rtl_lst):
             sv_lst.append(round(((sv[0] - sv[1])/sv[0]*100)*10**2)/10**2)
     return sv_lst
 
+# Function: extract_data
+# This function calls all of the above extraction function and combines
+# them in one place for further processing. It defines all the paths where
+# the various log files are present and defines the parameter against which
+# the performance numbers are to be extracted
+#
+# Parameters:
+#   hls_run - Directory from where HLS reports are to be read
+#   rtl_run - Directory from where RTL reports are to be read
+#   clk_per - Clock constraint for synthesis
+#   finn_tb - The path to FINN HLS library
+#   mvau_env - The path to RTL directory
+#
+# Returns:
+#   pd_list - A list which is a combination of HLS and RTL performance measures and the differences between them
 def extract_data(hls_run, rtl_run, clk_per, finn_tb, mvau_env):
     # Directory from where HLS reports to be read
     hls_syn_dir = hls_run.replace("_","-")
@@ -239,6 +336,28 @@ def extract_data(hls_run, rtl_run, clk_per, finn_tb, mvau_env):
 
     return pd_lst
 
+# Function: main
+# The main top level function which defines the parameters to be evaluated,
+# configures the column names for the Excel output file, handles unexpected events,
+# and runs the regression tests for various configuration parameters. After running HLS and
+# RTL tests, it calls the extract_data function to do the main data extraction and then calls a
+# function to write to the output Excel file
+#
+# Parameters:
+#   kdim_arr -
+#   ifm_ch_arr -
+#   ofm_ch_arr -
+#   ifm_dim_arr -
+#   inp_wl_arr -
+#   inp_wl_sgn -
+#   wgt_wl_arr -
+#   wgt_wl_sgn -
+#   simd -
+#   pe -
+#   finn_tb -
+#   mvau_env -
+#   mvau_tb -
+#   out_file -
 def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
          inp_wl_arr, inp_wl_sgn, wgt_wl_arr, wgt_wl_sgn,
          simd, pe, finn_tb, mvau_env, mvau_tb, out_file):
