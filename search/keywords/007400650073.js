@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("tes",["Signal"],[["test_count",,[[,,,,0,"File3:mvau_stream_tb_v1.sv:test_count"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("tes",["File","Signal"],[["Test",,[[,"Regression Test Script for MVAU Batch",,,0,"File4:regtest_mvau.py:Regression_Test_Script_for_MVAU_Batch"]]],["test_count",,[[,,,,1,"File3:mvau_stream_tb_v1.sv:test_count"]]]]);

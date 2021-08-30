@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("reg",["AlwaysFF"],[["REG_DO_MVAU_STREAM",,[[,,,,0,"File:mvau_stream/mvu_pe/mvu_pe_acc.sv:REG_DO_MVAU_STREAM"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("reg",["AlwaysFF","File"],[["REG_DO_MVAU_STREAM",,[[,,,,0,"File:mvau_stream/mvu_pe/mvu_pe_acc.sv:REG_DO_MVAU_STREAM"]]],["Regression",,[[,"Regression Test Script for MVAU Batch",,,1,"File4:regtest_mvau.py:Regression_Test_Script_for_MVAU_Batch"]]]]);
