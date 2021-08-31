@@ -25,14 +25,39 @@ import argparse
 from signal import signal, SIGINT
 from math import ceil, log2
 
-### Class defining the handler to capture Ctrl+C
+# Class: MyHanlder
+# Handles unexpected termination or explicit termination by Ctrl+C by calling the
+# write_rpt_file function to write whatever data has been extracted so far
+#
+# Attributes:
+#    rpt_dict - Dictionary containing all performance measures to be written
+#    rpt_col_names - Column names for various meausres written to the output excel file
+#    config_dict - Configurations for which the regression test is being run
+#    config_col_names - Configuration parameters against which the tests are being run. Acts as column names for the output excel file
+#    out_file - Output excel file name
 class MyHandler:
+    # Constructor: __init__
+    # The construction initializes the attributes with corresponding input parameters
+    #
+    # Parameters:
+    #   rpt_dict - Dictionary containing all performance measures to be written
+    #   rpt_col_names - Column names for various meausres written to the output excel file
+    #   config_dict - Configurations for which the regression test is being run
+    #   config_col_names - Configuration parameters against which the tests are being run. Acts as column names for the output excel file
+    #   out_file - Output excel file name
     def __init__(self, rpt_dict, rpt_col_names, config_dict, config_col_names, out_file):
         self.rpt_dict = rpt_dict
         self.rpt_col_names = rpt_col_names
         self.config_dict = config_dict
         self.config_col_names = config_col_names
         self.out_file = out_file
+    # Method: __call__
+    # This method is called when the unexpected termination takes place and calls the
+    # write_rpt_file function to dump all extracted data to an output file
+    #
+    # Parameters:
+    #   signo - Number of the signal to be trapped, in this case Ctrl+C
+    #   frame - Current stack frame
     def __call__(self, signo, frame):
         print('SIGINT or CTRL-C detected, exiting gracefully by writing to output')
         write_rpt_file(self.rpt_dict, self.rpt_col_names, self.config_dict,
@@ -344,20 +369,20 @@ def extract_data(hls_run, rtl_run, clk_per, finn_tb, mvau_env):
 # function to write to the output Excel file
 #
 # Parameters:
-#   kdim_arr -
-#   ifm_ch_arr -
-#   ofm_ch_arr -
-#   ifm_dim_arr -
-#   inp_wl_arr -
-#   inp_wl_sgn -
-#   wgt_wl_arr -
-#   wgt_wl_sgn -
-#   simd -
-#   pe -
-#   finn_tb -
-#   mvau_env -
-#   mvau_tb -
-#   out_file -
+#   kdim_arr - An array containing specifications about kernel dimensions
+#   ifm_ch_arr -  An array containing specifications about input feature map size 
+#   ofm_ch_arr -  An array containing specifications about output feature map size
+#   ifm_dim_arr - An array containing specifications about input feature map dimension
+#   inp_wl_arr -  An array containing specification about input word length
+#   inp_wl_sgn -  An array containing specification about input vector sign, corresponds to inp_wl_arr
+#   wgt_wl_arr -  An array containing specification about weights precision
+#   wgt_wl_sgn -  An array containing specification about sign of weights, corresponds to wgt_wl_sgn
+#   simd - An array containing specification about number of SIMDs
+#   pe -   An array containing specification about number of PEs 
+#   finn_tb - Directory of the FINN HLS directory
+#   mvau_env - Directory of the MVAU RTL directory
+#   mvau_tb - Directory of the Regression Test directory
+#   out_file - Output excel file
 def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
          inp_wl_arr, inp_wl_sgn, wgt_wl_arr, wgt_wl_sgn,
          simd, pe, finn_tb, mvau_env, mvau_tb, out_file):
@@ -509,12 +534,21 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
     write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
     return 0
 
+# Function: parser
+# This function defines an ArgumentParser object for command line arguments
+#
+# Returns:
+# Parser object (parser)
 def parser():
     parser = argparse.ArgumentParser(description='Python data script for regression test for FINN HLS and RTL implementation')
     parser.add_argument('-o','--out_file',default="mvau_report.xlsx",
 			help="Output file")
     return parser
 
+# Function: __main__
+# Entry point of the file, retrieves the command line argument,
+# defines different parameters and environment variables and
+# calls the main function to run the regression tests
 if __name__ == '__main__':
 
     kdim_arr    = np.array([1])
