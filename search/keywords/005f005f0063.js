@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("__c",["Function"],[["__call__",,[["MyHanlder",,,,0,"File4:regtest_mvau.py:MyHanlder.__call__","PythonClass:MyHanlder:__call__"]]]]);

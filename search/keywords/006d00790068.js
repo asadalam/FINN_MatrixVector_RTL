@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("myh",["Class"],[["MyHanlder",,[[,,,,0,"File4:regtest_mvau.py:MyHanlder","PythonClass:MyHanlder"]]]]);

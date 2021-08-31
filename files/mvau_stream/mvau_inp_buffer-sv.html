@@ -8,29 +8,29 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Module"></a><a name="Topic474"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Module"></a><a name="Topic497"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Module</div>
 </div>
 
-<a name="MVAU_Stream_Input_Buffer"></a><a name="Topic475"></a><div class="CTopic TModule LSystemVerilog">
+<a name="MVAU_Stream_Input_Buffer"></a><a name="Topic498"></a><div class="CTopic TModule LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">MVAU Stream Input Buffer (mvau_inp_buffer.</span>&#8203;sv)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam <a href="#" onclick="javascript:location.href='ma\u0069'+'lto\u003a'+'syed\u002eas'+'ad\u002ealam'+'\u0040'+'tcd'+'\u002eie';return false;">syed&#46;as<span style="display: none">[xxx]</span>ad&#46;alam<span>&#64;</span>tcd<span style="display: none">[xxx]</span>&#46;ie</a></p><p>This file lists an RTL implementation of an input buffer Input buffer is needed to store the input activation in order for it to be processed with multiple rows of the lowered weight matrix.&nbsp; Buffer length: MatrixW/SIMD = (Kernel^2*IFMCh)/SIMD Word length of each cell: PE*TSrcI = TI This module is part of the Matrix-Vector-Multiplication Unit</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">aclk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">aresetn</td><td class="CDLDefinition"><p>Synchronous and active low reset</p></td></tr><tr><td class="CDLEntry">[TI-1:0] in</td><td class="CDLDefinition"><p>Input activation stream, word length TI=TSrcI*SIMD</p></td></tr><tr><td class="CDLEntry">wr_en</td><td class="CDLDefinition"><p>Write enable for the input buffer</p></td></tr><tr><td class="CDLEntry">rd_en</td><td class="CDLDefinition"><p>Read enable for the input buffer</p></td></tr><tr><td class="CDLEntry">[BUF_ADDR-1:0] addr</td><td class="CDLDefinition"><p>Address to the input buffer</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">[TI-1:0] out</td><td class="CDLDefinition"><p>Output from the input buffer, word length TI=TSrcI*SIMD</p></td></tr></table><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">TI</td><td class="CDLDefinition"><p>Input word length</p></td></tr><tr><td class="CDLEntry">BUF_LEN</td><td class="CDLDefinition"><p>Depth of the input buffer</p></td></tr><tr><td class="CDLEntry">BUF_ADDR</td><td class="CDLDefinition"><p>Input buffer address word length *</p></td></tr></table></div>
 </div>
 
-<a name="Signals"></a><a name="Topic476"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Signals"></a><a name="Topic499"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Signals</div>
 </div>
 
-<a name="inp_buffer"></a><a name="Topic477"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="inp_buffer"></a><a name="Topic500"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">inp_buffer</div>
  <div class="CBody"><p>The input buffer (* ram_style = &quot;distributed&quot; *)</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks"></a><a name="Topic478"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks"></a><a name="Topic501"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="Write_Input_Buffer_in_write_through_mode"></a><a name="Topic479"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+<a name="Write_Input_Buffer_in_write_through_mode"></a><a name="Topic502"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
  <div class="CTitle">Write_Input_Buffer in write through mode</div>
  <div class="CBody"><p>Sequential 'always' block to write to the input buffer</p></div>
 </div>

@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("par",["File","Function"],[["Parameter",,[[,"MVAU Parameter Generation file",,,0,"File3:gen_mvau_defn.py:MVAU_Parameter_Generation_file"]]],["parser",,[[,,,,1,"File3:gen_mvau_defn.py:parser"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("par",["File","Function"],[["Parameter",,[[,"MVAU Parameter Generation file",,,0,"File3:gen_mvau_defn.py:MVAU_Parameter_Generation_file"]]],["parser",,[[,,,,1,"File3:gen_mvau_defn.py:parser"],["MyHanlder",,,,1,"File4:regtest_mvau.py:MyHanlder.parser","PythonClass:MyHanlder:parser"]]]]);

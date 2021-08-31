@@ -1,1 +1,1 @@
-﻿NDSearch.OnPrefixDataLoaded("__m",["Function"],[["__main__",,[[,,,,0,"File3:gen_mvau_defn.py:__main__"]]]]);
+﻿NDSearch.OnPrefixDataLoaded("__m",["Function"],[["__main__",,[[,,,,0,"File3:gen_mvau_defn.py:__main__"],["MyHanlder",,,,0,"File4:regtest_mvau.py:MyHanlder.__main__","PythonClass:MyHanlder:__main__"]]]]);
