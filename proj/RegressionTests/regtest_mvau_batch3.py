@@ -1,3 +1,20 @@
+#
+# Python Script: Regression Test Script for MVAU Batch (regtest_mvau_batch3.py)
+# 
+# Author(s): Syed Asad Alam <syed.asad.alam@tcd.ie>
+# 
+# This python script runs a regression test for the MVAU batch based on a
+# given set of parameters. It generates and runs HLS and RTL flows and compares
+# performance of both in terms of FPGA resource utilization, timing and run time
+# All performance numbers are written to an output excel file. This script is specific
+# for layer 3 of a 4-layer multi-layer perceptron (MLP) network used in network intrusion
+# detection
+#
+# This material is based upon work supported, in part, by Science Foundation
+# Ireland, www.sfi.ie under Grant No. 13/RC/2094_P2 and, in part, by the 
+# European Union's Horizon 2020 research and innovation programme under the 
+# Marie Sklodowska-Curie grant agreement Grant No.754489.  # 
+
 import numpy as np
 import argparse
 import os
@@ -10,20 +27,59 @@ import argparse
 from signal import signal, SIGINT
 from math import ceil, log2
 
-### Class defining the handler to capture Ctrl+C
+# Class: MyHanlder
+# Handles unexpected termination or explicit termination by Ctrl+C by calling the
+# write_rpt_file function to write whatever data has been extracted so far
+#
+# Attributes:
+#    rpt_dict - Dictionary containing all performance measures to be written
+#    rpt_col_names - Column names for various meausres written to the output excel file
+#    config_dict - Configurations for which the regression test is being run
+#    config_col_names - Configuration parameters against which the tests are being run. Acts as column names for the output excel file
+#    out_file - Output excel file name
 class MyHandler:
+    # Constructor: __init__
+    # The construction initializes the attributes with corresponding input parameters
+    #
+    # Parameters:
+    #   rpt_dict - Dictionary containing all performance measures to be written
+    #   rpt_col_names - Column names for various meausres written to the output excel file
+    #   config_dict - Configurations for which the regression test is being run
+    #   config_col_names - Configuration parameters against which the tests are being run. Acts as column names for the output excel file
+    #   out_file - Output excel file name
     def __init__(self, rpt_dict, rpt_col_names, config_dict, config_col_names, out_file):
         self.rpt_dict = rpt_dict
         self.rpt_col_names = rpt_col_names
         self.config_dict = config_dict
         self.config_col_names = config_col_names
         self.out_file = out_file
+    # Method: __call__
+    # This method is called when the unexpected termination takes place and calls the
+    # write_rpt_file function to dump all extracted data to an output file
+    #
+    # Parameters:
+    #   signo - Number of the signal to be trapped, in this case Ctrl+C
+    #   frame - Current stack frame
     def __call__(self, signo, frame):
         print('SIGINT or CTRL-C detected, exiting gracefully by writing to output')
         write_rpt_file(self.rpt_dict, self.rpt_col_names, self.config_dict,
                        self.config_col_names, self.out_file)
         exit(0)
         
+# Function: write_rpt_file
+# This function takes in the performance numbers as dictionary along with configurations
+# as a dictionariy and writes to an excel file
+#
+# Parameters:
+#   rpt_dict - Dictionary of performance numbers in terms of LUT, DSP etc.
+#   rpt_col_names - Column Names for the excel file when writing the output performance numbers
+#   config_dict - Dictionary containing the configurations for which the Regression test was run
+#   config_col_names - Column Names for the excel file when writing the configurations
+#   out_file - Output excel file name
+#
+# Returns:
+#
+#   None
 def write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file):
     try:
         print("Writing the results to an Excel file")
@@ -56,6 +112,17 @@ def write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_f
     return 0
 
 
+# Function: extract_hls_data
+# This function extracts performance data from HLS simulation and synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about HLS performance measures
+#   param - The parameters against which performance numbers are to be extracted
+#
+# Returns:
+#
+#   block - A list of performance measures
+#   tp - Clock period achieved by HLS
 def extract_hls_data(log_file,param):
     block = []
     tp = 0
@@ -77,6 +144,16 @@ def extract_hls_data(log_file,param):
         raise
         exit(1)
 
+# Function: extract_rtl_block_data
+# This function extracts performance data from RTL simulation and synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about RTL performance measures
+#   param - The parameters against which performance numbers are to be extracted
+#
+# Returns:
+#
+#   block - A list of performance measures for RTL
 def extract_rtl_block_data(log_file,param):
     block = []
     try:
@@ -97,6 +174,16 @@ def extract_rtl_block_data(log_file,param):
         raise
         exit(1)
 
+# Function: extract_rtl_timing_data
+# This function extracts timing information for RTL synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about RTL timing 
+#   clk_per - The clock period constraint for synthesis
+#
+# Returns:
+#
+#   tim_data - Timing achieved by RTL synthesis
 def extract_rtl_timing_data(log_file, clk_per):
     tp = 0
     try:
@@ -110,6 +197,15 @@ def extract_rtl_timing_data(log_file, clk_per):
         print("Cannot read the RTL timing report")
         raise
     
+# Function: extract_hls_latency
+# This function extracts the latency of an HLS simulation
+#
+# Parameters:
+#   log_file - The log file which contains information about HLS latency
+#
+# Returns:
+#
+#   hls_lat - HLS latency
 def extract_hls_latency(log_file):
     lat = 0
     try:
@@ -123,6 +219,15 @@ def extract_hls_latency(log_file):
         print("Cannot read the HLS latency report file")
         raise
 
+# Function: extract_rtl_latency
+# This function extracts the latency of an RTL simulation
+#
+# Parameters:
+#   log_file - The log file which contains information about RTL latency
+#
+# Returns:
+#
+#   rtl_lat - RTL latency
 def extract_rtl_latency(log_file):
     lat = 0
     try:
@@ -135,6 +240,15 @@ def extract_rtl_latency(log_file):
         print("Cannot read the RTL latency report file")
         raise
 
+# Function: extract_rtl_exec
+# This function extracts the total execution time of HLS simulation and synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about HLS execution time
+#
+# Returns:
+#
+#   hls_exec - HLS execution time
 def extract_rtl_exec(log_file):
     exec_time = 0
     try:
@@ -147,6 +261,15 @@ def extract_rtl_exec(log_file):
         print("Cannot read the RTL synthesis execution time file")
         raise
 
+# Function: extract_rtl_exec
+# This function extracts the total execution time of RTL simulation and synthesis
+#
+# Parameters:
+#   log_file - The log file which contains information about RTL execution time
+#
+# Returns:
+#
+#   rtl_exec - RTL execution time
 def extract_hls_exec(log_file):
     exec_time = 0
     try:
@@ -159,6 +282,15 @@ def extract_hls_exec(log_file):
         print("Cannot read the HLS synthesis execution time file")
         raise
 
+# Function: calc_savings
+# This function calculates the difference between RTL and HLS performance measures
+#
+# Parameters:
+#   log_file - The log file which contains information about HLS execution time
+#
+# Returns:
+#
+#   sv_list - A list of difference expressed as a percentage
 def calc_savings(hls_lst, rtl_lst):
     sv_lst = []
     for sv in zip(hls_lst,rtl_lst):
@@ -168,6 +300,21 @@ def calc_savings(hls_lst, rtl_lst):
             sv_lst.append(round(((sv[0] - sv[1])/sv[0]*100)*10**2)/10**2)
     return sv_lst
 
+# Function: extract_data
+# This function calls all of the above extraction function and combines
+# them in one place for further processing. It defines all the paths where
+# the various log files are present and defines the parameter against which
+# the performance numbers are to be extracted
+#
+# Parameters:
+#   hls_run - Directory from where HLS reports are to be read
+#   rtl_run - Directory from where RTL reports are to be read
+#   clk_per - Clock constraint for synthesis
+#   finn_tb - The path to FINN HLS library
+#   mvau_env - The path to RTL directory
+#
+# Returns:
+#   pd_list - A list which is a combination of HLS and RTL performance measures and the differences between them
 def extract_data(hls_run, rtl_run, clk_per, finn_tb, mvau_env):
     # Directory from where HLS reports to be read
     hls_syn_dir = hls_run.replace("_","-")
@@ -214,6 +361,28 @@ def extract_data(hls_run, rtl_run, clk_per, finn_tb, mvau_env):
 
     return pd_lst
 
+# Function: main
+# The main top level function which defines the parameters to be evaluated,
+# configures the column names for the Excel output file, handles unexpected events,
+# and runs the regression tests for various configuration parameters. After running HLS and
+# RTL tests, it calls the extract_data function to do the main data extraction and then calls a
+# function to write to the output Excel file
+#
+# Parameters:
+#   kdim_arr - An array containing specifications about kernel dimensions
+#   ifm_ch_arr -  An array containing specifications about input feature map size 
+#   ofm_ch_arr -  An array containing specifications about output feature map size
+#   ifm_dim_arr - An array containing specifications about input feature map dimension
+#   inp_wl_arr -  An array containing specification about input word length
+#   inp_wl_sgn -  An array containing specification about input vector sign, corresponds to inp_wl_arr
+#   wgt_wl_arr -  An array containing specification about weights precision
+#   wgt_wl_sgn -  An array containing specification about sign of weights, corresponds to wgt_wl_sgn
+#   simd - An array containing specification about number of SIMDs
+#   pe -   An array containing specification about number of PEs 
+#   finn_tb - Directory of the FINN HLS directory
+#   mvau_env - Directory of the MVAU RTL directory
+#   mvau_tb - Directory of the Regression Test directory
+#   out_file - Output excel file
 def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
          inp_wl_arr, inp_wl_sgn, wgt_wl_arr, wgt_wl_sgn,
          simd, pe, finn_tb, mvau_env, mvau_tb, out_file):
@@ -365,12 +534,21 @@ def main(kdim_arr, ifm_ch_arr, ofm_ch_arr, ifm_dim_arr,
     write_rpt_file(rpt_dict, rpt_col_names, config_dict, config_col_names, out_file)
     return 0
 
+# Function: parser
+# This function defines an ArgumentParser object for command line arguments
+#
+# Returns:
+# Parser object (parser)
 def parser():
     parser = argparse.ArgumentParser(description='Python data script for regression test for FINN HLS and RTL implementation')
     parser.add_argument('-o','--out_file',default="mvau_report.xlsx",
 			help="Output file")
     return parser
 
+# Function: __main__
+# Entry point of the file, retrieves the command line argument,
+# defines different parameters and environment variables and
+# calls the main function to run the regression tests
 if __name__ == '__main__':
 
     kdim_arr    = np.array([1])
