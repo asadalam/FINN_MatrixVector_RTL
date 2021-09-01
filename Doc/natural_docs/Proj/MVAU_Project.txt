@@ -48,7 +48,7 @@ Source Folder: MVAU_ROOT/proj/src/mvau_top/mvau_stream
 Source Folder: MVAU_ROOT/proj/sim/
        Name: MVAU Testbenches
 
-Source Folder: MVAU_ROOT/proj/RegressionTests
+Source Folder: MVAU_ROOT/proj/RegressionTests/
        Name: MVAU Regression Tests
 
 # This is where you specify what files and folders Natural Docs should be
