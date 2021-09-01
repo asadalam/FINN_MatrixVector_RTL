@@ -8,29 +8,29 @@
 
 <body onload="NDLoader.OnLoad('Content');" class="NDPage NDContentPage">
 
-<a name="Module"></a><a name="Topic569"></a><div class="CTopic TGroup LSystemVerilog first">
+<a name="Module"></a><a name="Topic575"></a><div class="CTopic TGroup LSystemVerilog first">
  <div class="CTitle">Module</div>
 </div>
 
-<a name="MVAU_Control_Block"></a><a name="Topic570"></a><div class="CTopic TModule LSystemVerilog">
+<a name="MVAU_Control_Block"></a><a name="Topic576"></a><div class="CTopic TModule LSystemVerilog">
  <div class="CTitle"><span class="Qualifier">MVAU Control Block (mvau_control_block.</span>&#8203;sv)</div>
  <div class="CBody"><p>Author(s): Syed Asad Alam</p><p>This file lists an RTL implementation of the control block which generates address for weight memory</p><p>It is part of the Xilinx FINN open source framework for implementing quantized neural networks on FPGAs</p><p>This material is based upon work supported, in part, by Science Foundation Ireland, www.sfi.ie under Grant No. 13/RC/2094 and, in part, by the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement Grant No.754489.</p><div class="CHeading">Parameters</div><table class="CDefinitionList"><tr><td class="CDLEntry">SF</td><td class="CDLDefinition"><p>Number of vertical matrix chunks to be processed in parallel by one PE</p></td></tr><tr><td class="CDLEntry">NF</td><td class="CDLDefinition"><p>Number of vertical matrix chunks to be processed in parallel by one PE</p></td></tr><tr><td class="CDLEntry">WMEM_DEPTH</td><td class="CDLDefinition"><p>The depth of the weight memories</p></td></tr><tr><td class="CDLEntry">WMEM_ADDR_BW</td><td class="CDLDefinition"><p>Word length of the address for the weight memories</p></td></tr></table><div class="CHeading">Inputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">aresetn</td><td class="CDLDefinition"><p>Active low synchronous reset</p></td></tr><tr><td class="CDLEntry">aclk</td><td class="CDLDefinition"><p>Main clock</p></td></tr><tr><td class="CDLEntry">wmem_wready</td><td class="CDLDefinition"><p>Input ready for the weight memory</p></td></tr></table><div class="CHeading">Outputs</div><table class="CDefinitionList"><tr><td class="CDLEntry">wmem_valid</td><td class="CDLDefinition"><p>Output valid signal to indicate when weights are available from the weight memory</p></td></tr><tr><td class="CDLEntry">[WMEM_ADDR_BW-1:0] wmem_addr</td><td class="CDLDefinition"><p>Address for the weight memories</p></td></tr></table></div>
 </div>
 
-<a name="Signals"></a><a name="Topic571"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Signals"></a><a name="Topic577"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Signals</div>
 </div>
 
-<a name="do_mvau"></a><a name="Topic572"></a><div class="CTopic TSignal LSystemVerilog">
+<a name="do_mvau"></a><a name="Topic578"></a><div class="CTopic TSignal LSystemVerilog">
  <div class="CTitle">do_mvau</div>
  <div class="CBody"><p>To allow reading of weight memory when computation taking place</p></div>
 </div>
 
-<a name="Sequential_Always_Blocks"></a><a name="Topic573"></a><div class="CTopic TGroup LSystemVerilog">
+<a name="Sequential_Always_Blocks"></a><a name="Topic579"></a><div class="CTopic TGroup LSystemVerilog">
  <div class="CTitle">Sequential Always Blocks</div>
 </div>
 
-<a name="WMEM_ADDR"></a><a name="Topic574"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
+<a name="WMEM_ADDR"></a><a name="Topic580"></a><div class="CTopic TAlwaysFF LSystemVerilog last">
  <div class="CTitle">WMEM_ADDR</div>
  <div class="CBody"><p>Control Logic for generating address for the weight memory</p></div>
 </div>
