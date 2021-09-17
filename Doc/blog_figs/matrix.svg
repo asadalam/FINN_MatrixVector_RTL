@@ -15,7 +15,10 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
-   sodipodi:docname="matrix.svg">
+   sodipodi:docname="matrix.svg"
+   inkscape:export-filename="/home/asad/workspace/TCD_workspace/FINN_MatrixVector_RTL/Doc/blog_figs/matrix.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -27,10 +30,10 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.4142136"
      inkscape:cx="408.64379"
-     inkscape:cy="1024.3619"
+     inkscape:cy="939.50911"
      inkscape:document-units="mm"
      inkscape:current-layer="g983"
-     showgrid="true"
+     showgrid="false"
      inkscape:window-width="1243"
      inkscape:window-height="1016"
      inkscape:window-x="1317"
