@@ -551,21 +551,21 @@ def parser():
 # calls the main function to run the regression tests
 if __name__ == '__main__':
 
-    kdim_arr    = np.array([1])
+    kdim_arr    = np.array([4])
     ### Keep the length of the following three arrays same
-    ifm_ch_arr  = np.array([32,64,64,128])
-    ofm_ch_arr  = np.array([32,64,128,256])
-    ifm_dim_arr = np.array([1])
+    ifm_ch_arr  = np.array([16,32,64])
+    ofm_ch_arr  = np.array([16,32,64])
+    ifm_dim_arr = np.array([8,8,8])
     
     ### Keep the length of the following two arrays same
-    inp_wl_arr  = np.array([2])
+    inp_wl_arr  = np.array([1])
     inp_wl_sgn  = np.array([0]) ## 0 for unsigned and 1 for signed
-    wgt_wl_arr  = np.array([2])
+    wgt_wl_arr  = np.array([1])
     wgt_wl_sgn  = np.array([0]) ## 0 for unsigned and 1 for signed
 
     ### Keep the length of the following two arrays same
-    simd = np.array([32,64])
-    pe = np.array([32,64])
+    simd = np.array([1])
+    pe = np.array([1])
     
     args = parser().parse_args()
     out_file = args.out_file    
