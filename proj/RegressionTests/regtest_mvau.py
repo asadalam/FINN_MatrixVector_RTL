@@ -553,9 +553,9 @@ if __name__ == '__main__':
 
     kdim_arr    = np.array([4])
     ### Keep the length of the following three arrays same
-    ifm_ch_arr  = np.array([16,32,64])
-    ofm_ch_arr  = np.array([16,32,64])
-    ifm_dim_arr = np.array([8,8,8])
+    ifm_ch_arr  = np.array([16])#64,64,64,64,64,64])
+    ofm_ch_arr  = np.array([16])2,4,8,16,32,64])
+    ifm_dim_arr = np.array([8])#32,32,32,32,32,32])
     
     ### Keep the length of the following two arrays same
     inp_wl_arr  = np.array([1])

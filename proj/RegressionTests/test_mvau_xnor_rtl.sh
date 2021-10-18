@@ -109,15 +109,15 @@ else
     exit 0
 fi
 
-# cd $MVAU_RTL_ROOT/proj/sim
-# bash mvau_timesim_test.sh
-# if grep -q "Data MisMatch" xsim.log; then
-#     echo "RTL post synthesis simulation failed"
-#     exit 0
-# elif grep -q "failed" xsim.log; then
-#     echo "RTL post synthesis simulation failed"
-#     exit 0
-# else
-#     echo "Post synthesis simulation successful"
-# fi
+cd $MVAU_RTL_ROOT/proj/sim
+bash mvau_timesim_test.sh
+if grep -q "Data MisMatch" xsim.log; then
+    echo "RTL post synthesis simulation failed"
+    exit 0
+elif grep -q "failed" xsim.log; then
+    echo "RTL post synthesis simulation failed"
+    exit 0
+else
+    echo "Post synthesis simulation successful"
+fi
 exit 1
